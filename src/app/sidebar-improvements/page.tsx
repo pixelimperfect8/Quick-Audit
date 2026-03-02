@@ -1,34 +1,34 @@
 import Link from "next/link";
+import BackLink from "@/components/BackLink";
 import { ChevronRight } from "@/components/icons";
 
-const explorations = [
+const options = [
   {
-    title: "Key File Data",
-    description: "Transaction document management dashboard with document checklist, viewer, and details panel.",
-    href: "/key-file-data",
-  },
-  {
-    title: "Sidebar Improvements",
-    description: "Explore alternative sidebar designs and interaction patterns.",
-    href: "/sidebar-improvements",
+    title: "Option 1",
+    description: "Baseline dashboard layout — starting point for sidebar modifications.",
+    href: "/sidebar-improvements/option-1",
   },
 ];
 
-export default function HomePage() {
+export default function SidebarImprovementsPage() {
   return (
     <div className="min-h-dvh bg-grey-50 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-lg">
+        <div className="mb-6">
+          <BackLink href="/" label="Back to Quick Audit" />
+        </div>
+
         <div className="text-center mb-10">
           <h1 className="text-grey-900 text-3xl font-bold tracking-tight">
-            Quick Audit
+            Sidebar Improvements
           </h1>
           <p className="text-grey-700 text-base mt-2">
-            Exploration hub for transaction audit interfaces.
+            Explore alternative sidebar designs and layouts.
           </p>
         </div>
 
         <div className="flex flex-col gap-3">
-          {explorations.map((item) => (
+          {options.map((item) => (
             <Link
               key={item.href}
               href={item.href}

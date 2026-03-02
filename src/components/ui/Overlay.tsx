@@ -5,6 +5,11 @@ interface OverlayProps {
   zIndex?: string;
 }
 
+const breakpointHidden = {
+  lg: "lg:hidden",
+  xl: "xl:hidden",
+};
+
 export default function Overlay({
   visible,
   onClick,
@@ -15,7 +20,7 @@ export default function Overlay({
 
   return (
     <div
-      className={`fixed inset-0 bg-black/30 ${zIndex} ${breakpoint}:hidden`}
+      className={`fixed inset-0 bg-black/30 ${zIndex} ${breakpointHidden[breakpoint]}`}
       onClick={onClick}
     />
   );

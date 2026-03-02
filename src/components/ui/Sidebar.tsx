@@ -7,6 +7,17 @@ interface SidebarProps {
   children: React.ReactNode;
 }
 
+const breakpointClasses = {
+  lg: {
+    reset: "lg:translate-x-0 lg:block lg:relative lg:z-0",
+    hidden: "lg:hidden",
+  },
+  xl: {
+    reset: "xl:translate-x-0 xl:block xl:relative xl:z-0",
+    hidden: "xl:hidden",
+  },
+};
+
 export default function Sidebar({
   open,
   onClose,
@@ -16,6 +27,7 @@ export default function Sidebar({
   children,
 }: SidebarProps) {
   const isLeft = side === "left";
+  const bp = breakpointClasses[breakpoint];
 
   const positionClasses = isLeft
     ? "left-0 border-r"
@@ -23,8 +35,6 @@ export default function Sidebar({
 
   const translateHidden = isLeft ? "-translate-x-full" : "translate-x-full";
   const translateVisible = "translate-x-0";
-
-  const responsiveReset = `${breakpoint}:translate-x-0 ${breakpoint}:block ${breakpoint}:relative ${breakpoint}:z-0`;
 
   const closeButtonPosition = isLeft
     ? "top-3 right-3"
@@ -37,13 +47,13 @@ export default function Sidebar({
         ${width} shrink-0
         border-grey-300 bg-white
         transition-transform duration-300 ease-in-out
-        ${responsiveReset}
-        ${open ? translateVisible : `${translateHidden} ${breakpoint}:translate-x-0`}
+        ${bp.reset}
+        ${open ? translateVisible : translateHidden}
       `}
     >
       <button
         onClick={onClose}
-        className={`${breakpoint}:hidden absolute ${closeButtonPosition} z-50 w-8 h-8 rounded-full bg-grey-100 flex items-center justify-center text-grey-700 hover:bg-grey-200`}
+        className={`${bp.hidden} absolute ${closeButtonPosition} z-50 w-8 h-8 rounded-full bg-grey-100 flex items-center justify-center text-grey-700 hover:bg-grey-200`}
         aria-label={`Close ${side} sidebar`}
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
