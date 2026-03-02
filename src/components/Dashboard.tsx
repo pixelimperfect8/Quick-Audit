@@ -17,9 +17,13 @@ type RightPanel = "transaction" | "lender" | "log";
 interface DashboardProps {
   backHref?: string;
   backLabel?: string;
+  rightSidebarContent?: (props: {
+    onContactClick: (contact: { type?: string }) => void;
+    onViewLog: () => void;
+  }) => React.ReactNode;
 }
 
-export default function Dashboard({ backHref, backLabel }: DashboardProps) {
+export default function Dashboard({ backHref, backLabel, rightSidebarContent }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rightPanel, setRightPanel] = useState<RightPanel>("transaction");
@@ -88,14 +92,25 @@ export default function Dashboard({ backHref, backLabel }: DashboardProps) {
             <div className="flex-1 min-h-0 relative overflow-hidden">
               {/* Base layer */}
               <div className="absolute inset-0">
-                <TransactionDetails
-                  onContactClick={(contact) => {
-                    if (contact.type === "lender") {
-                      setRightPanel("lender");
-                    }
-                  }}
-                  onViewLog={() => setRightPanel("log")}
-                />
+                {rightSidebarContent ? (
+                  rightSidebarContent({
+                    onContactClick: (contact) => {
+                      if (contact.type === "lender") {
+                        setRightPanel("lender");
+                      }
+                    },
+                    onViewLog: () => setRightPanel("log"),
+                  })
+                ) : (
+                  <TransactionDetails
+                    onContactClick={(contact) => {
+                      if (contact.type === "lender") {
+                        setRightPanel("lender");
+                      }
+                    }}
+                    onViewLog={() => setRightPanel("log")}
+                  />
+                )}
               </div>
 
               {/* Drawer layer — slides in from the right */}

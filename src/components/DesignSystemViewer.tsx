@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, IconButton, Badge, StatusBadge, DetailRow, Divider, Collapsible, DrawerHeader, Tabs } from "./ui";
+import { Button, IconButton, Badge, StatusBadge, DetailRow, Divider, Collapsible, DrawerHeader, Tabs, HoverCard, TextInput, FileCard } from "./ui";
 import { ThumbUp, ThumbDown, WarningIcon, DownloadIcon, PrintIcon, ZoomInIcon, PersonIcon } from "./icons";
 import type { DocStatus } from "./ui";
 
@@ -80,6 +80,7 @@ export default function DesignSystemViewer() {
                   { n: 300, cls: "bg-grey-300" },
                   { n: 400, cls: "bg-grey-400" },
                   { n: 500, cls: "bg-grey-500" },
+                  { n: 600, cls: "bg-grey-600" },
                   { n: 700, cls: "bg-grey-700" },
                   { n: 800, cls: "bg-grey-800" },
                   { n: 900, cls: "bg-grey-900" },
@@ -249,6 +250,98 @@ export default function DesignSystemViewer() {
           <Section title="DrawerHeader" description="Sticky header with close button for slide-in drawer panels (Lender, Activity Log).">
             <div className="border border-grey-300 rounded-lg overflow-hidden">
               <DrawerHeader title="Lender" onClose={() => {}} />
+            </div>
+          </Section>
+
+          {/* HoverCard */}
+          <Section title="HoverCard" description="Hover-triggered popover card for previewing content. Uses a portal by default to escape overflow containers.">
+            <div>
+              <StateLabel label="Bottom (default)" />
+              <div className="flex flex-wrap items-center gap-6 mt-2">
+                <HoverCard
+                  portal={false}
+                  trigger={
+                    <Button variant="outline">Hover me</Button>
+                  }
+                >
+                  <div className="w-56 p-3">
+                    <p className="text-grey-900 text-sm font-bold">Preview Card</p>
+                    <p className="text-grey-700 text-sm mt-1">This content appears on hover with a smooth fade-in animation.</p>
+                  </div>
+                </HoverCard>
+                <HoverCard
+                  portal={false}
+                  trigger={
+                    <Button variant="outline">Right-aligned</Button>
+                  }
+                  align="right"
+                >
+                  <div className="w-56 p-3">
+                    <p className="text-grey-900 text-sm font-bold">Right Aligned</p>
+                    <p className="text-grey-700 text-sm mt-1">Card aligns to the right edge of the trigger.</p>
+                  </div>
+                </HoverCard>
+              </div>
+            </div>
+            <div>
+              <StateLabel label="Top side" />
+              <div className="flex flex-wrap items-center gap-6 mt-2">
+                <HoverCard
+                  portal={false}
+                  trigger={
+                    <Button variant="outline">Top hover</Button>
+                  }
+                  side="top"
+                >
+                  <div className="w-56 p-3">
+                    <p className="text-grey-900 text-sm font-bold">Top Position</p>
+                    <p className="text-grey-700 text-sm mt-1">Card appears above the trigger element.</p>
+                  </div>
+                </HoverCard>
+              </div>
+            </div>
+          </Section>
+
+          {/* TextInput */}
+          <Section title="TextInput" description="Auto-expanding textarea with optional inline action button. Used for comment inputs and message fields.">
+            <div>
+              <StateLabel label="Default" />
+              <div className="max-w-md mt-2">
+                <TextInput placeholder="Type something..." />
+              </div>
+            </div>
+            <div>
+              <StateLabel label="With action button" />
+              <div className="max-w-md mt-2">
+                <TextInput
+                  placeholder="Leave a comment..."
+                  action={
+                    <button className="p-2 mr-1 mb-0.5 rounded-full text-grey-400" disabled>
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                      </svg>
+                    </button>
+                  }
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* FileCard */}
+          <Section title="FileCard" description="Document file card for checklist items. Supports active state and optional remove button.">
+            <div className="flex flex-col gap-2 max-w-md">
+              <div className="flex flex-col gap-1">
+                <StateLabel label="Active" />
+                <FileCard name="CAR_California_Agreement.pdf" date="13 days ago" active onRemove={() => {}} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <StateLabel label="Default" />
+                <FileCard name="Form 2" date="13 days ago" onRemove={() => {}} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <StateLabel label="No remove button" />
+                <FileCard name="ReadOnly_Document.pdf" date="2 hours ago" />
+              </div>
             </div>
           </Section>
 

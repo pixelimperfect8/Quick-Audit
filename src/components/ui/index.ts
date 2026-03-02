@@ -9,5 +9,8 @@ export { default as Collapsible } from "./Collapsible";
 export { default as DrawerHeader } from "./DrawerHeader";
 export { default as Overlay } from "./Overlay";
 export { default as Sidebar } from "./Sidebar";
+export { default as HoverCard } from "./HoverCard";
+export { default as TextInput } from "./TextInput";
+export { default as FileCard } from "./FileCard";
 
 export type { DocStatus } from "./StatusBadge";
