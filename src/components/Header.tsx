@@ -1,22 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowBack, ChevronLeft, ChevronRight, ChevronDown, MenuIcon } from "./icons";
+import { ArrowBack, ChevronLeft, ChevronRight, ChevronDown, MenuIcon, MoreVert } from "./icons";
+import { Tabs } from "./ui";
 
-const tabs = ["Listings", "Transactions", "Both"] as const;
+const headerTabs = ["Listings", "Transactions", "Both"] as const;
 
-export default function Header({
-  onToggleSidebar,
-  onToggleDetails,
-  sidebarOpen,
-  detailsOpen,
-}: {
+interface HeaderProps {
   onToggleSidebar: () => void;
   onToggleDetails: () => void;
   sidebarOpen: boolean;
   detailsOpen: boolean;
-}) {
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Both");
+}
+
+export default function Header({
+  onToggleSidebar,
+  onToggleDetails,
+}: HeaderProps) {
+  const [activeTab, setActiveTab] = useState<(typeof headerTabs)[number]>("Both");
 
   return (
     <header className="bg-white border-b border-grey-300 px-3 py-2.5 flex items-center justify-between gap-2 shrink-0 z-20">
@@ -54,26 +55,14 @@ export default function Header({
       {/* Right side */}
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {/* Tab selector - hidden on small screens */}
-        <div className="hidden md:flex items-center h-10">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`h-10 px-4 lg:px-6 text-sm lg:text-base border border-grey-300 transition-colors ${
-                tab === "Listings"
-                  ? "rounded-l-lg border-r-0"
-                  : tab === "Both"
-                  ? "rounded-r-lg border-l-0"
-                  : "border-x-0 border-t border-b"
-              } ${
-                activeTab === tab
-                  ? "bg-white text-blue-800 font-bold"
-                  : "bg-grey-50 text-grey-800 font-medium hover:bg-grey-100"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="hidden md:flex items-center">
+          <Tabs
+            items={headerTabs}
+            activeItem={activeTab}
+            onTabChange={setActiveTab}
+            variant="pill"
+            height="h-10"
+          />
         </div>
 
         {/* Stage selector */}
@@ -83,7 +72,7 @@ export default function Header({
         </div>
 
         {/* Update Agent button */}
-        <button className="flex items-center gap-2 lg:gap-4 h-10 lg:h-12 pl-4 lg:pl-6 pr-2 lg:pr-3 border border-[#533db1] rounded-full bg-white hover:bg-grey-50 transition-colors">
+        <button className="flex items-center gap-2 lg:gap-4 h-10 lg:h-12 pl-4 lg:pl-6 pr-2 lg:pr-3 border border-purple-600 rounded-full bg-white hover:bg-grey-50 transition-colors">
           <span className="text-blue-800 text-sm lg:text-base font-bold whitespace-nowrap">Update Agent</span>
           <div className="bg-grey-100 rounded-full w-6 h-6 flex items-center justify-center">
             <ChevronDown className="w-4 h-4 text-grey-700" />
@@ -96,17 +85,9 @@ export default function Header({
           className="xl:hidden shrink-0 p-1 text-grey-700 hover:text-grey-900 rounded"
           aria-label="Toggle details"
         >
-          <MoreVertIcon />
+          <MoreVert className="w-6 h-6" />
         </button>
       </div>
     </header>
-  );
-}
-
-function MoreVertIcon() {
-  return (
-    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-    </svg>
   );
 }

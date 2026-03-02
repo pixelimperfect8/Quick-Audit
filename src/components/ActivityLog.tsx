@@ -1,6 +1,6 @@
 "use client";
 
-import { CloseIcon } from "./icons";
+import { DrawerHeader, Divider } from "./ui";
 
 interface LogEntry {
   type: string;
@@ -10,7 +10,7 @@ interface LogEntry {
   timestamp: string;
 }
 
-const logEntries: LogEntry[] = [
+const DEFAULT_LOG_ENTRIES: LogEntry[] = [
   {
     type: "DOC BNDL",
     user: "Jon Smith",
@@ -43,33 +43,25 @@ const logEntries: LogEntry[] = [
 
 interface ActivityLogProps {
   onClose: () => void;
+  entries?: LogEntry[];
 }
 
-export default function ActivityLog({ onClose }: ActivityLogProps) {
+export default function ActivityLog({
+  onClose,
+  entries = DEFAULT_LOG_ENTRIES,
+}: ActivityLogProps) {
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-4 border-b border-grey-300 shrink-0 sticky top-0 z-10 bg-white h-[45px]">
-        <button
-          onClick={onClose}
-          className="text-grey-700 hover:text-grey-900 transition-colors"
-        >
-          <CloseIcon className="w-[18px] h-[18px]" />
-        </button>
-        <h2 className="text-grey-900 text-base font-bold leading-6">Log</h2>
-      </div>
+      <DrawerHeader title="Log" onClose={onClose} />
 
-      {/* Log Entries */}
       <div className="px-4 pt-4 pb-8 flex flex-col gap-3">
-        {logEntries.map((entry, i) => (
+        {entries.map((entry, i) => (
           <div key={i}>
             <div className="flex flex-col gap-3">
-              {/* Type */}
               <p className="text-grey-900 text-base font-bold leading-6">
                 {entry.type}
               </p>
 
-              {/* User info */}
               <div className="flex items-center gap-2.5">
                 <span className="text-grey-700 text-base font-medium">{entry.user}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-grey-400" />
@@ -78,21 +70,16 @@ export default function ActivityLog({ onClose }: ActivityLogProps) {
                 </span>
               </div>
 
-              {/* Description */}
               <p className="text-grey-900 text-base font-medium leading-6">
                 {entry.description}
               </p>
 
-              {/* Timestamp */}
               <p className="text-grey-700 text-base font-medium leading-6">
                 {entry.timestamp}
               </p>
             </div>
 
-            {/* Divider (except last) */}
-            {i < logEntries.length - 1 && (
-              <div className="border-t border-grey-300 mt-3" />
-            )}
+            {i < entries.length - 1 && <Divider className="mt-3" />}
           </div>
         ))}
       </div>

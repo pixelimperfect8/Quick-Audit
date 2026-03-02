@@ -1,13 +1,14 @@
 "use client";
 
-import { CloseIcon, ChevronDown } from "./icons";
+import { DrawerHeader, DetailRow, Divider } from "./ui";
+import { ChevronDown } from "./icons";
 
-interface DetailRow {
+interface DetailData {
   label: string;
   value: string;
 }
 
-const lenderDetails: DetailRow[] = [
+const DEFAULT_LENDER_DETAILS: DetailData[] = [
   { label: "Name", value: "Mark Roberts" },
   { label: "Fax", value: "(123)456-7891" },
   { label: "Phone", value: "(123)456-7892" },
@@ -22,37 +23,23 @@ const lenderDetails: DetailRow[] = [
 
 interface LenderDetailProps {
   onClose: () => void;
+  details?: DetailData[];
 }
 
-export default function LenderDetail({ onClose }: LenderDetailProps) {
+export default function LenderDetail({
+  onClose,
+  details = DEFAULT_LENDER_DETAILS,
+}: LenderDetailProps) {
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-4 border-b border-grey-300 shrink-0 sticky top-0 z-10 bg-white h-[45px]">
-        <button
-          onClick={onClose}
-          className="text-grey-700 hover:text-grey-900 transition-colors"
-        >
-          <CloseIcon className="w-[18px] h-[18px]" />
-        </button>
-        <h2 className="text-grey-900 text-base font-bold leading-6">Lender</h2>
-      </div>
+      <DrawerHeader title="Lender" onClose={onClose} />
 
-      {/* Content */}
       <div className="px-4 pt-4 pb-8 flex flex-col gap-3">
-        {lenderDetails.map((detail) => (
-          <div key={detail.label} className="flex items-start">
-            <span className="text-grey-900 text-base font-bold w-[140px] shrink-0 leading-6">
-              {detail.label}
-            </span>
-            <span className="text-grey-900 text-base font-medium leading-6 break-words min-w-0 flex-1">
-              {detail.value}
-            </span>
-          </div>
+        {details.map((detail) => (
+          <DetailRow key={detail.label} label={detail.label} value={detail.value} />
         ))}
 
-        {/* Divider */}
-        <div className="border-t border-grey-300 mt-1" />
+        <Divider className="mt-1" />
 
         {/* Notes Section */}
         <div className="flex items-center justify-between pr-4">

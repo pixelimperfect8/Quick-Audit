@@ -1,57 +1,59 @@
 "use client";
 
-import { PlusIcon, WarningIcon, CloseIcon, ChevronDown } from "./icons";
+import { PlusIcon, CloseIcon } from "./icons";
+import { StatusBadge, Divider } from "./ui";
+import type { DocStatus } from "./ui";
 
-type DocStatus = "Flagged" | "Pending" | "Complete" | "Required";
+interface FileItem {
+  name: string;
+  date: string;
+}
 
 interface DocumentItem {
   number: number;
   name: string;
   status: DocStatus;
-  files?: { name: string; date: string }[];
+  files?: FileItem[];
 }
 
-const statusStyles: Record<DocStatus, string> = {
-  Flagged: "bg-[#fdd0d0] border-[#ff5255] text-grey-900",
-  Pending: "bg-[#fdd0d0] border-[#fea6a6] text-grey-900",
-  Complete: "bg-[#c6f0d7] border-[#a6e0bd] text-grey-900",
-  Required: "bg-[#bee8ff] border-[#99dbff] text-grey-900",
-};
+interface DocumentSection {
+  title: string;
+  documents: DocumentItem[];
+}
 
-const salesDocs: DocumentItem[] = [
+const DEFAULT_SECTIONS: DocumentSection[] = [
   {
-    number: 1,
-    name: "California Residential Purchase Agreement",
-    status: "Flagged",
-    files: [
-      { name: "CAR_Carlifo...emnt.pdf", date: "13 days ago" },
-      { name: "Form 2", date: "13 days ago" },
+    title: "Sales Documentation",
+    documents: [
+      {
+        number: 1,
+        name: "California Residential Purchase Agreement",
+        status: "Flagged",
+        files: [
+          { name: "CAR_Carlifo...emnt.pdf", date: "13 days ago" },
+          { name: "Form 2", date: "13 days ago" },
+        ],
+      },
+      { number: 2, name: "Agency Disclosure", status: "Pending" },
+      { number: 3, name: "Lead Based Paint", status: "Pending" },
+      { number: 4, name: "Fair Housing Advisory", status: "Complete" },
+      { number: 5, name: "Addendums", status: "Required" },
     ],
   },
-  { number: 2, name: "Agency Disclosure", status: "Pending" },
-  { number: 3, name: "Lead Based Paint", status: "Pending" },
-  { number: 4, name: "Fair Housing Advisory", status: "Complete" },
-  { number: 5, name: "Addendums", status: "Required" },
+  {
+    title: "Disclosure Documentation",
+    documents: [
+      { number: 2, name: "Agency Disclosure", status: "Pending" },
+      { number: 3, name: "Lead Based Paint", status: "Pending" },
+      { number: 4, name: "Fair Housing Advisory", status: "Complete" },
+      { number: 5, name: "Addendums", status: "Required" },
+    ],
+  },
+  {
+    title: "Disclosure Documentation",
+    documents: [],
+  },
 ];
-
-const disclosureDocs: DocumentItem[] = [
-  { number: 2, name: "Agency Disclosure", status: "Pending" },
-  { number: 3, name: "Lead Based Paint", status: "Pending" },
-  { number: 4, name: "Fair Housing Advisory", status: "Complete" },
-  { number: 5, name: "Addendums", status: "Required" },
-];
-
-function StatusBadge({ status }: { status: DocStatus }) {
-  return (
-    <div
-      className={`flex items-center justify-center gap-1 px-3 py-1 rounded-md border text-sm font-medium w-[105px] shrink-0 ${statusStyles[status]}`}
-    >
-      {status === "Flagged" && <WarningIcon className="w-4 h-4 text-red-400" />}
-      <span>{status}</span>
-      {status === "Required" && <ChevronDown className="w-4 h-4" />}
-    </div>
-  );
-}
 
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -105,31 +107,26 @@ function DocumentListItem({ doc }: { doc: DocumentItem }) {
   );
 }
 
-export default function DocumentChecklist() {
+interface DocumentChecklistProps {
+  sections?: DocumentSection[];
+}
+
+export default function DocumentChecklist({
+  sections = DEFAULT_SECTIONS,
+}: DocumentChecklistProps) {
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-white">
-      {/* Sales Documentation */}
-      <SectionHeader title="Sales Documentation" />
-      <div className="flex flex-col">
-        {salesDocs.map((doc) => (
-          <DocumentListItem key={`sales-${doc.number}-${doc.name}`} doc={doc} />
-        ))}
-      </div>
-
-      {/* Disclosure Documentation */}
-      <div className="border-t border-grey-300">
-        <SectionHeader title="Disclosure Documentation" />
-      </div>
-      <div className="flex flex-col">
-        {disclosureDocs.map((doc) => (
-          <DocumentListItem key={`disc-${doc.number}-${doc.name}`} doc={doc} />
-        ))}
-      </div>
-
-      {/* Third section */}
-      <div className="border-t border-grey-300">
-        <SectionHeader title="Disclosure Documentation" />
-      </div>
+      {sections.map((section, i) => (
+        <div key={`${section.title}-${i}`}>
+          {i > 0 && <Divider />}
+          <SectionHeader title={section.title} />
+          <div className="flex flex-col">
+            {section.documents.map((doc) => (
+              <DocumentListItem key={`${section.title}-${doc.number}-${doc.name}`} doc={doc} />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

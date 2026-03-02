@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, PersonIcon, MoreVert } from "./icons";
+import { PersonIcon, MoreVert } from "./icons";
+import { Tabs, Collapsible, DetailRow, Badge } from "./ui";
 
-interface DetailRow {
+interface DetailData {
   label: string;
   value: string;
   isLink?: boolean;
@@ -15,12 +16,12 @@ interface Contact {
   type?: string;
 }
 
-interface CommissionRow {
+interface CommissionData {
   label: string;
   value: string;
 }
 
-const transactionDetails: DetailRow[] = [
+const DEFAULT_TRANSACTION_DETAILS: DetailData[] = [
   { label: "Status", value: "Pending" },
   { label: "File name", value: "3969 Harvord Boulevard, Venture, CA 93001" },
   { label: "Type", value: "Purchase" },
@@ -36,13 +37,13 @@ const transactionDetails: DetailRow[] = [
   { label: "File ID", value: "1234567" },
 ];
 
-const contacts: Contact[] = [
+const DEFAULT_CONTACTS: Contact[] = [
   { role: "Buyer", name: "Rachael Laurolla" },
   { role: "Buyer", name: "Rob Laurolla" },
   { role: "Lender", name: "Mark Roberts", type: "lender" },
 ];
 
-const commissionData: CommissionRow[] = [
+const DEFAULT_COMMISSION: CommissionData[] = [
   { label: "Sale", value: "$99,999.99" },
   { label: "Listing", value: "$99,999.99" },
   { label: "Office gross", value: "$99,999.99" },
@@ -56,142 +57,76 @@ const tabItems = ["Transaction", "Comments (1)"] as const;
 interface TransactionDetailsProps {
   onContactClick?: (contact: Contact) => void;
   onViewLog?: () => void;
+  details?: DetailData[];
+  contacts?: Contact[];
+  commission?: CommissionData[];
 }
 
-export default function TransactionDetails({ onContactClick, onViewLog }: TransactionDetailsProps) {
+export default function TransactionDetails({
+  onContactClick,
+  onViewLog,
+  details = DEFAULT_TRANSACTION_DETAILS,
+  contacts = DEFAULT_CONTACTS,
+  commission = DEFAULT_COMMISSION,
+}: TransactionDetailsProps) {
   const [activeTab, setActiveTab] = useState<(typeof tabItems)[number]>("Transaction");
-  const [detailsOpen, setDetailsOpen] = useState(true);
-  const [contactsOpen, setContactsOpen] = useState(true);
-  const [commissionOpen, setCommissionOpen] = useState(true);
 
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
-      {/* Tabs */}
-      <div className="flex border-b border-grey-300 shrink-0 sticky top-0 z-10 bg-white h-[45px]">
-        {tabItems.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 text-base font-medium text-center transition-colors flex items-center justify-center gap-1 ${
-              activeTab === tab
-                ? "text-blue-800 border-b-2 border-blue-800 font-bold"
-                : "text-grey-700 hover:text-grey-900"
-            }`}
-          >
-            {tab}
-            {tab === "Transaction" && (
-              <MoreVert className="w-[18px] h-[18px] text-grey-700" />
-            )}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={tabItems}
+        activeItem={activeTab}
+        onTabChange={setActiveTab}
+        variant="underline"
+        renderExtra={(tab) =>
+          tab === "Transaction" ? (
+            <MoreVert className="w-[18px] h-[18px] text-grey-700" />
+          ) : null
+        }
+      />
 
       {/* Transaction Details Section */}
-      <div className="border-b border-grey-300">
-        <button
-          onClick={() => setDetailsOpen(!detailsOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-grey-50 transition-colors"
-        >
-          <h3 className="text-grey-700 text-base font-medium">Transaction Details</h3>
-          {detailsOpen ? (
-            <ChevronUp className="w-5 h-5 text-grey-700" />
+      <Collapsible title="Transaction Details" defaultOpen>
+        {details.map((detail) =>
+          detail.label === "Status" ? (
+            <DetailRow key={detail.label} label={detail.label}>
+              <Badge variant="warning">Pending</Badge>
+            </DetailRow>
           ) : (
-            <ChevronDown className="w-5 h-5 text-grey-700" />
-          )}
-        </button>
-
-        {detailsOpen && (
-          <div className="px-4 pb-4 flex flex-col gap-3">
-            {transactionDetails.map((detail) => (
-              <div key={detail.label} className="flex items-start">
-                <span className="text-grey-900 text-base font-bold w-[140px] shrink-0 leading-6">
-                  {detail.label}
-                </span>
-                {detail.label === "Status" ? (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium bg-yellow-200 text-grey-900">
-                    Pending
-                  </span>
-                ) : detail.isLink ? (
-                  <a
-                    href="#"
-                    className="text-grey-900 text-base font-medium leading-6 underline break-all min-w-0 flex-1"
-                  >
-                    {detail.value}
-                  </a>
-                ) : (
-                  <span className="text-grey-900 text-base font-medium leading-6 break-words min-w-0 flex-1">
-                    {detail.value}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+            <DetailRow
+              key={detail.label}
+              label={detail.label}
+              value={detail.value}
+              isLink={detail.isLink}
+            />
+          )
         )}
-      </div>
+      </Collapsible>
 
       {/* Contacts Section */}
-      <div className="border-b border-grey-300">
-        <button
-          onClick={() => setContactsOpen(!contactsOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-grey-50 transition-colors"
-        >
-          <h3 className="text-grey-700 text-base font-medium">Contacts</h3>
-          {contactsOpen ? (
-            <ChevronUp className="w-5 h-5 text-grey-700" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-grey-700" />
-          )}
-        </button>
-
-        {contactsOpen && (
-          <div className="px-4 pb-4 flex flex-col gap-3">
-            {contacts.map((contact, i) => (
-              <div key={i} className="flex items-center">
-                <span className="text-grey-900 text-base font-bold w-[140px] shrink-0">
-                  {contact.role}
-                </span>
-                <button
-                  onClick={() => onContactClick?.(contact)}
-                  className="flex items-center gap-1 hover:opacity-80 transition-opacity"
-                >
-                  <PersonIcon className="w-[19px] h-[19px] text-grey-900" />
-                  <span className="text-grey-900 text-base font-medium">{contact.name}</span>
-                </button>
-              </div>
-            ))}
+      <Collapsible title="Contacts" defaultOpen>
+        {contacts.map((contact, i) => (
+          <div key={i} className="flex items-center">
+            <span className="text-grey-900 text-base font-bold w-[140px] shrink-0">
+              {contact.role}
+            </span>
+            <button
+              onClick={() => onContactClick?.(contact)}
+              className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+            >
+              <PersonIcon className="w-[19px] h-[19px] text-grey-900" />
+              <span className="text-grey-900 text-base font-medium">{contact.name}</span>
+            </button>
           </div>
-        )}
-      </div>
+        ))}
+      </Collapsible>
 
       {/* Commission Section */}
-      <div className="border-b border-grey-300">
-        <button
-          onClick={() => setCommissionOpen(!commissionOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-grey-50 transition-colors"
-        >
-          <h3 className="text-grey-700 text-base font-medium">Commission</h3>
-          {commissionOpen ? (
-            <ChevronUp className="w-5 h-5 text-grey-700" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-grey-700" />
-          )}
-        </button>
-
-        {commissionOpen && (
-          <div className="px-4 pb-4 flex flex-col gap-3">
-            {commissionData.map((row) => (
-              <div key={row.label} className="flex items-start">
-                <span className="text-grey-900 text-base font-bold w-[140px] shrink-0 leading-6">
-                  {row.label}
-                </span>
-                <span className="text-grey-900 text-base font-medium leading-6 flex-1 min-w-0">
-                  {row.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <Collapsible title="Commission" defaultOpen>
+        {commission.map((row) => (
+          <DetailRow key={row.label} label={row.label} value={row.value} />
+        ))}
+      </Collapsible>
 
       {/* View Log Link */}
       <div className="px-4 py-3">

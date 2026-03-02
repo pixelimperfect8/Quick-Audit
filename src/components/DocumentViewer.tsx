@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, DownloadIcon, PrintIcon, DoubleArrowRight, ZoomInIcon, ZoomOutIcon } from "./icons";
+import { IconButton } from "./ui";
+import { ChevronDown, DownloadIcon, PrintIcon, DoubleArrowRight, ZoomInIcon, ZoomOutIcon } from "./icons";
+
+const MIN_ZOOM = 50;
+const MAX_ZOOM = 400;
+const ZOOM_STEP = 25;
 
 export default function DocumentViewer() {
   const [zoom, setZoom] = useState(200);
@@ -20,31 +25,23 @@ export default function DocumentViewer() {
         </p>
 
         <div className="flex items-center gap-1 shrink-0">
-          <button
-            onClick={() => setZoom(Math.max(50, zoom - 25))}
-            className="p-1 text-grey-700 hover:text-grey-900 hover:bg-grey-200 rounded"
-          >
-            <ZoomOutIcon className="w-4 h-4" />
-          </button>
+          <IconButton
+            icon={<ZoomOutIcon className="w-4 h-4" />}
+            label="Zoom out"
+            onClick={() => setZoom(Math.max(MIN_ZOOM, zoom - ZOOM_STEP))}
+          />
           <span className="text-grey-900 text-xs sm:text-sm font-medium min-w-[40px] text-center">
             {zoom}%
           </span>
-          <button
-            onClick={() => setZoom(Math.min(400, zoom + 25))}
-            className="p-1 text-grey-700 hover:text-grey-900 hover:bg-grey-200 rounded"
-          >
-            <ZoomInIcon className="w-4 h-4" />
-          </button>
+          <IconButton
+            icon={<ZoomInIcon className="w-4 h-4" />}
+            label="Zoom in"
+            onClick={() => setZoom(Math.min(MAX_ZOOM, zoom + ZOOM_STEP))}
+          />
           <div className="hidden sm:flex items-center gap-1 ml-2">
-            <button className="p-1 text-grey-700 hover:text-grey-900 hover:bg-grey-200 rounded">
-              <DownloadIcon className="w-5 h-5" />
-            </button>
-            <button className="p-1 text-grey-700 hover:text-grey-900 hover:bg-grey-200 rounded">
-              <PrintIcon className="w-5 h-5" />
-            </button>
-            <button className="p-1 text-grey-700 hover:text-grey-900 hover:bg-grey-200 rounded">
-              <DoubleArrowRight className="w-5 h-5" />
-            </button>
+            <IconButton icon={<DownloadIcon className="w-5 h-5" />} label="Download" />
+            <IconButton icon={<PrintIcon className="w-5 h-5" />} label="Print" />
+            <IconButton icon={<DoubleArrowRight className="w-5 h-5" />} label="Expand" />
           </div>
         </div>
       </div>
