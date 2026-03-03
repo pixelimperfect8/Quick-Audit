@@ -126,22 +126,24 @@ export default function DocumentViewer({
                 ref={(el) => {
                   if (el) pageRefs.current.set(pageNum, el);
                 }}
-                className="relative bg-white shadow-lg rounded-sm w-full max-w-[612px]"
+                className="relative bg-white shadow-lg rounded-sm w-full max-w-[612px] overflow-hidden"
                 style={{ minHeight: PAGE_HEIGHT }}
               >
-                {/* Page content */}
+                {/* Page content — wrapper clips the PDF's native scrollbar */}
                 {pageNum === 1 ? (
-                  <object
-                    data="/rpa-form.pdf#toolbar=0&navpanes=0&scrollbar=0&page=1"
-                    type="application/pdf"
-                    className="w-full rounded-sm pointer-events-none"
-                    style={{ height: PAGE_HEIGHT }}
-                  >
-                    <p className="p-8 text-grey-700 text-sm text-center">
-                      Unable to display PDF.{" "}
-                      <a href="/rpa-form.pdf" className="text-blue-800 underline">Download</a>
-                    </p>
-                  </object>
+                  <div className="overflow-hidden w-full" style={{ height: PAGE_HEIGHT }}>
+                    <object
+                      data="/rpa-form.pdf#toolbar=0&navpanes=0&scrollbar=0&page=1"
+                      type="application/pdf"
+                      className="rounded-sm pointer-events-none"
+                      style={{ width: "calc(100% + 20px)", height: PAGE_HEIGHT }}
+                    >
+                      <p className="p-8 text-grey-700 text-sm text-center">
+                        Unable to display PDF.{" "}
+                        <a href="/rpa-form.pdf" className="text-blue-800 underline">Download</a>
+                      </p>
+                    </object>
+                  </div>
                 ) : (
                   <PagePlaceholder page={pageNum} />
                 )}

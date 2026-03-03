@@ -4,7 +4,8 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import IconTabBar, { type IconTab } from "./IconTabBar";
 import TransactionContent from "./TransactionContent";
 import { FLAG_ISSUES, type FlagIssue, type FlagSource } from "./flagsData";
-import { WarningIcon, FormDataIcon, SendIcon } from "@/components/icons";
+import { WarningIcon, SendIcon } from "@/components/icons";
+import FormDataContent from "./FormDataContent";
 import { TextInput, FlagCard } from "@/components/ui";
 
 interface RightSidebarProps {
@@ -15,20 +16,6 @@ interface RightSidebarProps {
   /** Allow external tab switching (e.g. from ActionBar "View" button) */
   externalActiveTab?: IconTab | null;
   onExternalTabHandled?: () => void;
-}
-
-function PlaceholderPanel({ icon: Icon, title, description }: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-      <Icon className="w-10 h-10 text-grey-400 mb-3" />
-      <h3 className="text-grey-900 text-base font-bold">{title}</h3>
-      <p className="text-grey-500 text-sm mt-1">{description}</p>
-    </div>
-  );
 }
 
 interface Comment {
@@ -316,13 +303,7 @@ export default function RightSidebar({
           />
         )}
 
-        {activeTab === "formData" && (
-          <PlaceholderPanel
-            icon={FormDataIcon}
-            title="Extracted Form Data"
-            description="Data extracted from uploaded forms will appear here."
-          />
-        )}
+        {activeTab === "formData" && <FormDataContent />}
       </div>
     </div>
   );
