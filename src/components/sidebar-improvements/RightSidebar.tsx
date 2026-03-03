@@ -3,12 +3,18 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import IconTabBar, { type IconTab } from "./IconTabBar";
 import TransactionContent from "./TransactionContent";
+import { FLAG_ISSUES, type FlagIssue, type FlagSource } from "./flagsData";
 import { WarningIcon, FormDataIcon, SendIcon } from "@/components/icons";
-import { TextInput } from "@/components/ui";
+import { TextInput, FlagCard } from "@/components/ui";
 
 interface RightSidebarProps {
   onContactClick: (contact: { type?: string }) => void;
   onViewLog: () => void;
+  selectedFlagId?: string | null;
+  onFlagSelect?: (id: string) => void;
+  /** Allow external tab switching (e.g. from ActionBar "View" button) */
+  externalActiveTab?: IconTab | null;
+  onExternalTabHandled?: () => void;
 }
 
 function PlaceholderPanel({ icon: Icon, title, description }: {
@@ -61,7 +67,109 @@ function CommentItem({ comment }: { comment: Comment }) {
   );
 }
 
-export default function RightSidebar({ onContactClick, onViewLog }: RightSidebarProps) {
+/** Group issues by page number */
+function groupByPage(issues: FlagIssue[]): Map<number, FlagIssue[]> {
+  const groups = new Map<number, FlagIssue[]>();
+  for (const issue of issues) {
+    const existing = groups.get(issue.page) || [];
+    existing.push(issue);
+    groups.set(issue.page, existing);
+  }
+  return groups;
+}
+
+/** Render structured sources in the Figma style */
+function SourcesList({ sources }: { sources: FlagSource[] }) {
+  return (
+    <>
+      {sources.map((src) => (
+        <div key={src.label} className="px-4 py-2">
+          <p className="text-grey-900 text-base font-bold leading-6">{src.label}:</p>
+          <p className="text-grey-800 text-base font-medium leading-6">{src.value}</p>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function FlagsPanel({
+  selectedFlagId,
+  onFlagSelect,
+}: {
+  selectedFlagId?: string | null;
+  onFlagSelect?: (id: string) => void;
+}) {
+  const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
+  const selectedRef = useRef<HTMLDivElement>(null);
+
+  // Scroll selected card into view when selectedFlagId changes externally
+  useEffect(() => {
+    if (selectedFlagId && selectedRef.current) {
+      selectedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [selectedFlagId]);
+
+  const pageGroups = groupByPage(FLAG_ISSUES);
+
+  function handleReject(id: string) {
+    setRejectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id); // toggle off
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-6 pt-4 pb-6">
+      {Array.from(pageGroups.entries()).map(([page, issues]) => (
+        <div key={page} className="flex flex-col gap-4">
+          <p className="text-grey-800 text-base font-medium leading-6 px-4">
+            Page {page}
+          </p>
+          <div className="flex flex-col gap-4 px-2">
+            {issues.map((issue) => {
+              const isRejected = rejectedIds.has(issue.id);
+              return (
+                <div
+                  key={issue.id}
+                  ref={issue.id === selectedFlagId ? selectedRef : undefined}
+                >
+                  <FlagCard
+                    selected={issue.id === selectedFlagId}
+                    rejected={isRejected}
+                    onSelect={() => onFlagSelect?.(issue.id)}
+                    onReject={() => handleReject(issue.id)}
+                    onAccept={isRejected ? undefined : () => {}}
+                    sources={
+                      issue.sources ? (
+                        <SourcesList sources={issue.sources} />
+                      ) : undefined
+                    }
+                  >
+                    {issue.description}
+                  </FlagCard>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function RightSidebar({
+  onContactClick,
+  onViewLog,
+  selectedFlagId,
+  onFlagSelect,
+  externalActiveTab,
+  onExternalTabHandled,
+}: RightSidebarProps) {
   const [activeTab, setActiveTab] = useState<IconTab>("transaction");
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
@@ -69,6 +177,15 @@ export default function RightSidebar({ onContactClick, onViewLog }: RightSidebar
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const commentsEndRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(4);
+
+  // Handle external tab switch requests (one-shot: only react to externalActiveTab changes)
+  useEffect(() => {
+    if (externalActiveTab) {
+      setActiveTab(externalActiveTab);
+      onExternalTabHandled?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalActiveTab]);
 
   const handleInput = useCallback(() => {
     const el = textareaRef.current;
@@ -163,7 +280,7 @@ export default function RightSidebar({ onContactClick, onViewLog }: RightSidebar
             </div>
 
             {/* Leave a Comment */}
-            <div className="border-t border-grey-300 px-6 pt-3 pb-3">
+            <div className="border-t border-grey-300 p-3">
               <TextInput
                 ref={textareaRef}
                 value={commentText}
@@ -193,10 +310,9 @@ export default function RightSidebar({ onContactClick, onViewLog }: RightSidebar
         )}
 
         {activeTab === "flags" && (
-          <PlaceholderPanel
-            icon={WarningIcon}
-            title="Flags"
-            description="Flagged items and review notes will appear here."
+          <FlagsPanel
+            selectedFlagId={selectedFlagId}
+            onFlagSelect={onFlagSelect}
           />
         )}
 

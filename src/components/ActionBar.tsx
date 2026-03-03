@@ -1,17 +1,21 @@
 "use client";
 
 import { Button } from "./ui";
-import { ThumbUp, ThumbDown, WarningIcon } from "./icons";
+import { WarningIcon } from "./icons";
 
-export default function ActionBar() {
+interface ActionBarProps {
+  onViewFlags?: () => void;
+}
+
+export default function ActionBar({ onViewFlags }: ActionBarProps) {
   return (
     <div className="bg-white border-t border-grey-300 px-4 py-2.5 flex items-center justify-between gap-4 shrink-0">
       {/* Actions */}
       <div className="flex items-center gap-2 sm:gap-3">
-        <Button variant="primary" size="sm" icon={<ThumbUp className="w-4 h-4" />}>
+        <Button variant="primary" size="sm">
           Accept
         </Button>
-        <Button variant="danger" size="sm" icon={<ThumbDown className="w-4 h-4" />}>
+        <Button variant="danger" size="sm">
           Reject
         </Button>
       </div>
@@ -25,7 +29,10 @@ export default function ActionBar() {
             <span className="sm:hidden">4</span>
           </span>
         </div>
-        <button className="text-grey-900 text-sm font-bold hover:text-blue-800 transition-colors hidden sm:block">
+        <button
+          onClick={onViewFlags}
+          className="text-grey-900 text-sm font-bold hover:text-blue-800 transition-colors hidden sm:block"
+        >
           View
         </button>
       </div>

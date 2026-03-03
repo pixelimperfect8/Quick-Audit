@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, IconButton, Badge, StatusBadge, DetailRow, Divider, Collapsible, DrawerHeader, Tabs, HoverCard, TextInput, FileCard } from "./ui";
+import { Button, IconButton, Badge, StatusBadge, DetailRow, Divider, Collapsible, DrawerHeader, Tabs, HoverCard, TextInput, FileCard, FlagCard } from "./ui";
 import { ThumbUp, ThumbDown, WarningIcon, DownloadIcon, PrintIcon, ZoomInIcon, PersonIcon } from "./icons";
 import type { DocStatus } from "./ui";
 
@@ -341,6 +341,36 @@ export default function DesignSystemViewer() {
               <div className="flex flex-col gap-1">
                 <StateLabel label="No remove button" />
                 <FileCard name="ReadOnly_Document.pdf" date="2 hours ago" />
+              </div>
+            </div>
+          </Section>
+
+          {/* FlagCard */}
+          <Section title="FlagCard" description="Issue/flag card with thumbs up/down actions, selected state, rejected state, and collapsible sources.">
+            <div className="flex flex-col gap-3 max-w-md">
+              <div className="flex flex-col gap-1">
+                <StateLabel label="Selected" />
+                <FlagCard selected onSelect={() => {}} onReject={() => {}} onAccept={() => {}} sources={<><div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">Form:</p><p className="text-grey-800 text-base font-medium leading-6">Rachael Laurella</p></div><div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">File:</p><p className="text-grey-800 text-base font-medium leading-6">Rachel Laurella</p></div></>}>
+                  The buyer&apos;s name doesn&apos;t match the name on file.
+                </FlagCard>
+              </div>
+              <div className="flex flex-col gap-1">
+                <StateLabel label="Default" />
+                <FlagCard onSelect={() => {}} onReject={() => {}} onAccept={() => {}} sources={<div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">MLS:</p><p className="text-grey-800 text-base font-medium leading-6">3969 Harvord Blvd</p></div>}>
+                  The property address doesn&apos;t match the address on file or MLS.
+                </FlagCard>
+              </div>
+              <div className="flex flex-col gap-1">
+                <StateLabel label="Rejected" />
+                <FlagCard rejected onSelect={() => {}} onReject={() => {}}>
+                  The property address doesn&apos;t match the address on file or MLS.
+                </FlagCard>
+              </div>
+              <div className="flex flex-col gap-1">
+                <StateLabel label="No sources" />
+                <FlagCard onSelect={() => {}} onReject={() => {}} onAccept={() => {}}>
+                  Seller&apos;s initials missing
+                </FlagCard>
               </div>
             </div>
           </Section>

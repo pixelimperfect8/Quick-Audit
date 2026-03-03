@@ -21,9 +21,25 @@ interface DashboardProps {
     onContactClick: (contact: { type?: string }) => void;
     onViewLog: () => void;
   }) => React.ReactNode;
+  /** Props passed through to DocumentViewer */
+  documentViewerProps?: {
+    selectedFlagId?: string | null;
+    onFlagSelect?: (id: string) => void;
+    showFlags?: boolean;
+  };
+  /** Props passed through to ActionBar */
+  actionBarProps?: {
+    onViewFlags?: () => void;
+  };
 }
 
-export default function Dashboard({ backHref, backLabel, rightSidebarContent }: DashboardProps) {
+export default function Dashboard({
+  backHref,
+  backLabel,
+  rightSidebarContent,
+  documentViewerProps,
+  actionBarProps,
+}: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rightPanel, setRightPanel] = useState<RightPanel>("transaction");
@@ -73,9 +89,9 @@ export default function Dashboard({ backHref, backLabel, rightSidebarContent }: 
         {/* Center */}
         <main className="flex-1 min-w-0 flex flex-col">
           <div className="flex-1 min-h-0">
-            <DocumentViewer />
+            <DocumentViewer {...documentViewerProps} />
           </div>
-          <ActionBar />
+          <ActionBar {...actionBarProps} />
         </main>
 
         <Overlay visible={detailsOpen} onClick={() => setDetailsOpen(false)} breakpoint="xl" />

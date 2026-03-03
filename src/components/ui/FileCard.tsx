@@ -14,7 +14,7 @@ export default function FileCard({ name, date, active = false, onRemove }: FileC
   return (
     <div
       className={`bg-white rounded-lg flex items-center gap-4 sm:gap-6 py-4 pl-4 pr-3 ${
-        active ? "border-2 border-blue-800" : "border border-grey-300"
+        active ? "border border-blue-800" : "border border-grey-300"
       }`}
     >
       <p className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6 truncate">

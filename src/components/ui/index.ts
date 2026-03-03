@@ -12,5 +12,6 @@ export { default as Sidebar } from "./Sidebar";
 export { default as HoverCard } from "./HoverCard";
 export { default as TextInput } from "./TextInput";
 export { default as FileCard } from "./FileCard";
+export { default as FlagCard } from "./FlagCard";
 
 export type { DocStatus } from "./StatusBadge";
