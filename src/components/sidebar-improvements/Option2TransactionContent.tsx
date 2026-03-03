@@ -7,6 +7,7 @@ import {
   TRANSACTION_SOURCES,
   CONTACT_SOURCES,
 } from "./Option2TransactionSources";
+import { FLAG_ISSUES } from "./flagsData";
 
 /* ------------------------------------------------------------------ */
 /*  Data (same defaults as TransactionContent)                         */
@@ -61,24 +62,50 @@ const DEFAULT_COMMISSION: CommissionData[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Returns true if the field still has an active (non-rejected) flag.
+ * Falls back to the static mismatch value from source data when no flags
+ * reference this field.
+ */
+function isFieldStillFlagged(
+  fieldKey: string,
+  rejectedFlagIds: Set<string>,
+  sourceMap: Record<string, { mismatch?: boolean }>,
+): boolean {
+  const relatedFlags = FLAG_ISSUES.filter((f) =>
+    f.relatedFields?.includes(fieldKey),
+  );
+  // No flags reference this field — use static mismatch from source data
+  if (relatedFlags.length === 0) return sourceMap[fieldKey]?.mismatch ?? false;
+  // At least one related flag is still active → still flagged
+  return relatedFlags.some((f) => !rejectedFlagIds.has(f.id));
+}
+
+/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 interface Option2TransactionContentProps {
   onContactClick?: (contact: Contact) => void;
   onViewLog?: () => void;
+  /** Set of rejected flag IDs — suppresses mismatch highlighting */
+  rejectedFlagIds?: Set<string>;
 }
 
 export default function Option2TransactionContent({
   onContactClick,
   onViewLog,
+  rejectedFlagIds = new Set(),
 }: Option2TransactionContentProps) {
   return (
     <>
       <Collapsible title="Transaction Details" defaultOpen>
         {DEFAULT_DETAILS.map((detail) => {
           const sourceData = TRANSACTION_SOURCES[detail.label];
-          const hasMismatch = sourceData?.mismatch;
+          const hasMismatch = isFieldStillFlagged(detail.label, rejectedFlagIds, TRANSACTION_SOURCES);
 
           const mismatchMark = "rounded-sm bg-red-50 px-0.5 -mx-0.5";
 
@@ -126,7 +153,7 @@ export default function Option2TransactionContent({
       <Collapsible title="Contacts" defaultOpen>
         {DEFAULT_CONTACTS.map((contact, i) => {
           const sourceData = CONTACT_SOURCES[contact.name];
-          const hasMismatch = sourceData?.mismatch;
+          const hasMismatch = isFieldStillFlagged(contact.name, rejectedFlagIds, CONTACT_SOURCES);
 
           const contactMark = hasMismatch ? "rounded-sm bg-red-50 px-0.5" : "";
 

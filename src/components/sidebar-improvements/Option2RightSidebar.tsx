@@ -13,6 +13,10 @@ interface Option2RightSidebarProps {
   onViewLog: () => void;
   selectedFlagId?: string | null;
   onFlagSelect?: (id: string) => void;
+  /** Set of rejected flag IDs (managed at page level) */
+  rejectedFlagIds?: Set<string>;
+  /** Callback to toggle a flag's rejected state */
+  onFlagReject?: (id: string) => void;
 }
 
 interface Comment {
@@ -79,11 +83,14 @@ function SourcesList({ sources }: { sources: FlagSource[] }) {
 function FlagsPanel({
   selectedFlagId,
   onFlagSelect,
+  rejectedFlagIds = new Set(),
+  onFlagReject,
 }: {
   selectedFlagId?: string | null;
   onFlagSelect?: (id: string) => void;
+  rejectedFlagIds?: Set<string>;
+  onFlagReject?: (id: string) => void;
 }) {
-  const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
   const selectedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,18 +101,6 @@ function FlagsPanel({
 
   const pageGroups = groupByPage(FLAG_ISSUES);
 
-  function handleReject(id: string) {
-    setRejectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }
-
   return (
     <div className="flex flex-col gap-6 pt-4 pb-6">
       {Array.from(pageGroups.entries()).map(([page, issues]) => (
@@ -115,7 +110,7 @@ function FlagsPanel({
           </p>
           <div className="flex flex-col gap-4 px-2">
             {issues.map((issue) => {
-              const isRejected = rejectedIds.has(issue.id);
+              const isRejected = rejectedFlagIds.has(issue.id);
               return (
                 <div
                   key={issue.id}
@@ -125,7 +120,7 @@ function FlagsPanel({
                     selected={issue.id === selectedFlagId}
                     rejected={isRejected}
                     onSelect={() => onFlagSelect?.(issue.id)}
-                    onReject={() => handleReject(issue.id)}
+                    onReject={() => onFlagReject?.(issue.id)}
                     onAccept={isRejected ? undefined : () => {}}
                     sources={
                       issue.sources ? (
@@ -245,6 +240,8 @@ export default function Option2RightSidebar({
   onViewLog,
   selectedFlagId,
   onFlagSelect,
+  rejectedFlagIds,
+  onFlagReject,
 }: Option2RightSidebarProps) {
   const [activeTab, setActiveTab] = useState<Option2IconTab>("transaction");
   const [commentText, setCommentText] = useState("");
@@ -325,12 +322,15 @@ export default function Option2RightSidebar({
               <Option2TransactionContent
                 onContactClick={onContactClick}
                 onViewLog={onViewLog}
+                rejectedFlagIds={rejectedFlagIds}
               />
             }
             bottom={
               <FlagsPanel
                 selectedFlagId={selectedFlagId}
                 onFlagSelect={onFlagSelect}
+                rejectedFlagIds={rejectedFlagIds}
+                onFlagReject={onFlagReject}
               />
             }
             bottomLabel="Issues"

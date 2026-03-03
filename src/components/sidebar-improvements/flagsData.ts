@@ -16,6 +16,8 @@ export interface FlagIssue {
   description: string;
   sources?: FlagSource[];
   highlight: FlagHighlight;
+  /** Keys into TRANSACTION_SOURCES or CONTACT_SOURCES that this flag covers */
+  relatedFields?: string[];
 }
 
 export const FLAG_ISSUES: FlagIssue[] = [
@@ -28,6 +30,7 @@ export const FLAG_ISSUES: FlagIssue[] = [
       { label: "File", value: "Rachel Laurella, Rob Laurella" },
     ],
     highlight: { top: "38%", left: "10%", width: "85%", height: "4%" },
+    relatedFields: ["Rachael Laurolla", "Rob Laurolla"],
   },
   {
     id: "flag-2",
@@ -40,6 +43,7 @@ export const FLAG_ISSUES: FlagIssue[] = [
       { label: "MLS", value: "3969 Harvord Boulevard, Venture, CA 93001" },
     ],
     highlight: { top: "44%", left: "10%", width: "85%", height: "6%" },
+    relatedFields: ["File name"],
   },
   {
     id: "flag-3",
@@ -51,6 +55,7 @@ export const FLAG_ISSUES: FlagIssue[] = [
       { label: "File", value: "$450,000.00" },
     ],
     highlight: { top: "58%", left: "10%", width: "85%", height: "4%" },
+    relatedFields: ["Purchase Price"],
   },
   {
     id: "flag-4",

@@ -7,6 +7,7 @@ import Option2RightSidebar from "@/components/sidebar-improvements/Option2RightS
 
 export default function SidebarOption2Page() {
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
+  const [rejectedFlagIds, setRejectedFlagIds] = useState<Set<string>>(new Set());
 
   const handleFlagSelect = useCallback((id: string) => {
     setSelectedFlagId(id);
@@ -14,6 +15,18 @@ export default function SidebarOption2Page() {
 
   const handleViewFlags = useCallback(() => {
     // In Option 2, flags are always visible in the split pane — no tab switch needed
+  }, []);
+
+  const handleFlagReject = useCallback((id: string) => {
+    setRejectedFlagIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   }, []);
 
   return (
@@ -25,6 +38,7 @@ export default function SidebarOption2Page() {
           selectedFlagId,
           onFlagSelect: handleFlagSelect,
           showFlags: true,
+          rejectedFlagIds,
         }}
         actionBarProps={{
           onViewFlags: handleViewFlags,
@@ -35,6 +49,8 @@ export default function SidebarOption2Page() {
             onViewLog={onViewLog}
             selectedFlagId={selectedFlagId}
             onFlagSelect={setSelectedFlagId}
+            rejectedFlagIds={rejectedFlagIds}
+            onFlagReject={handleFlagReject}
           />
         )}
       />

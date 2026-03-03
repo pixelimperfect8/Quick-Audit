@@ -20,22 +20,25 @@ const options: OptionDef[] = [
   {
     title: "Option 1",
     description:
-      "Baseline dashboard layout — starting point for sidebar modifications.",
+      "Four-tab sidebar with dedicated Flags tab and page-grouped Form Data.",
     href: "/sidebar-improvements/option-1",
     ac: `## Sidebar — Option 1: Acceptance Criteria
 
 ### Icon Tab Bar
 - Four icon-only tabs across the top of the sidebar: Transaction, Comments, Flags, Form Data.
 - Active tab is indicated by a blue bottom border and blue icon color.
-- Each icon shows a hover card with a contextual preview on hover.
+- Tabs support hover card previews (e.g., latest comment shown on Comments tab hover).
 - A "more options" kebab icon sits at the trailing edge of the tab bar.
-- Badge dot (red) appears on tabs with unread/new items.
+- Badge dot (red) appears on tabs with unread/new items (e.g., new comments).
 
 ### Transaction Tab
-- Displays transaction header with property address, price, close date, and MLS number.
-- Shows a collapsible "Parties" section listing Buyer(s) and Seller(s) with name, role badge, and contact info.
-- Shows a collapsible "Documents" section with document checklist items (name, status badge, page count).
-- Collapsible sections default to open and toggle on click.
+- Three collapsible sections, all expanded by default: Transaction Details, Contacts, Commission.
+- **Transaction Details** shows key-value rows: Status (with "Pending" badge), File name, Type, Checklist Type, Agent, MLS #, Close of Escrow, Acceptance Date, Escrow #, Email, Year Built, Purchase Price, File ID.
+- **Contacts** lists Buyer(s) and Lender with person icons and clickable names.
+- **Commission** shows financial breakdown: Sale, Listing, Office gross, TC, Referral Agent, Other deductions.
+- A "View Log" link at the bottom of the section.
+- **Source comparison hover tooltips**: Hovering over transaction detail rows or contact names that have cross-source data reveals a tooltip showing values from Form, File, and/or MLS sources with a page reference.
+- **Mismatch highlighting**: Fields with source disagreements (e.g., Purchase Price, Buyer name) display a subtle red-50 background highlight on the label and value text only (not the full row). Tooltips for mismatched fields show a warning icon and red text on differing values.
 
 ### Comments Tab
 - Displays a chronological list of comments with author name, message body, and timestamp.
@@ -45,28 +48,30 @@ const options: OptionDef[] = [
 - The comment list scrolls independently; input bar stays pinned to the bottom.
 
 ### Flags Tab
-- Displays a list of flag cards, each showing:
+- Flag cards grouped by page number in **collapsible sections** (e.g., "Page 1", "Page 2"), all expanded by default.
+- Each flag card shows:
   - A description of the issue (e.g. "The buyer's name doesn't match the name on file.")
-  - Source comparison chips showing Form / File / MLS values when applicable.
-  - Page number reference.
+  - Source comparison values showing Form / File / MLS data when applicable.
+  - Accept and Reject action buttons.
 - Clicking a flag card in the sidebar highlights the corresponding region on the document viewer.
 - Clicking a highlighted region on the document viewer selects the matching flag card in the sidebar and auto-switches to the Flags tab.
 - Selected flag card is visually distinguished with a blue left border.
 - Bidirectional sync: selecting a flag from either the sidebar or the document keeps both in sync.
 
 ### Form Data Tab
-- Displays extracted form fields grouped into collapsible sections (e.g. "Property Information", "Financial Details", "Parties").
-- Each field row shows:
-  - Field label (bold).
+- Displays extracted form fields organized by **page number** in collapsible sections (e.g., "Page 1", "Page 2", "Page 3", "Page 15", "Page 16", "MLS").
+- Each field card shows:
+  - Field label (bold) with a subsection badge (e.g., §A, §2B) when applicable.
   - Primary value from the form.
-  - Expandable source comparison (Form / File / MLS values) toggled by a "Sources" button.
-  - A mismatch indicator (warning icon + red left border) when values disagree across sources.
-  - Page reference.
-- A sticky search bar at the top filters fields in real-time across all sections.
-  - Matching text is highlighted in yellow within field labels and values.
-  - Sections with no matching fields collapse automatically.
+  - Expandable "Sources" toggle revealing File and/or MLS comparison values.
+  - A mismatch indicator (warning icon + red border) when values disagree across sources.
+  - "Missing" label (red italic) for empty required fields.
+  - Source-only badge (Form, File, or MLS) for fields found in a single source only.
+- A sticky search bar at the top filters fields in real-time across all page groups.
+  - Sections with no matching fields are hidden.
   - A result count badge shows "X results" while searching.
   - Clear button (X icon) resets the search.
+  - Empty state message shown when no fields match the query.
 
 ### Action Bar — Flags Integration
 - The bottom action bar includes a "View Flags" button.
@@ -88,22 +93,29 @@ const options: OptionDef[] = [
   {
     title: "Option 2",
     description:
-      "Alternate sidebar layout — variation on Option 1 for comparison.",
+      "Three-tab sidebar with split-pane Transaction view and always-visible flags.",
     href: "/sidebar-improvements/option-2",
     ac: `## Sidebar — Option 2: Acceptance Criteria
 
 ### Icon Tab Bar
-- Four icon-only tabs across the top of the sidebar: Transaction, Comments, Flags, Form Data.
+- **Three** icon-only tabs across the top of the sidebar: Transaction, Comments, Form Data. (No separate Flags tab.)
 - Active tab is indicated by a blue bottom border and blue icon color.
-- Each icon shows a hover card with a contextual preview on hover.
+- Tabs support hover card previews (e.g., latest comment shown on Comments tab hover).
 - A "more options" kebab icon sits at the trailing edge of the tab bar.
-- Badge dot (red) appears on tabs with unread/new items.
+- Badge dot (red) appears on tabs with unread/new items (e.g., new comments).
 
-### Transaction Tab
-- Displays transaction header with property address, price, close date, and MLS number.
-- Shows a collapsible "Parties" section listing Buyer(s) and Seller(s) with name, role badge, and contact info.
-- Shows a collapsible "Documents" section with document checklist items (name, status badge, page count).
-- Collapsible sections default to open and toggle on click.
+### Transaction Tab — Split Pane
+- The Transaction tab is **split into two resizable panes** with a draggable divider.
+- **Top pane — Transaction Details**:
+  - Three collapsible sections: Transaction Details, Contacts, Commission (same content as Option 1).
+  - Source comparison hover tooltips and red-50 mismatch text highlighting (same behavior as Option 1).
+  - "View Log" link at the bottom.
+- **Bottom pane — Issues/Flags**:
+  - Sticky "Issues" header with a warning icon and total flag count.
+  - Flag cards grouped by page number with page headers (non-collapsible).
+  - Each flag card shows description, source comparison values, and Accept/Reject actions.
+  - Selected flag card has a blue left border; bidirectional sync with document viewer highlights.
+- **Draggable divider**: A horizontal drag handle with a 3-dot grip indicator. Drag to resize panes anywhere between 20% and 80%. Defaults to a 50/50 split.
 
 ### Comments Tab
 - Displays a chronological list of comments with author name, message body, and timestamp.
@@ -112,40 +124,34 @@ const options: OptionDef[] = [
 - Pressing Enter or clicking the send icon appends the new comment to the list.
 - The comment list scrolls independently; input bar stays pinned to the bottom.
 
-### Flags Tab
-- Displays a list of flag cards, each showing:
-  - A description of the issue (e.g. "The buyer's name doesn't match the name on file.")
-  - Source comparison chips showing Form / File / MLS values when applicable.
-  - Page number reference.
-- Clicking a flag card in the sidebar highlights the corresponding region on the document viewer.
-- Clicking a highlighted region on the document viewer selects the matching flag card in the sidebar and auto-switches to the Flags tab.
-- Selected flag card is visually distinguished with a blue left border.
-- Bidirectional sync: selecting a flag from either the sidebar or the document keeps both in sync.
-
 ### Form Data Tab
-- Displays extracted form fields grouped into collapsible sections (e.g. "Property Information", "Financial Details", "Parties").
-- Each field row shows:
+- Displays extracted form fields organized by **category** in collapsible sections: Property Information, Contacts, Agency & Brokerage, Terms & Contingencies.
+- Each field card shows:
   - Field label (bold).
   - Primary value from the form.
-  - Expandable source comparison (Form / File / MLS values) toggled by a "Sources" button.
-  - A mismatch indicator (warning icon + red left border) when values disagree across sources.
-  - Page reference.
+  - Expandable "Sources" toggle revealing File and/or MLS comparison values.
+  - A mismatch indicator (warning icon + red border) when values disagree across sources.
+  - "Missing" label (red italic) for empty required fields.
+  - Source-only badge (Form, File, or MLS) for fields found in a single source only.
+  - Page reference badge.
 - A sticky search bar at the top filters fields in real-time across all sections.
-  - Matching text is highlighted in yellow within field labels and values.
-  - Sections with no matching fields collapse automatically.
+  - Sections with no matching fields are hidden.
   - A result count badge shows "X results" while searching.
   - Clear button (X icon) resets the search.
-
-### Action Bar — Flags Integration
-- The bottom action bar includes a "View Flags" button.
-- Clicking "View Flags" switches the sidebar to the Flags tab.
+  - Empty state message shown when no fields match the query.
 
 ### Document Viewer — Flag Highlights
 - Flag regions are rendered as semi-transparent overlays on top of the document image.
 - Default state: faint overlay visible on all flagged regions.
 - Hover state: overlay becomes more prominent.
 - Selected state: overlay turns to a distinct highlight color matching the selected flag.
-- Clicking a highlight selects the flag and scrolls the sidebar Flags tab to the matching card.
+- Clicking a highlight selects the corresponding flag card in the split pane.
+
+### Key Differences from Option 1
+- No standalone Flags tab — flags are always visible in the bottom half of the Transaction split pane.
+- Form Data is organized by category (Property Info, Contacts, Agency, Terms) instead of by page number.
+- Flag page groups in the split pane use flat headers (not collapsible).
+- No "View Flags" action bar button needed since flags are persistently visible.
 
 ### General
 - Sidebar scrolls independently from the main content area.

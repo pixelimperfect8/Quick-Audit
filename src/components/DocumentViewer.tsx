@@ -19,12 +19,15 @@ interface DocumentViewerProps {
   onFlagSelect?: (id: string) => void;
   /** Show red flag highlight overlays */
   showFlags?: boolean;
+  /** Flag IDs that have been rejected — their highlights are hidden */
+  rejectedFlagIds?: Set<string>;
 }
 
 export default function DocumentViewer({
   selectedFlagId,
   onFlagSelect,
   showFlags = false,
+  rejectedFlagIds,
 }: DocumentViewerProps) {
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,12 +64,14 @@ export default function DocumentViewer({
     }
   }, [selectedFlagId]);
 
-  // Group flags by page
+  // Group visible (non-rejected) flags by page
   const flagsByPage = showFlags
-    ? FLAG_ISSUES.reduce<Record<number, typeof FLAG_ISSUES>>((acc, flag) => {
-        (acc[flag.page] ||= []).push(flag);
-        return acc;
-      }, {})
+    ? FLAG_ISSUES
+        .filter((flag) => !rejectedFlagIds?.has(flag.id))
+        .reduce<Record<number, typeof FLAG_ISSUES>>((acc, flag) => {
+          (acc[flag.page] ||= []).push(flag);
+          return acc;
+        }, {})
     : {};
 
   return (

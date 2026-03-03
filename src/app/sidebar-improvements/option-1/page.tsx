@@ -9,6 +9,7 @@ import type { IconTab } from "@/components/sidebar-improvements/IconTabBar";
 export default function SidebarOption1Page() {
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
   const [externalTab, setExternalTab] = useState<IconTab | null>(null);
+  const [rejectedFlagIds, setRejectedFlagIds] = useState<Set<string>>(new Set());
 
   const handleFlagSelect = useCallback((id: string) => {
     setSelectedFlagId(id);
@@ -24,6 +25,18 @@ export default function SidebarOption1Page() {
     setExternalTab(null);
   }, []);
 
+  const handleFlagReject = useCallback((id: string) => {
+    setRejectedFlagIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
   return (
     <>
       <Dashboard
@@ -33,6 +46,7 @@ export default function SidebarOption1Page() {
           selectedFlagId,
           onFlagSelect: handleFlagSelect,
           showFlags: true,
+          rejectedFlagIds,
         }}
         actionBarProps={{
           onViewFlags: handleViewFlags,
@@ -45,6 +59,8 @@ export default function SidebarOption1Page() {
             onFlagSelect={setSelectedFlagId}
             externalActiveTab={externalTab}
             onExternalTabHandled={handleExternalTabHandled}
+            rejectedFlagIds={rejectedFlagIds}
+            onFlagReject={handleFlagReject}
           />
         )}
       />

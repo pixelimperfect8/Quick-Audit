@@ -26,6 +26,7 @@ interface DashboardProps {
     selectedFlagId?: string | null;
     onFlagSelect?: (id: string) => void;
     showFlags?: boolean;
+    rejectedFlagIds?: Set<string>;
   };
   /** Props passed through to ActionBar */
   actionBarProps?: {
