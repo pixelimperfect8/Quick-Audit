@@ -1,21 +1,18 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import IconTabBar, { type IconTab } from "./IconTabBar";
+import Option2IconTabBar, { type Option2IconTab } from "./Option2IconTabBar";
 import Option2TransactionContent from "./Option2TransactionContent";
 import { FLAG_ISSUES, type FlagIssue, type FlagSource } from "./flagsData";
 import { WarningIcon, SendIcon } from "@/components/icons";
-import FormDataByPage from "./FormDataByPage";
-import { TextInput, FlagCard, Collapsible } from "@/components/ui";
+import FormDataContent from "./FormDataContent";
+import { TextInput, FlagCard } from "@/components/ui";
 
-interface RightSidebarProps {
+interface Option2RightSidebarProps {
   onContactClick: (contact: { type?: string }) => void;
   onViewLog: () => void;
   selectedFlagId?: string | null;
   onFlagSelect?: (id: string) => void;
-  /** Allow external tab switching (e.g. from ActionBar "View" button) */
-  externalActiveTab?: IconTab | null;
-  onExternalTabHandled?: () => void;
 }
 
 interface Comment {
@@ -89,7 +86,6 @@ function FlagsPanel({
   const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
   const selectedRef = useRef<HTMLDivElement>(null);
 
-  // Scroll selected card into view when selectedFlagId changes externally
   useEffect(() => {
     if (selectedFlagId && selectedRef.current) {
       selectedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -102,7 +98,7 @@ function FlagsPanel({
     setRejectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
-        next.delete(id); // toggle off
+        next.delete(id);
       } else {
         next.add(id);
       }
@@ -111,10 +107,13 @@ function FlagsPanel({
   }
 
   return (
-    <div className="flex flex-col pt-2 pb-6">
+    <div className="flex flex-col gap-6 pt-4 pb-6">
       {Array.from(pageGroups.entries()).map(([page, issues]) => (
-        <Collapsible key={page} title={`Page ${page}`} defaultOpen>
-          <div className="flex flex-col gap-4">
+        <div key={page} className="flex flex-col gap-4">
+          <p className="text-grey-800 text-base font-medium leading-6 px-4">
+            Page {page}
+          </p>
+          <div className="flex flex-col gap-4 px-2">
             {issues.map((issue) => {
               const isRejected = rejectedIds.has(issue.id);
               return (
@@ -140,36 +139,120 @@ function FlagsPanel({
               );
             })}
           </div>
-        </Collapsible>
+        </div>
       ))}
     </div>
   );
 }
 
-export default function RightSidebar({
+/* ------------------------------------------------------------------ */
+/*  Draggable Split Pane                                               */
+/* ------------------------------------------------------------------ */
+
+function SplitPane({
+  top,
+  bottom,
+  topLabel,
+  bottomLabel,
+}: {
+  top: React.ReactNode;
+  bottom: React.ReactNode;
+  topLabel?: string;
+  bottomLabel?: string;
+}) {
+  const [splitPercent, setSplitPercent] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+  }, []);
+
+  useEffect(() => {
+    function handleMouseMove(e: MouseEvent) {
+      if (!isDragging.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const percent = (y / rect.height) * 100;
+      setSplitPercent(Math.min(80, Math.max(20, percent)));
+    }
+
+    function handleMouseUp() {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  return (
+    <div ref={containerRef} className="flex flex-col h-full">
+      {/* Top pane */}
+      <div
+        className="overflow-y-auto min-h-0"
+        style={{ height: `${splitPercent}%` }}
+      >
+        {top}
+      </div>
+
+      {/* Drag handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="shrink-0 flex items-center justify-center cursor-row-resize group border-y border-grey-300 bg-grey-50 hover:bg-grey-100 transition-colors"
+        style={{ height: "10px" }}
+      >
+        <div className="flex gap-1">
+          <span className="w-1 h-1 rounded-full bg-grey-400 group-hover:bg-grey-600 transition-colors" />
+          <span className="w-1 h-1 rounded-full bg-grey-400 group-hover:bg-grey-600 transition-colors" />
+          <span className="w-1 h-1 rounded-full bg-grey-400 group-hover:bg-grey-600 transition-colors" />
+        </div>
+      </div>
+
+      {/* Bottom pane */}
+      <div
+        className="overflow-y-auto min-h-0 flex-1"
+      >
+        {/* Bottom section header */}
+        {bottomLabel && (
+          <div className="sticky top-0 z-[5] bg-white border-b border-grey-200 px-4 py-2 flex items-center gap-2">
+            <WarningIcon className="w-4 h-4 text-red-500" />
+            <span className="text-grey-900 text-sm font-bold">{bottomLabel}</span>
+            <span className="text-grey-600 text-xs ml-auto">{FLAG_ISSUES.length} issues</span>
+          </div>
+        )}
+        {bottom}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main sidebar component                                             */
+/* ------------------------------------------------------------------ */
+
+export default function Option2RightSidebar({
   onContactClick,
   onViewLog,
   selectedFlagId,
   onFlagSelect,
-  externalActiveTab,
-  onExternalTabHandled,
-}: RightSidebarProps) {
-  const [activeTab, setActiveTab] = useState<IconTab>("transaction");
+}: Option2RightSidebarProps) {
+  const [activeTab, setActiveTab] = useState<Option2IconTab>("transaction");
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
   const [hasUnread, setHasUnread] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const commentsEndRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(4);
-
-  // Handle external tab switch requests (one-shot: only react to externalActiveTab changes)
-  useEffect(() => {
-    if (externalActiveTab) {
-      setActiveTab(externalActiveTab);
-      onExternalTabHandled?.();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalActiveTab]);
 
   const handleInput = useCallback(() => {
     const el = textareaRef.current;
@@ -178,8 +261,7 @@ export default function RightSidebar({
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
   }, []);
 
-  // Clear badge when comments tab is opened
-  function handleTabChange(tab: IconTab) {
+  function handleTabChange(tab: Option2IconTab) {
     setActiveTab(tab);
     if (tab === "comments") {
       setHasUnread(false);
@@ -201,12 +283,10 @@ export default function RightSidebar({
     setComments((prev) => [...prev, newComment]);
     setCommentText("");
 
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
 
-    // Scroll to bottom after render
     setTimeout(() => {
       commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 50);
@@ -223,7 +303,7 @@ export default function RightSidebar({
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <IconTabBar
+      <Option2IconTabBar
         activeTab={activeTab}
         onTabChange={handleTabChange}
         badges={{ comments: hasUnread }}
@@ -238,17 +318,27 @@ export default function RightSidebar({
         }}
       />
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-hidden">
         {activeTab === "transaction" && (
-          <Option2TransactionContent
-            onContactClick={onContactClick}
-            onViewLog={onViewLog}
+          <SplitPane
+            top={
+              <Option2TransactionContent
+                onContactClick={onContactClick}
+                onViewLog={onViewLog}
+              />
+            }
+            bottom={
+              <FlagsPanel
+                selectedFlagId={selectedFlagId}
+                onFlagSelect={onFlagSelect}
+              />
+            }
+            bottomLabel="Issues"
           />
         )}
 
         {activeTab === "comments" && (
           <div className="flex flex-col h-full">
-            {/* Comments list */}
             <div className="flex-1 min-h-0 overflow-y-auto">
               {comments.map((comment, i) => (
                 <div key={comment.id}>
@@ -263,7 +353,6 @@ export default function RightSidebar({
               <div ref={commentsEndRef} />
             </div>
 
-            {/* Leave a Comment */}
             <div className="border-t border-grey-300 p-3">
               <TextInput
                 ref={textareaRef}
@@ -293,14 +382,11 @@ export default function RightSidebar({
           </div>
         )}
 
-        {activeTab === "flags" && (
-          <FlagsPanel
-            selectedFlagId={selectedFlagId}
-            onFlagSelect={onFlagSelect}
-          />
+        {activeTab === "formData" && (
+          <div className="overflow-y-auto h-full">
+            <FormDataContent />
+          </div>
         )}
-
-        {activeTab === "formData" && <FormDataByPage />}
       </div>
     </div>
   );

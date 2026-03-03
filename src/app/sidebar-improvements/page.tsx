@@ -85,6 +85,74 @@ const options: OptionDef[] = [
 - Font: Proxima Nova via Adobe Fonts, with system-ui fallback.
 - Responsive icon tab bar with equal-width tabs.`,
   },
+  {
+    title: "Option 2",
+    description:
+      "Alternate sidebar layout — variation on Option 1 for comparison.",
+    href: "/sidebar-improvements/option-2",
+    ac: `## Sidebar — Option 2: Acceptance Criteria
+
+### Icon Tab Bar
+- Four icon-only tabs across the top of the sidebar: Transaction, Comments, Flags, Form Data.
+- Active tab is indicated by a blue bottom border and blue icon color.
+- Each icon shows a hover card with a contextual preview on hover.
+- A "more options" kebab icon sits at the trailing edge of the tab bar.
+- Badge dot (red) appears on tabs with unread/new items.
+
+### Transaction Tab
+- Displays transaction header with property address, price, close date, and MLS number.
+- Shows a collapsible "Parties" section listing Buyer(s) and Seller(s) with name, role badge, and contact info.
+- Shows a collapsible "Documents" section with document checklist items (name, status badge, page count).
+- Collapsible sections default to open and toggle on click.
+
+### Comments Tab
+- Displays a chronological list of comments with author name, message body, and timestamp.
+- New/unread comments are highlighted with a subtle background that fades after 3 seconds.
+- A fixed comment input bar at the bottom with a text field and send button.
+- Pressing Enter or clicking the send icon appends the new comment to the list.
+- The comment list scrolls independently; input bar stays pinned to the bottom.
+
+### Flags Tab
+- Displays a list of flag cards, each showing:
+  - A description of the issue (e.g. "The buyer's name doesn't match the name on file.")
+  - Source comparison chips showing Form / File / MLS values when applicable.
+  - Page number reference.
+- Clicking a flag card in the sidebar highlights the corresponding region on the document viewer.
+- Clicking a highlighted region on the document viewer selects the matching flag card in the sidebar and auto-switches to the Flags tab.
+- Selected flag card is visually distinguished with a blue left border.
+- Bidirectional sync: selecting a flag from either the sidebar or the document keeps both in sync.
+
+### Form Data Tab
+- Displays extracted form fields grouped into collapsible sections (e.g. "Property Information", "Financial Details", "Parties").
+- Each field row shows:
+  - Field label (bold).
+  - Primary value from the form.
+  - Expandable source comparison (Form / File / MLS values) toggled by a "Sources" button.
+  - A mismatch indicator (warning icon + red left border) when values disagree across sources.
+  - Page reference.
+- A sticky search bar at the top filters fields in real-time across all sections.
+  - Matching text is highlighted in yellow within field labels and values.
+  - Sections with no matching fields collapse automatically.
+  - A result count badge shows "X results" while searching.
+  - Clear button (X icon) resets the search.
+
+### Action Bar — Flags Integration
+- The bottom action bar includes a "View Flags" button.
+- Clicking "View Flags" switches the sidebar to the Flags tab.
+
+### Document Viewer — Flag Highlights
+- Flag regions are rendered as semi-transparent overlays on top of the document image.
+- Default state: faint overlay visible on all flagged regions.
+- Hover state: overlay becomes more prominent.
+- Selected state: overlay turns to a distinct highlight color matching the selected flag.
+- Clicking a highlight selects the flag and scrolls the sidebar Flags tab to the matching card.
+
+### General
+- Sidebar scrolls independently from the main content area.
+- All text meets WCAG AA contrast requirements (minimum 4.5:1 ratio for normal text).
+- Font: Proxima Nova via Adobe Fonts, with system-ui fallback.
+- Responsive icon tab bar with equal-width tabs.`,
+  },
 ];
 
 /* ------------------------------------------------------------------ */

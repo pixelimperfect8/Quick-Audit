@@ -128,7 +128,7 @@ export default function HoverCard({
         createPortal(
           <div
             ref={cardRef}
-            className={`fixed z-50 bg-white border border-grey-300 rounded-lg shadow-lg transition-all duration-150 ${
+            className={`fixed z-50 bg-white border border-grey-300 rounded-lg shadow-lg transition-[opacity] duration-150 ${
               open
                 ? "opacity-100 pointer-events-auto"
                 : "opacity-0 pointer-events-none"
