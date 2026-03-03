@@ -63,9 +63,9 @@ export default function ActivityLog({
               </p>
 
               <div className="flex items-center gap-2.5">
-                <span className="text-grey-700 text-base font-medium">{entry.user}</span>
+                <span className="text-grey-800 text-base font-medium">{entry.user}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-grey-400" />
-                <span className="text-grey-700 text-base font-medium flex-1 min-w-0 truncate">
+                <span className="text-grey-800 text-base font-medium flex-1 min-w-0 truncate">
                   {entry.email}
                 </span>
               </div>
@@ -74,7 +74,7 @@ export default function ActivityLog({
                 {entry.description}
               </p>
 
-              <p className="text-grey-700 text-base font-medium leading-6">
+              <p className="text-grey-800 text-base font-medium leading-6">
                 {entry.timestamp}
               </p>
             </div>

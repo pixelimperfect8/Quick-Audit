@@ -49,7 +49,7 @@ function CommentItem({ comment }: { comment: Comment }) {
     >
       <p className="text-grey-900 text-base font-bold leading-6">{comment.author}</p>
       <p className="text-grey-900 text-base font-medium leading-6">{comment.text}</p>
-      <p className="text-grey-700 text-sm font-medium leading-6">{comment.time}</p>
+      <p className="text-grey-800 text-sm font-medium leading-6">{comment.time}</p>
     </div>
   );
 }
@@ -235,7 +235,7 @@ export default function RightSidebar({
             <div className="w-64 p-3 text-left">
               <p className="text-grey-900 text-sm font-bold">{latestComment.author}</p>
               <p className="text-grey-900 text-sm mt-1 line-clamp-2">{latestComment.text}</p>
-              <p className="text-grey-700 text-xs mt-1">{latestComment.time}</p>
+              <p className="text-grey-800 text-xs mt-1">{latestComment.time}</p>
             </div>
           ) : undefined,
         }}

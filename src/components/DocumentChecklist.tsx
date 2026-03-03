@@ -71,7 +71,7 @@ function DocumentListItem({ doc }: { doc: DocumentItem }) {
     <div>
       <div className="flex items-center gap-4 px-4 py-2">
         <div className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6 truncate">
-          <span className="mr-2 text-grey-700">{doc.number}.</span>
+          <span className="mr-2 text-grey-800">{doc.number}.</span>
           {doc.name}
         </div>
         <StatusBadge status={doc.status} />

@@ -22,7 +22,7 @@ export default function Collapsible({ title, icon, defaultOpen = true, children 
       >
         <div className="flex items-center gap-2">
           {icon}
-          <h3 className="text-grey-700 text-base font-medium">{title}</h3>
+          <h3 className="text-grey-800 text-base font-medium">{title}</h3>
         </div>
         {isOpen ? (
           <ChevronUp className="w-5 h-5 text-grey-700" />

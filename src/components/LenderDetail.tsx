@@ -43,7 +43,7 @@ export default function LenderDetail({
 
         {/* Notes Section */}
         <div className="flex items-center justify-between pr-4">
-          <h3 className="text-grey-700 text-base font-medium leading-6">Notes</h3>
+          <h3 className="text-grey-800 text-base font-medium leading-6">Notes</h3>
           <ChevronDown className="w-5 h-5 text-grey-700 opacity-0" />
         </div>
 

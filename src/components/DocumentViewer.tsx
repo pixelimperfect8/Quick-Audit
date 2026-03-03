@@ -138,7 +138,7 @@ export default function DocumentViewer({
                       className="rounded-sm pointer-events-none"
                       style={{ width: "calc(100% + 20px)", height: PAGE_HEIGHT }}
                     >
-                      <p className="p-8 text-grey-700 text-sm text-center">
+                      <p className="p-8 text-grey-800 text-sm text-center">
                         Unable to display PDF.{" "}
                         <a href="/rpa-form.pdf" className="text-blue-800 underline">Download</a>
                       </p>
@@ -178,7 +178,7 @@ export default function DocumentViewer({
                 })}
 
                 {/* Page number label */}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-grey-500 text-xs font-medium">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-grey-800 text-xs font-medium">
                   Page {pageNum} of {TOTAL_PAGES}
                 </div>
               </div>

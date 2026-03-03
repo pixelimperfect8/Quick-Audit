@@ -40,7 +40,7 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "proxima-nova", system-ui, -apple-system, sans-serif;
   background: #ffffff;
   color: var(--color-grey-900);
 }

@@ -13,6 +13,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Adobe Fonts — Proxima Nova (replace XXXXXXX with your project ID) */}
+        <link rel="stylesheet" href="https://use.typekit.net/tzj8xwf.css" />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );

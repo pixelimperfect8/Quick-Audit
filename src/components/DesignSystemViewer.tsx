@@ -7,12 +7,23 @@ import type { DocStatus } from "./ui";
 
 const statuses: DocStatus[] = ["Flagged", "Pending", "Complete", "Required"];
 
+const TYPE_STYLES = [
+  { name: "heading-page", classes: "text-lg font-bold leading-7 text-grey-900", desc: "18px / Bold / grey-900 / leading-7", usage: "Page titles, drawer headers" },
+  { name: "heading-section", classes: "text-base font-bold leading-6 text-grey-900", desc: "16px / Bold / grey-900 / leading-6", usage: "Section headers, collapsible titles" },
+  { name: "label", classes: "text-base font-bold leading-6 text-grey-800", desc: "16px / Bold / grey-800 / leading-6", usage: "Field labels, source labels" },
+  { name: "body", classes: "text-base font-medium leading-6 text-grey-900", desc: "16px / Medium / grey-900 / leading-6", usage: "Primary content text" },
+  { name: "body-secondary", classes: "text-base font-medium leading-6 text-grey-800", desc: "16px / Medium / grey-800 / leading-6", usage: "Secondary content, file values" },
+  { name: "body-small", classes: "text-sm font-medium leading-5 text-grey-800", desc: "14px / Medium / grey-800 / leading-5", usage: "Timestamps, smaller details" },
+  { name: "caption", classes: "text-xs font-medium leading-4 text-grey-800", desc: "12px / Medium / grey-800 / leading-4", usage: "Result counts, badges, minor labels" },
+  { name: "overline", classes: "text-xs font-medium leading-4 text-grey-800 uppercase tracking-wide", desc: "12px / Medium / grey-800 / leading-4 / uppercase", usage: "Category labels" },
+];
+
 function Section({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
     <div className="border border-grey-300 rounded-lg overflow-hidden shrink-0">
       <div className="bg-grey-50 px-4 py-3 border-b border-grey-300">
         <h3 className="text-grey-900 text-base font-bold">{title}</h3>
-        <p className="text-grey-700 text-sm mt-0.5">{description}</p>
+        <p className="text-grey-800 text-sm mt-0.5">{description}</p>
       </div>
       <div className="p-4 flex flex-col gap-4">
         {children}
@@ -22,7 +33,7 @@ function Section({ title, description, children }: { title: string; description:
 }
 
 function StateLabel({ label }: { label: string }) {
-  return <span className="text-grey-500 text-xs font-medium uppercase tracking-wide">{label}</span>;
+  return <span className="text-grey-800 text-xs font-medium uppercase tracking-wide">{label}</span>;
 }
 
 export default function DesignSystemViewer() {
@@ -53,7 +64,7 @@ export default function DesignSystemViewer() {
         <div className="flex items-center justify-between px-6 py-4 border-b border-grey-300 shrink-0">
           <div>
             <h2 className="text-grey-900 text-lg font-bold">Design System</h2>
-            <p className="text-grey-700 text-sm">Quick-Audit component library</p>
+            <p className="text-grey-800 text-sm">Quick-Audit component library</p>
           </div>
           <button
             onClick={() => setOpen(false)}
@@ -67,6 +78,20 @@ export default function DesignSystemViewer() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+
+          {/* Typography */}
+          <Section title="Typography" description="Semantic type styles — Proxima Nova. All styles meet WCAG AA contrast (4.5:1 min).">
+            <div className="flex flex-col gap-5">
+              {TYPE_STYLES.map((style) => (
+                <div key={style.name} className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-grey-800 uppercase tracking-wide">{style.name}</span>
+                  <p className={style.classes}>The quick brown fox jumps over the lazy dog</p>
+                  <span className="text-xs font-medium text-grey-800">{style.desc}</span>
+                  <span className="text-xs font-medium text-grey-800 italic">{style.usage}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
 
           {/* Color Tokens */}
           <Section title="Color Tokens" description="Design tokens defined as CSS custom properties in globals.css">
@@ -87,7 +112,7 @@ export default function DesignSystemViewer() {
                 ].map(({ n, cls }) => (
                   <div key={n} className="flex flex-col items-center gap-1">
                     <div className={`w-10 h-10 rounded-lg border border-grey-300 ${cls}`} />
-                    <span className="text-[10px] text-grey-700">{n}</span>
+                    <span className="text-[10px] text-grey-800">{n}</span>
                   </div>
                 ))}
               </div>
@@ -107,7 +132,7 @@ export default function DesignSystemViewer() {
                 ].map((c) => (
                   <div key={c.name} className="flex flex-col items-center gap-1">
                     <div className={`w-10 h-10 rounded-lg border border-grey-300 ${c.cls}`} />
-                    <span className="text-[10px] text-grey-700">{c.name}</span>
+                    <span className="text-[10px] text-grey-800">{c.name}</span>
                   </div>
                 ))}
               </div>
@@ -211,9 +236,9 @@ export default function DesignSystemViewer() {
           {/* Divider */}
           <Section title="Divider" description="Horizontal separator line. Accepts className for margin customization.">
             <div className="flex flex-col gap-2">
-              <p className="text-grey-700 text-sm">Content above</p>
+              <p className="text-grey-800 text-sm">Content above</p>
               <Divider />
-              <p className="text-grey-700 text-sm">Content below</p>
+              <p className="text-grey-800 text-sm">Content below</p>
             </div>
           </Section>
 
@@ -266,7 +291,7 @@ export default function DesignSystemViewer() {
                 >
                   <div className="w-56 p-3">
                     <p className="text-grey-900 text-sm font-bold">Preview Card</p>
-                    <p className="text-grey-700 text-sm mt-1">This content appears on hover with a smooth fade-in animation.</p>
+                    <p className="text-grey-800 text-sm mt-1">This content appears on hover with a smooth fade-in animation.</p>
                   </div>
                 </HoverCard>
                 <HoverCard
@@ -278,7 +303,7 @@ export default function DesignSystemViewer() {
                 >
                   <div className="w-56 p-3">
                     <p className="text-grey-900 text-sm font-bold">Right Aligned</p>
-                    <p className="text-grey-700 text-sm mt-1">Card aligns to the right edge of the trigger.</p>
+                    <p className="text-grey-800 text-sm mt-1">Card aligns to the right edge of the trigger.</p>
                   </div>
                 </HoverCard>
               </div>
@@ -295,7 +320,7 @@ export default function DesignSystemViewer() {
                 >
                   <div className="w-56 p-3">
                     <p className="text-grey-900 text-sm font-bold">Top Position</p>
-                    <p className="text-grey-700 text-sm mt-1">Card appears above the trigger element.</p>
+                    <p className="text-grey-800 text-sm mt-1">Card appears above the trigger element.</p>
                   </div>
                 </HoverCard>
               </div>
@@ -377,12 +402,12 @@ export default function DesignSystemViewer() {
 
           {/* Overlay */}
           <Section title="Overlay" description="Semi-transparent backdrop for mobile sidebar drawers. Supports breakpoint-based hiding (lg/xl).">
-            <p className="text-grey-700 text-sm">Renders a fixed black/30 overlay that is hidden above the specified breakpoint. Used in the main layout for mobile sidebar toggling.</p>
+            <p className="text-grey-800 text-sm">Renders a fixed black/30 overlay that is hidden above the specified breakpoint. Used in the main layout for mobile sidebar toggling.</p>
           </Section>
 
           {/* Sidebar */}
           <Section title="Sidebar" description="Responsive sidebar wrapper with mobile slide-in animation and close button. Supports left/right positioning.">
-            <p className="text-grey-700 text-sm">Wraps content in a fixed-to-relative sidebar that slides in on mobile and is always visible above the configured breakpoint. Includes a built-in close button for mobile.</p>
+            <p className="text-grey-800 text-sm">Wraps content in a fixed-to-relative sidebar that slides in on mobile and is always visible above the configured breakpoint. Includes a built-in close button for mobile.</p>
           </Section>
 
         </div>

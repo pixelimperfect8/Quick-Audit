@@ -268,7 +268,7 @@ function FieldCard({ field }: { field: FormField }) {
         <>
           <button
             onClick={() => setSourcesOpen(!sourcesOpen)}
-            className="flex items-center gap-1.5 mt-3 text-grey-700 text-sm font-medium hover:text-grey-900 transition-colors"
+            className="flex items-center gap-1.5 mt-3 text-grey-800 text-sm font-medium hover:text-grey-900 transition-colors"
           >
             Sources
             {sourcesOpen ? (
@@ -407,7 +407,7 @@ export default function FormDataContent() {
           className="flex-1 text-base font-medium text-grey-900 placeholder:text-grey-800 outline-none bg-transparent leading-6"
         />
         {query && (
-          <span className="text-grey-500 text-xs shrink-0 ml-2">
+          <span className="text-grey-800 text-xs shrink-0 ml-2">
             {totalResults} {totalResults === 1 ? "result" : "results"}
           </span>
         )}
@@ -432,7 +432,7 @@ export default function FormDataContent() {
 
       {query && totalResults === 0 && (
         <div className="px-4 py-8 text-center">
-          <p className="text-grey-500 text-sm">No fields match &ldquo;{query}&rdquo;</p>
+          <p className="text-grey-800 text-sm">No fields match &ldquo;{query}&rdquo;</p>
         </div>
       )}
     </>
