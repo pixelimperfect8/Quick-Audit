@@ -10,6 +10,7 @@ export default function SidebarOption1Page() {
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
   const [externalTab, setExternalTab] = useState<IconTab | null>(null);
   const [rejectedFlagIds, setRejectedFlagIds] = useState<Set<string>>(new Set());
+  const [tieredCommission, setTieredCommission] = useState(false);
 
   const handleFlagSelect = useCallback((id: string) => {
     setSelectedFlagId(id);
@@ -51,6 +52,13 @@ export default function SidebarOption1Page() {
         actionBarProps={{
           onViewFlags: handleViewFlags,
         }}
+        topNavToggles={[
+          {
+            label: "Tiered Commission",
+            checked: tieredCommission,
+            onChange: setTieredCommission,
+          },
+        ]}
         rightSidebarContent={({ onContactClick, onViewLog }) => (
           <RightSidebar
             onContactClick={onContactClick}
@@ -61,6 +69,7 @@ export default function SidebarOption1Page() {
             onExternalTabHandled={handleExternalTabHandled}
             rejectedFlagIds={rejectedFlagIds}
             onFlagReject={handleFlagReject}
+            tieredCommission={tieredCommission}
           />
         )}
       />

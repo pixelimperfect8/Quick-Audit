@@ -14,6 +14,12 @@ import TopNav from "@/components/TopNav";
 
 type RightPanel = "transaction" | "lender" | "log";
 
+interface ToggleDef {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
 interface DashboardProps {
   backHref?: string;
   backLabel?: string;
@@ -32,6 +38,8 @@ interface DashboardProps {
   actionBarProps?: {
     onViewFlags?: () => void;
   };
+  /** Toggles shown in the top nav bar */
+  topNavToggles?: ToggleDef[];
 }
 
 export default function Dashboard({
@@ -40,6 +48,7 @@ export default function Dashboard({
   rightSidebarContent,
   documentViewerProps,
   actionBarProps,
+  topNavToggles,
 }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -64,7 +73,7 @@ export default function Dashboard({
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden">
-      {backHref && <TopNav href={backHref} label={backLabel || "Back"} />}
+      {backHref && <TopNav href={backHref} label={backLabel || "Back"} toggles={topNavToggles} />}
 
       <Header
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}

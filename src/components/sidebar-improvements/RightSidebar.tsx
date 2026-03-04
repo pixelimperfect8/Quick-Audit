@@ -20,6 +20,8 @@ interface RightSidebarProps {
   rejectedFlagIds?: Set<string>;
   /** Callback to toggle a flag's rejected state */
   onFlagReject?: (id: string) => void;
+  /** Show tiered commission breakdown instead of flat totals */
+  tieredCommission?: boolean;
 }
 
 interface Comment {
@@ -150,6 +152,7 @@ export default function RightSidebar({
   onExternalTabHandled,
   rejectedFlagIds,
   onFlagReject,
+  tieredCommission,
 }: RightSidebarProps) {
   const [activeTab, setActiveTab] = useState<IconTab>("transaction");
   const [commentText, setCommentText] = useState("");
@@ -241,6 +244,7 @@ export default function RightSidebar({
             onContactClick={onContactClick}
             onViewLog={onViewLog}
             rejectedFlagIds={rejectedFlagIds}
+            tieredCommission={tieredCommission}
           />
         )}
 

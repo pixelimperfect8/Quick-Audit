@@ -61,6 +61,45 @@ const DEFAULT_COMMISSION: CommissionData[] = [
   { label: "Other deductions", value: "$600" },
 ];
 
+/* Shared rows that appear in both flat and tiered views */
+const SHARED_COMMISSION: CommissionData[] = [
+  { label: "Office gross", value: "$99,999.99" },
+  { label: "TC", value: "$1,000" },
+  { label: "Referral Agent", value: "$3,000" },
+  { label: "Other deductions", value: "$600" },
+];
+
+interface TieredRow {
+  rate: string;
+  description: string;
+  threshold: string;
+}
+
+interface TieredCommissionGroup {
+  label: string;
+  tiers: TieredRow[];
+  additional: string;
+}
+
+const TIERED_COMMISSION: TieredCommissionGroup[] = [
+  {
+    label: "Sale commission",
+    tiers: [
+      { rate: "2.5%", description: "for the first", threshold: "$100,000" },
+      { rate: "1.5%", description: "for the remaining balance", threshold: "" },
+    ],
+    additional: "$500",
+  },
+  {
+    label: "Listing commission",
+    tiers: [
+      { rate: "3.0%", description: "for the first", threshold: "$100,000" },
+      { rate: "2.0%", description: "for the remaining balance", threshold: "" },
+    ],
+    additional: "$750",
+  },
+];
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -93,12 +132,15 @@ interface Option2TransactionContentProps {
   onViewLog?: () => void;
   /** Set of rejected flag IDs — suppresses mismatch highlighting */
   rejectedFlagIds?: Set<string>;
+  /** Show tiered commission breakdown */
+  tieredCommission?: boolean;
 }
 
 export default function Option2TransactionContent({
   onContactClick,
   onViewLog,
   rejectedFlagIds = new Set(),
+  tieredCommission = false,
 }: Option2TransactionContentProps) {
   return (
     <>
@@ -194,9 +236,55 @@ export default function Option2TransactionContent({
       </Collapsible>
 
       <Collapsible title="Commission" defaultOpen>
-        {DEFAULT_COMMISSION.map((row) => (
-          <DetailRow key={row.label} label={row.label} value={row.value} />
-        ))}
+        {tieredCommission ? (
+          <>
+            {TIERED_COMMISSION.map((group) => (
+              <div key={group.label} className="mb-3 last:mb-1">
+                <p className="text-grey-900 text-base font-bold leading-6 mb-1">
+                  {group.label}
+                </p>
+                <div className="flex flex-col gap-0.5 pl-1">
+                  {group.tiers.map((tier, i) => (
+                    <div key={i} className="flex items-baseline gap-1.5">
+                      <span className="text-grey-900 text-base font-bold leading-6 shrink-0">
+                        {tier.rate}
+                      </span>
+                      <span className="text-grey-900 text-base font-medium leading-6">
+                        {tier.description}
+                      </span>
+                      {tier.threshold && (
+                        <span className="text-grey-900 text-base font-bold leading-6">
+                          {tier.threshold}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-grey-900 text-base font-bold leading-6 shrink-0">
+                      {group.additional}
+                    </span>
+                    <span className="text-grey-900 text-base font-medium leading-6">
+                      additional {group.label.toLowerCase().replace(" commission", "")} commission
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <div className="border-t border-grey-200 pt-1 mt-1">
+              {SHARED_COMMISSION.map((row) => (
+                <DetailRow
+                  key={row.label}
+                  label={row.label}
+                  value={row.value}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          DEFAULT_COMMISSION.map((row) => (
+            <DetailRow key={row.label} label={row.label} value={row.value} />
+          ))
+        )}
       </Collapsible>
 
       <div className="px-4 py-3">
