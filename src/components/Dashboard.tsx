@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import DocumentChecklist from "@/components/DocumentChecklist";
 import DocumentViewer from "@/components/DocumentViewer";
+import DocumentTabBar from "@/components/DocumentTabBar";
 import TransactionDetails from "@/components/TransactionDetails";
 import LenderDetail from "@/components/LenderDetail";
 import ActivityLog from "@/components/ActivityLog";
@@ -11,6 +12,8 @@ import ActionBar from "@/components/ActionBar";
 import SidebarFooter from "@/components/SidebarFooter";
 import { Overlay, Sidebar } from "@/components/ui";
 import TopNav from "@/components/TopNav";
+import type { DocumentTab } from "@/components/documentTabs/types";
+import { DOCUMENT_REGISTRY } from "@/components/documentTabs/types";
 
 type RightPanel = "transaction" | "lender" | "log";
 
@@ -56,6 +59,89 @@ export default function Dashboard({
   const [drawerVisible, setDrawerVisible] = useState(false);
   const drawerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ─── Document tab state ──────────────────────────────────────
+  const [tabs, setTabs] = useState<DocumentTab[]>([
+    { id: "tab-1", label: "California...Agreeme...", documentId: "doc-ca-rpa" },
+  ]);
+  const [activeTabId, setActiveTabId] = useState("tab-1");
+  const nextTabId = useRef(2);
+
+  // Derived: active document for the viewer
+  const activeTab = tabs.find((t) => t.id === activeTabId);
+  const activeDocument = activeTab?.documentId
+    ? DOCUMENT_REGISTRY.find((d) => d.id === activeTab.documentId) ?? null
+    : null;
+
+  const handleNewTab = useCallback(() => {
+    const newId = `tab-${nextTabId.current++}`;
+    setTabs((prev) => [...prev, { id: newId, label: "New Tab", documentId: null }]);
+    setActiveTabId(newId);
+  }, []);
+
+  const handleCloseTab = useCallback(
+    (tabId: string) => {
+      setTabs((prev) => {
+        const idx = prev.findIndex((t) => t.id === tabId);
+        const filtered = prev.filter((t) => t.id !== tabId);
+
+        if (filtered.length === 0) {
+          // Always keep at least one tab — create a new empty one
+          const newId = `tab-${nextTabId.current++}`;
+          setActiveTabId(newId);
+          return [{ id: newId, label: "New Tab", documentId: null }];
+        }
+
+        // If we closed the active tab, activate nearest neighbor
+        if (tabId === activeTabId) {
+          const newIdx = Math.min(idx, filtered.length - 1);
+          setActiveTabId(filtered[newIdx].id);
+        }
+
+        return filtered;
+      });
+    },
+    [activeTabId],
+  );
+
+  const handleLoadDocument = useCallback(
+    (documentId: string) => {
+      const docInfo = DOCUMENT_REGISTRY.find((d) => d.id === documentId);
+      if (!docInfo) return;
+
+      // If active tab already has this document, do nothing
+      if (activeTab?.documentId === documentId) return;
+
+      // If active tab is empty (New Tab), load into it
+      if (activeTab && activeTab.documentId === null) {
+        setTabs((prev) =>
+          prev.map((t) =>
+            t.id === activeTabId
+              ? { ...t, label: docInfo.shortName, documentId: docInfo.id }
+              : t,
+          ),
+        );
+        return;
+      }
+
+      // Check if there's already a tab with this document — switch to it
+      const existingTab = tabs.find((t) => t.documentId === documentId);
+      if (existingTab) {
+        setActiveTabId(existingTab.id);
+        return;
+      }
+
+      // Otherwise, load into the active tab
+      setTabs((prev) =>
+        prev.map((t) =>
+          t.id === activeTabId
+            ? { ...t, label: docInfo.shortName, documentId: docInfo.id }
+            : t,
+        ),
+      );
+    },
+    [activeTab, activeTabId, tabs],
+  );
+
   // When rightPanel changes to a drawer, animate it in
   useEffect(() => {
     if (rightPanel !== "transaction") {
@@ -93,13 +179,20 @@ export default function Dashboard({
           breakpoint="lg"
           width="w-[320px] sm:w-[374px]"
         >
-          <DocumentChecklist />
+          <DocumentChecklist onDocumentSelect={handleLoadDocument} />
         </Sidebar>
 
         {/* Center */}
         <main className="flex-1 min-w-0 flex flex-col">
+          <DocumentTabBar
+            tabs={tabs}
+            activeTabId={activeTabId}
+            onTabSelect={setActiveTabId}
+            onTabClose={handleCloseTab}
+            onNewTab={handleNewTab}
+          />
           <div className="flex-1 min-h-0">
-            <DocumentViewer {...documentViewerProps} />
+            <DocumentViewer document={activeDocument} {...documentViewerProps} />
           </div>
           <ActionBar {...actionBarProps} />
         </main>

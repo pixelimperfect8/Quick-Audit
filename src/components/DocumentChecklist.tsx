@@ -3,6 +3,7 @@
 import { PlusIcon } from "./icons";
 import { StatusBadge, Divider, FileCard } from "./ui";
 import type { DocStatus } from "./ui";
+import { DOC_NAME_TO_ID } from "./documentTabs/types";
 
 interface FileItem {
   name: string;
@@ -66,9 +67,12 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-function DocumentListItem({ doc }: { doc: DocumentItem }) {
+function DocumentListItem({ doc, onSelect }: { doc: DocumentItem; onSelect?: () => void }) {
   return (
-    <div>
+    <div
+      onClick={onSelect}
+      className={onSelect ? "cursor-pointer hover:bg-grey-50 transition-colors" : ""}
+    >
       <div className="flex items-center gap-4 px-4 py-2">
         <div className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6 truncate">
           <span className="mr-2 text-grey-800">{doc.number}.</span>
@@ -98,10 +102,13 @@ function DocumentListItem({ doc }: { doc: DocumentItem }) {
 
 interface DocumentChecklistProps {
   sections?: DocumentSection[];
+  /** Called when a document item is clicked — loads it in the active tab */
+  onDocumentSelect?: (documentId: string) => void;
 }
 
 export default function DocumentChecklist({
   sections = DEFAULT_SECTIONS,
+  onDocumentSelect,
 }: DocumentChecklistProps) {
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-white">
@@ -110,9 +117,16 @@ export default function DocumentChecklist({
           {i > 0 && <Divider />}
           <SectionHeader title={section.title} />
           <div className="flex flex-col">
-            {section.documents.map((doc) => (
-              <DocumentListItem key={`${section.title}-${doc.number}-${doc.name}`} doc={doc} />
-            ))}
+            {section.documents.map((doc) => {
+              const docId = DOC_NAME_TO_ID[doc.name];
+              return (
+                <DocumentListItem
+                  key={`${section.title}-${doc.number}-${doc.name}`}
+                  doc={doc}
+                  onSelect={onDocumentSelect && docId ? () => onDocumentSelect(docId) : undefined}
+                />
+              );
+            })}
           </div>
         </div>
       ))}

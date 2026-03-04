@@ -4,11 +4,13 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { IconButton } from "./ui";
 import { ChevronDown, DownloadIcon, PrintIcon, DoubleArrowRight, ZoomInIcon, ZoomOutIcon } from "./icons";
 import { FLAG_ISSUES } from "./sidebar-improvements/flagsData";
+import EmptyTabState from "./EmptyTabState";
+import type { DocumentInfo } from "./documentTabs/types";
+import { DOCUMENT_REGISTRY } from "./documentTabs/types";
 
 const MIN_ZOOM = 50;
 const MAX_ZOOM = 400;
 const ZOOM_STEP = 25;
-const TOTAL_PAGES = 5;
 const PAGE_HEIGHT = 792; // US Letter height in px at 1x
 const PAGE_GAP = 24; // gap between pages in px
 
@@ -21,6 +23,8 @@ interface DocumentViewerProps {
   showFlags?: boolean;
   /** Flag IDs that have been rejected — their highlights are hidden */
   rejectedFlagIds?: Set<string>;
+  /** Document to display. null = empty state, undefined = default document */
+  document?: DocumentInfo | null;
 }
 
 export default function DocumentViewer({
@@ -28,7 +32,12 @@ export default function DocumentViewer({
   onFlagSelect,
   showFlags = false,
   rejectedFlagIds,
+  document: documentProp,
 }: DocumentViewerProps) {
+  // Resolve document: undefined → default, null → empty state
+  const doc = documentProp === undefined ? DOCUMENT_REGISTRY[0] : documentProp;
+  const totalPages = doc?.pageCount ?? 5;
+
   const [zoom, setZoom] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -47,7 +56,7 @@ export default function DocumentViewer({
 
     // Find which page is most visible
     const pageIndex = Math.floor(scrollTop / (scaledPageHeight + scaledGap));
-    const page = Math.min(Math.max(pageIndex + 1, 1), TOTAL_PAGES);
+    const page = Math.min(Math.max(pageIndex + 1, 1), totalPages);
 
     if (page !== currentPage) {
       setCurrentPage(page);
@@ -74,6 +83,11 @@ export default function DocumentViewer({
         }, {})
     : {};
 
+  // Empty state when no document is loaded
+  if (!doc) {
+    return <EmptyTabState />;
+  }
+
   return (
     <div className="flex flex-col h-full bg-grey-200 min-w-0">
       {/* Toolbar */}
@@ -86,7 +100,7 @@ export default function DocumentViewer({
         </div>
 
         <p className="text-grey-900 text-sm font-medium truncate hidden sm:block">
-          California...Agreement.pdf
+          {doc.shortName}
         </p>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -121,7 +135,7 @@ export default function DocumentViewer({
           className="flex flex-col items-center gap-6"
           style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center" }}
         >
-          {Array.from({ length: TOTAL_PAGES }, (_, i) => {
+          {Array.from({ length: totalPages }, (_, i) => {
             const pageNum = i + 1;
             const pageFlags = flagsByPage[pageNum] || [];
 
@@ -138,14 +152,14 @@ export default function DocumentViewer({
                 {pageNum === 1 ? (
                   <div className="overflow-hidden w-full" style={{ height: PAGE_HEIGHT }}>
                     <object
-                      data="/rpa-form.pdf#toolbar=0&navpanes=0&scrollbar=0&page=1"
+                      data={`${doc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&page=1`}
                       type="application/pdf"
                       className="rounded-sm pointer-events-none"
                       style={{ width: "calc(100% + 20px)", height: PAGE_HEIGHT }}
                     >
                       <p className="p-8 text-grey-800 text-sm text-center">
                         Unable to display PDF.{" "}
-                        <a href="/rpa-form.pdf" className="text-blue-800 underline">Download</a>
+                        <a href={doc.pdfUrl} className="text-blue-800 underline">Download</a>
                       </p>
                     </object>
                   </div>
@@ -184,7 +198,7 @@ export default function DocumentViewer({
 
                 {/* Page number label */}
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-grey-800 text-xs font-medium">
-                  Page {pageNum} of {TOTAL_PAGES}
+                  Page {pageNum} of {totalPages}
                 </div>
               </div>
             );
