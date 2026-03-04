@@ -19,9 +19,9 @@ export default function DocumentTabBar({
   onNewTab,
 }: DocumentTabBarProps) {
   return (
-    <div className="bg-grey-100 border-b border-grey-300 h-10 shrink-0 flex items-center">
+    <div className="bg-grey-200 shrink-0 flex items-center gap-2 px-3 py-1.5">
       {/* Scrollable tab list */}
-      <div className="flex-1 flex items-stretch overflow-x-auto min-w-0 scrollbar-none">
+      <div className="flex-1 flex items-center gap-2 overflow-x-auto min-w-0 scrollbar-none">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
 
@@ -29,14 +29,14 @@ export default function DocumentTabBar({
             <button
               key={tab.id}
               onClick={() => onTabSelect(tab.id)}
-              className={`group relative flex items-center gap-1.5 px-3 shrink-0 max-w-[180px] text-sm transition-colors border-b-[3px] ${
+              className={`group relative flex items-center gap-2 shrink-0 max-w-[200px] h-10 px-6 text-base transition-colors rounded-lg ${
                 isActive
-                  ? "bg-white text-grey-900 font-bold border-blue-800"
-                  : "text-grey-800 font-medium border-transparent hover:bg-grey-200"
+                  ? "bg-white text-grey-900 font-medium shadow-sm"
+                  : "text-grey-900 font-medium hover:bg-white/50"
               }`}
               title={tab.label}
             >
-              <span className="truncate">{tab.label}</span>
+              <span className="truncate leading-6">{tab.label}</span>
 
               {/* Close button */}
               <span
@@ -55,26 +55,26 @@ export default function DocumentTabBar({
                 }}
                 className={`shrink-0 p-0.5 rounded-sm transition-colors ${
                   isActive
-                    ? "text-grey-500 hover:text-grey-700 hover:bg-grey-200"
-                    : "text-grey-400 hover:text-grey-700 hover:bg-grey-300 opacity-0 group-hover:opacity-100"
+                    ? "text-grey-800 hover:text-grey-900"
+                    : "text-grey-800 opacity-0 group-hover:opacity-100"
                 }`}
                 aria-label={`Close ${tab.label}`}
               >
-                <CloseIcon className="w-3.5 h-3.5" />
+                <CloseIcon className="w-[10px] h-[10px]" />
               </span>
             </button>
           );
         })}
       </div>
 
-      {/* Add new tab button — always visible */}
+      {/* Add new tab button — white rounded square */}
       <button
         onClick={onNewTab}
-        className="shrink-0 px-2.5 h-full flex items-center text-grey-600 hover:text-grey-900 transition-colors"
+        className="shrink-0 w-[30px] h-[30px] flex items-center justify-center bg-white rounded text-grey-800 hover:text-grey-900 transition-colors"
         aria-label="New tab"
         title="New tab"
       >
-        <PlusIcon className="w-4 h-4" />
+        <PlusIcon className="w-[18px] h-[18px]" />
       </button>
     </div>
   );
