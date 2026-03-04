@@ -67,11 +67,19 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-function DocumentListItem({ doc, onSelect }: { doc: DocumentItem; onSelect?: () => void }) {
+function DocumentListItem({
+  doc,
+  onSelect,
+  isActive,
+}: {
+  doc: DocumentItem;
+  onSelect?: () => void;
+  isActive?: boolean;
+}) {
   return (
     <div
       onClick={onSelect}
-      className={onSelect ? "cursor-pointer hover:bg-grey-50 transition-colors" : ""}
+      className={`${onSelect ? "cursor-pointer hover:bg-grey-50 transition-colors" : ""}${isActive ? " bg-grey-100 border-l-[3px] border-blue-800" : ""}`}
     >
       <div className="flex items-center gap-4 px-4 py-2">
         <div className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6 truncate">
@@ -104,11 +112,14 @@ interface DocumentChecklistProps {
   sections?: DocumentSection[];
   /** Called when a document item is clicked — loads it in the active tab */
   onDocumentSelect?: (documentId: string) => void;
+  /** ID of the document currently loaded in the active tab */
+  activeDocumentId?: string | null;
 }
 
 export default function DocumentChecklist({
   sections = DEFAULT_SECTIONS,
   onDocumentSelect,
+  activeDocumentId,
 }: DocumentChecklistProps) {
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-white">
@@ -124,6 +135,7 @@ export default function DocumentChecklist({
                   key={`${section.title}-${doc.number}-${doc.name}`}
                   doc={doc}
                   onSelect={onDocumentSelect && docId ? () => onDocumentSelect(docId) : undefined}
+                  isActive={!!docId && docId === activeDocumentId}
                 />
               );
             })}

@@ -65,6 +65,15 @@ export default function Dashboard({
   ]);
   const [activeTabId, setActiveTabId] = useState("tab-1");
   const nextTabId = useRef(2);
+  // History stack for "return to previous tab" on close
+  const tabHistory = useRef<string[]>(["tab-1"]);
+
+  // Track tab activations in history
+  const selectTab = useCallback((tabId: string) => {
+    setActiveTabId(tabId);
+    tabHistory.current = tabHistory.current.filter((id) => id !== tabId);
+    tabHistory.current.push(tabId);
+  }, []);
 
   // Derived: active document for the viewer
   const activeTab = tabs.find((t) => t.id === activeTabId);
@@ -75,26 +84,36 @@ export default function Dashboard({
   const handleNewTab = useCallback(() => {
     const newId = `tab-${nextTabId.current++}`;
     setTabs((prev) => [...prev, { id: newId, label: "New Tab", documentId: null }]);
-    setActiveTabId(newId);
-  }, []);
+    selectTab(newId);
+  }, [selectTab]);
 
   const handleCloseTab = useCallback(
     (tabId: string) => {
       setTabs((prev) => {
-        const idx = prev.findIndex((t) => t.id === tabId);
         const filtered = prev.filter((t) => t.id !== tabId);
+
+        // Remove closed tab from history
+        tabHistory.current = tabHistory.current.filter((id) => id !== tabId);
 
         if (filtered.length === 0) {
           // Always keep at least one tab — create a new empty one
           const newId = `tab-${nextTabId.current++}`;
+          tabHistory.current.push(newId);
           setActiveTabId(newId);
           return [{ id: newId, label: "New Tab", documentId: null }];
         }
 
-        // If we closed the active tab, activate nearest neighbor
+        // If we closed the active tab, return to previously active tab
         if (tabId === activeTabId) {
-          const newIdx = Math.min(idx, filtered.length - 1);
-          setActiveTabId(filtered[newIdx].id);
+          const prevId = tabHistory.current[tabHistory.current.length - 1];
+          const fallback = filtered[filtered.length - 1].id;
+          const nextActive = prevId && filtered.some((t) => t.id === prevId)
+            ? prevId
+            : fallback;
+          setActiveTabId(nextActive);
+          if (!tabHistory.current.includes(nextActive)) {
+            tabHistory.current.push(nextActive);
+          }
         }
 
         return filtered;
@@ -126,7 +145,7 @@ export default function Dashboard({
       // Check if there's already a tab with this document — switch to it
       const existingTab = tabs.find((t) => t.documentId === documentId);
       if (existingTab) {
-        setActiveTabId(existingTab.id);
+        selectTab(existingTab.id);
         return;
       }
 
@@ -139,7 +158,7 @@ export default function Dashboard({
         ),
       );
     },
-    [activeTab, activeTabId, tabs],
+    [activeTab, activeTabId, tabs, selectTab],
   );
 
   // When rightPanel changes to a drawer, animate it in
@@ -179,7 +198,10 @@ export default function Dashboard({
           breakpoint="lg"
           width="w-[320px] sm:w-[374px]"
         >
-          <DocumentChecklist onDocumentSelect={handleLoadDocument} />
+          <DocumentChecklist
+            onDocumentSelect={handleLoadDocument}
+            activeDocumentId={activeTab?.documentId ?? null}
+          />
         </Sidebar>
 
         {/* Center */}
@@ -187,7 +209,7 @@ export default function Dashboard({
           <DocumentTabBar
             tabs={tabs}
             activeTabId={activeTabId}
-            onTabSelect={setActiveTabId}
+            onTabSelect={selectTab}
             onTabClose={handleCloseTab}
             onNewTab={handleNewTab}
           />
