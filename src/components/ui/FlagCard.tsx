@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, ThumbUp, ThumbDown, ThumbUpOutline, ThumbDownOu
 
 interface FlagCardProps {
   children: React.ReactNode;
-  /** Purple border when selected, grey when not */
+  /** Red border when selected, grey when not */
   selected?: boolean;
   /** Issue has been rejected/dismissed — strikethrough text, muted background */
   rejected?: boolean;
@@ -39,7 +39,7 @@ export default function FlagCard({
         rejected
           ? "bg-grey-50 border border-grey-300"
           : selected
-            ? "border border-purple-600"
+            ? "border border-red-400"
             : "border border-grey-300"
       }`}
     >
