@@ -198,10 +198,7 @@ export default function Dashboard({
           breakpoint="lg"
           width="w-[320px] sm:w-[374px]"
         >
-          <DocumentChecklist
-            onDocumentSelect={handleLoadDocument}
-            activeDocumentId={activeTab?.documentId ?? null}
-          />
+          <DocumentChecklist onDocumentSelect={handleLoadDocument} />
         </Sidebar>
 
         {/* Center */}

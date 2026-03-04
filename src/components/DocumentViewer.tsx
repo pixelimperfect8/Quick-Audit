@@ -91,17 +91,13 @@ export default function DocumentViewer({
   return (
     <div className="flex flex-col h-full bg-grey-200 min-w-0">
       {/* Toolbar */}
-      <div className="bg-grey-100 border-b border-grey-300 px-3 py-2 flex items-center justify-between gap-2 shrink-0">
+      <div className="bg-white border-b border-grey-300 px-3 py-2 flex items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-grey-900 text-sm font-medium whitespace-nowrap">
             Page {currentPage}
           </span>
           <ChevronDown className="w-4 h-4 text-grey-700 shrink-0" />
         </div>
-
-        <p className="text-grey-900 text-sm font-medium truncate hidden sm:block">
-          {doc.shortName}
-        </p>
 
         <div className="flex items-center gap-1 shrink-0">
           <IconButton
