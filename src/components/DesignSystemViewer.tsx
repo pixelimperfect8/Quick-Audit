@@ -375,13 +375,13 @@ export default function DesignSystemViewer() {
             <div className="flex flex-col gap-3 max-w-md">
               <div className="flex flex-col gap-1">
                 <StateLabel label="Selected" />
-                <FlagCard selected onSelect={() => {}} onReject={() => {}} onAccept={() => {}} sources={<><div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">Form:</p><p className="text-grey-800 text-base font-medium leading-6">Rachael Laurella</p></div><div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">File:</p><p className="text-grey-800 text-base font-medium leading-6">Rachel Laurella</p></div></>}>
+                <FlagCard selected onSelect={() => {}} onReject={() => {}} sources={<><div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">Form:</p><p className="text-grey-800 text-base font-medium leading-6">Rachael Laurella</p></div><div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">File:</p><p className="text-grey-800 text-base font-medium leading-6">Rachel Laurella</p></div></>}>
                   The buyer&apos;s name doesn&apos;t match the name on file.
                 </FlagCard>
               </div>
               <div className="flex flex-col gap-1">
                 <StateLabel label="Default" />
-                <FlagCard onSelect={() => {}} onReject={() => {}} onAccept={() => {}} sources={<div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">MLS:</p><p className="text-grey-800 text-base font-medium leading-6">3969 Harvord Blvd</p></div>}>
+                <FlagCard onSelect={() => {}} onReject={() => {}} sources={<div className="px-4 py-2"><p className="text-grey-900 text-base font-bold leading-6">MLS:</p><p className="text-grey-800 text-base font-medium leading-6">3969 Harvord Blvd</p></div>}>
                   The property address doesn&apos;t match the address on file or MLS.
                 </FlagCard>
               </div>
