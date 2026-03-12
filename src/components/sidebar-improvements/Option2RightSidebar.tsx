@@ -121,7 +121,6 @@ function FlagsPanel({
                     rejected={isRejected}
                     onSelect={() => onFlagSelect?.(issue.id)}
                     onReject={() => onFlagReject?.(issue.id)}
-                    onAccept={isRejected ? undefined : () => {}}
                     sources={
                       issue.sources ? (
                         <SourcesList sources={issue.sources} />

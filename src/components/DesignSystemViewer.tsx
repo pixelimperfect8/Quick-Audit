@@ -393,7 +393,7 @@ export default function DesignSystemViewer() {
               </div>
               <div className="flex flex-col gap-1">
                 <StateLabel label="No sources" />
-                <FlagCard onSelect={() => {}} onReject={() => {}} onAccept={() => {}}>
+                <FlagCard onSelect={() => {}} onReject={() => {}}>
                   Seller&apos;s initials missing
                 </FlagCard>
               </div>
