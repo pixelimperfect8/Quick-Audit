@@ -1,28 +1,28 @@
 "use client";
 
 import { PlusIcon } from "./icons";
-import { StatusBadge, Divider, FileCard } from "./ui";
+import { StatusBadge, Divider, FileCard, TruncatedText } from "./ui";
 import type { DocStatus } from "./ui";
-import { DOC_NAME_TO_ID } from "./documentTabs/types";
+import { DOC_NAME_TO_ID, DOCUMENT_REGISTRY } from "./documentTabs/types";
 
-interface FileItem {
+export interface FileItem {
   name: string;
   date: string;
 }
 
-interface DocumentItem {
+export interface DocumentItem {
   number: number;
   name: string;
   status: DocStatus;
   files?: FileItem[];
 }
 
-interface DocumentSection {
+export interface DocumentSection {
   title: string;
   documents: DocumentItem[];
 }
 
-const DEFAULT_SECTIONS: DocumentSection[] = [
+export const DEFAULT_SECTIONS: DocumentSection[] = [
   {
     title: "Sales Documentation",
     documents: [
@@ -58,9 +58,14 @@ const DEFAULT_SECTIONS: DocumentSection[] = [
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="bg-grey-50 border-b border-grey-300 px-6 flex items-center gap-2.5 h-[45px]">
-      <h3 className="text-grey-900 text-base font-bold leading-6">{title}</h3>
-      <button className="text-grey-700 hover:text-grey-900">
+    <div className="bg-grey-50 border-b border-grey-300 px-6 flex items-center gap-2.5 h-[45px] min-w-0">
+      <TruncatedText
+        as="h3"
+        className="flex-1 min-w-0 text-grey-900 text-base font-bold leading-6"
+      >
+        {title}
+      </TruncatedText>
+      <button className="shrink-0 text-grey-700 hover:text-grey-900">
         <PlusIcon className="w-5 h-5" />
       </button>
     </div>
@@ -70,24 +75,32 @@ function SectionHeader({ title }: { title: string }) {
 function DocumentListItem({
   doc,
   onSelect,
+  isActive,
 }: {
   doc: DocumentItem;
   onSelect?: () => void;
+  isActive?: boolean;
 }) {
+  const docId = DOC_NAME_TO_ID[doc.name];
+  const showExpanded = isActive && doc.status !== "Required";
+  const docInfo = showExpanded && !doc.files && docId
+    ? DOCUMENT_REGISTRY.find((d) => d.id === docId)
+    : null;
+
   return (
     <div
       onClick={onSelect}
       className={onSelect ? "cursor-pointer hover:bg-grey-50 transition-colors" : ""}
     >
       <div className="flex items-center gap-4 px-4 py-2">
-        <div className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6 truncate">
-          <span className="mr-2 text-grey-800">{doc.number}.</span>
-          {doc.name}
+        <div className="flex-1 min-w-0 flex items-center gap-2 text-grey-900 text-base font-medium leading-6">
+          <span className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-[4px] bg-grey-50 text-grey-800 text-xs font-semibold">{doc.number}</span>
+          <TruncatedText className="min-w-0">{doc.name}</TruncatedText>
         </div>
         <StatusBadge status={doc.status} />
       </div>
 
-      {doc.files && (
+      {showExpanded && doc.files && (
         <div className="px-2 pb-2">
           <div className="bg-grey-100 rounded-lg p-4 flex flex-col gap-1">
             {doc.files.map((file, i) => (
@@ -102,18 +115,34 @@ function DocumentListItem({
           </div>
         </div>
       )}
+
+      {docInfo && (
+        <div className="px-2 pb-2">
+          <div className="bg-grey-100 rounded-lg p-4 flex flex-col gap-1">
+            <FileCard
+              name={`${docInfo.shortName}.pdf`}
+              date="13 days ago"
+              active
+              onRemove={() => {}}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 interface DocumentChecklistProps {
   sections?: DocumentSection[];
+  /** The document ID currently active in the viewer */
+  activeDocumentId?: string | null;
   /** Called when a document item is clicked — loads it in the active tab */
   onDocumentSelect?: (documentId: string) => void;
 }
 
 export default function DocumentChecklist({
   sections = DEFAULT_SECTIONS,
+  activeDocumentId,
   onDocumentSelect,
 }: DocumentChecklistProps) {
   return (
@@ -129,6 +158,7 @@ export default function DocumentChecklist({
                 <DocumentListItem
                   key={`${section.title}-${doc.number}-${doc.name}`}
                   doc={doc}
+                  isActive={!!docId && docId === activeDocumentId}
                   onSelect={onDocumentSelect && docId ? () => onDocumentSelect(docId) : undefined}
                 />
               );

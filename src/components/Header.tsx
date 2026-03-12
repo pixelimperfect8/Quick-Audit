@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowBack, ChevronLeft, ChevronRight, ChevronDown, MenuIcon, MoreVert } from "./icons";
-import { Tabs } from "./ui";
+import { Tabs, TruncatedText } from "./ui";
 
 const headerTabs = ["Listings", "Transactions", "Both"] as const;
 
@@ -41,9 +41,9 @@ export default function Header({
             <ChevronLeft className="w-5 h-5 text-grey-700" />
           </button>
           <div className="flex items-center gap-2 h-10 px-3 sm:px-4 min-w-0 flex-1 sm:w-[280px] lg:w-[331px]">
-            <p className="text-grey-900 text-sm sm:text-base leading-6 truncate">
+            <TruncatedText as="p" className="text-grey-900 text-sm sm:text-base leading-6">
               456 Oak Avenue, Sacramento, CA 95816
-            </p>
+            </TruncatedText>
             <ChevronDown className="w-5 h-5 text-grey-700 shrink-0" />
           </div>
           <button className="bg-grey-50 border-l border-grey-300 h-10 px-2 hover:bg-grey-200 shrink-0 hidden sm:flex items-center">

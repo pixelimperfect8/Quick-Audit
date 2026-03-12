@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { CloseIcon, PlusIcon } from "./icons";
+import { TruncatedText, Tooltip } from "./ui";
 import type { DocumentTab } from "./documentTabs/types";
 
 /** Minimum width of a single tab including internal padding + close icon */
@@ -72,9 +73,8 @@ export default function DocumentTabBar({
                     ? `bg-white text-grey-900 font-medium rounded-t-lg z-[1] ${isSingleTab ? "px-6" : "pl-6 pr-[13px]"}`
                     : "text-grey-900 font-medium rounded-lg pl-6 pr-[13px] mb-1 hover:bg-white/50"
                 }`}
-                title={tab.label}
               >
-                <span className="truncate leading-6">{tab.label}</span>
+                <TruncatedText className="leading-6">{tab.label}</TruncatedText>
 
                 {/* Close button — hidden on the last remaining tab */}
                 {!isSingleTab && (
@@ -124,23 +124,20 @@ export default function DocumentTabBar({
         </div>
 
         {/* Add new tab button — gap matches bottom margin */}
-        <button
-          onClick={isMaxReached ? undefined : onNewTab}
-          disabled={isMaxReached}
-          className={`shrink-0 w-[30px] h-[30px] ml-[5px] mb-[5px] flex items-center justify-center rounded transition-colors ${
-            isMaxReached
-              ? "bg-grey-300 text-grey-800 cursor-not-allowed opacity-50"
-              : "bg-white text-grey-800 hover:text-grey-900"
-          }`}
-          aria-label="New tab"
-          title={
-            isMaxReached
-              ? "You've reached the maximum amount of open tabs."
-              : "New tab"
-          }
-        >
-          <PlusIcon className="w-[18px] h-[18px]" />
-        </button>
+        <Tooltip label={isMaxReached ? "You've reached the maximum amount of open tabs." : "New tab"}>
+          <button
+            onClick={isMaxReached ? undefined : onNewTab}
+            disabled={isMaxReached}
+            className={`shrink-0 w-[30px] h-[30px] ml-[5px] mb-[5px] flex items-center justify-center rounded transition-colors ${
+              isMaxReached
+                ? "bg-grey-300 text-grey-800 cursor-not-allowed opacity-50"
+                : "bg-white text-grey-800 hover:text-grey-900"
+            }`}
+            aria-label="New tab"
+          >
+            <PlusIcon className="w-[18px] h-[18px]" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Bottom bar connecting active tab to content */}

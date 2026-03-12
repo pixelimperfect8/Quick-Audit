@@ -4,10 +4,12 @@ import { useState, useCallback } from "react";
 import Dashboard from "@/components/Dashboard";
 import DesignSystemViewer from "@/components/DesignSystemViewer";
 import RightSidebar from "@/components/sidebar-improvements/RightSidebar";
+import { DEFAULT_SECTIONS } from "@/components/DocumentChecklist";
 import type { IconTab } from "@/components/sidebar-improvements/IconTabBar";
 
 export default function SidebarOption1Page() {
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
+  const [selectedFormField, setSelectedFormField] = useState<string | null>(null);
   const [externalTab, setExternalTab] = useState<IconTab | null>(null);
   const [rejectedFlagIds, setRejectedFlagIds] = useState<Set<string>>(new Set());
   const [tieredCommission, setTieredCommission] = useState(false);
@@ -48,6 +50,9 @@ export default function SidebarOption1Page() {
           onFlagSelect: handleFlagSelect,
           showFlags: true,
           rejectedFlagIds,
+          showFormHighlights: true,
+          selectedFormField,
+          onFormFieldSelect: setSelectedFormField,
         }}
         actionBarProps={{
           onViewFlags: handleViewFlags,
@@ -59,7 +64,7 @@ export default function SidebarOption1Page() {
             onChange: setTieredCommission,
           },
         ]}
-        rightSidebarContent={({ onContactClick, onViewLog }) => (
+        rightSidebarContent={({ onContactClick, onViewLog, onLoadDocument }) => (
           <RightSidebar
             onContactClick={onContactClick}
             onViewLog={onViewLog}
@@ -70,6 +75,9 @@ export default function SidebarOption1Page() {
             rejectedFlagIds={rejectedFlagIds}
             onFlagReject={handleFlagReject}
             tieredCommission={tieredCommission}
+            onFormFieldSelect={setSelectedFormField}
+            onLoadDocument={onLoadDocument}
+            checklistSections={DEFAULT_SECTIONS}
           />
         )}
       />

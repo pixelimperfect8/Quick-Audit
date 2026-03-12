@@ -4,6 +4,8 @@ interface SidebarProps {
   side: "left" | "right";
   breakpoint?: "lg" | "xl";
   width?: string;
+  /** Dynamic inline styles (e.g. for resize-driven width) */
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }
 
@@ -24,6 +26,7 @@ export default function Sidebar({
   side,
   breakpoint = "lg",
   width = "w-[320px] sm:w-[374px]",
+  style,
   children,
 }: SidebarProps) {
   const isLeft = side === "left";
@@ -50,6 +53,7 @@ export default function Sidebar({
         ${bp.reset}
         ${open ? translateVisible : translateHidden}
       `}
+      style={style}
     >
       <button
         onClick={onClose}

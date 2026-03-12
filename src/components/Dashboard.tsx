@@ -29,6 +29,7 @@ interface DashboardProps {
   rightSidebarContent?: (props: {
     onContactClick: (contact: { type?: string }) => void;
     onViewLog: () => void;
+    onLoadDocument: (documentId: string) => void;
   }) => React.ReactNode;
   /** Props passed through to DocumentViewer */
   documentViewerProps?: {
@@ -36,6 +37,11 @@ interface DashboardProps {
     onFlagSelect?: (id: string) => void;
     showFlags?: boolean;
     rejectedFlagIds?: Set<string>;
+    showFormHighlights?: boolean;
+    selectedFormField?: string | null;
+    onFormFieldSelect?: (label: string) => void;
+    overlaysHidden?: boolean;
+    onToggleOverlays?: () => void;
   };
   /** Props passed through to ActionBar */
   actionBarProps?: {
@@ -43,6 +49,8 @@ interface DashboardProps {
   };
   /** Toggles shown in the top nav bar */
   topNavToggles?: ToggleDef[];
+  /** Custom checklist sections for the left sidebar */
+  checklistSections?: Parameters<typeof DocumentChecklist>[0]["sections"];
 }
 
 export default function Dashboard({
@@ -52,12 +60,50 @@ export default function Dashboard({
   documentViewerProps,
   actionBarProps,
   topNavToggles,
+  checklistSections,
 }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rightPanel, setRightPanel] = useState<RightPanel>("transaction");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const drawerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ─── Panel resize state ────────────────────────────────────
+  const [leftWidth, setLeftWidth] = useState(374);
+  const [rightWidth, setRightWidth] = useState(372);
+  const draggingSide = useRef<"left" | "right" | null>(null);
+
+  const handleResizeMouseDown = useCallback((side: "left" | "right") => {
+    return (e: React.MouseEvent) => {
+      e.preventDefault();
+      draggingSide.current = side;
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleMouseMove(e: MouseEvent) {
+      if (!draggingSide.current) return;
+      if (draggingSide.current === "left") {
+        setLeftWidth(Math.min(600, Math.max(200, e.clientX)));
+      } else {
+        setRightWidth(Math.min(600, Math.max(200, window.innerWidth - e.clientX)));
+      }
+    }
+    function handleMouseUp() {
+      if (!draggingSide.current) return;
+      draggingSide.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   // ─── Document tab state ──────────────────────────────────────
   const [tabs, setTabs] = useState<DocumentTab[]>([
@@ -196,10 +242,23 @@ export default function Dashboard({
           onClose={() => setSidebarOpen(false)}
           side="left"
           breakpoint="lg"
-          width="w-[320px] sm:w-[374px]"
+          width="w-[320px] sm:w-auto"
+          style={{ width: leftWidth }}
         >
-          <DocumentChecklist onDocumentSelect={handleLoadDocument} />
+          <DocumentChecklist sections={checklistSections} activeDocumentId={activeTab?.documentId ?? null} onDocumentSelect={handleLoadDocument} />
         </Sidebar>
+
+        {/* Left resize handle */}
+        <div
+          onMouseDown={handleResizeMouseDown("left")}
+          className="hidden lg:flex shrink-0 w-1.5 cursor-col-resize items-center justify-center border-x border-grey-200 bg-white hover:bg-grey-50 transition-colors group"
+        >
+          <div className="flex flex-col gap-1">
+            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+          </div>
+        </div>
 
         {/* Center */}
         <main className="flex-1 min-w-0 flex flex-col">
@@ -218,13 +277,26 @@ export default function Dashboard({
 
         <Overlay visible={detailsOpen} onClick={() => setDetailsOpen(false)} breakpoint="xl" />
 
+        {/* Right resize handle */}
+        <div
+          onMouseDown={handleResizeMouseDown("right")}
+          className="hidden xl:flex shrink-0 w-1.5 cursor-col-resize items-center justify-center border-x border-grey-200 bg-white hover:bg-grey-50 transition-colors group"
+        >
+          <div className="flex flex-col gap-1">
+            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+          </div>
+        </div>
+
         {/* Right Sidebar */}
         <Sidebar
           open={detailsOpen}
           onClose={() => setDetailsOpen(false)}
           side="right"
           breakpoint="xl"
-          width="w-[320px] sm:w-[372px]"
+          width="w-[320px] xl:w-auto"
+          style={{ width: rightWidth }}
         >
           <div className="flex flex-col h-full">
             <div className="flex-1 min-h-0 relative overflow-hidden">
@@ -238,6 +310,7 @@ export default function Dashboard({
                       }
                     },
                     onViewLog: () => setRightPanel("log"),
+                    onLoadDocument: handleLoadDocument,
                   })
                 ) : (
                   <TransactionDetails

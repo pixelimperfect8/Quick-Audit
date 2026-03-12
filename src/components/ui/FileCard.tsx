@@ -1,6 +1,7 @@
 "use client";
 
 import { CloseIcon } from "@/components/icons";
+import TruncatedText from "./TruncatedText";
 
 interface FileCardProps {
   name: string;
@@ -17,9 +18,9 @@ export default function FileCard({ name, date, active = false, onRemove }: FileC
         active ? "border border-blue-800" : "border border-grey-300"
       }`}
     >
-      <p className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6 truncate">
+      <TruncatedText as="p" className="flex-1 min-w-0 text-grey-900 text-base font-medium leading-6">
         {name}
-      </p>
+      </TruncatedText>
       <div className="flex items-center gap-3 shrink-0">
         {date && (
           <span className="text-grey-900 text-sm font-medium hidden sm:block">

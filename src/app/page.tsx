@@ -12,6 +12,11 @@ const explorations = [
     description: "Explore alternative sidebar designs and interaction patterns.",
     href: "/sidebar-improvements",
   },
+  {
+    title: "Smart Assist Enhancements",
+    description: "3/11/25 — Explore smart assist design enhancements.",
+    href: "/smart-assist-enhancements",
+  },
 ];
 
 export default function HomePage() {

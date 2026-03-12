@@ -1,18 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, ThumbUp, ThumbDown, ThumbUpOutline, ThumbDownOutline } from "@/components/icons";
+import { ChevronDown, ChevronUp, CloseIcon, UndoIcon } from "@/components/icons";
 
 interface FlagCardProps {
   children: React.ReactNode;
   /** Red border when selected, grey when not */
   selected?: boolean;
-  /** Issue has been rejected/dismissed — strikethrough text, muted background */
+  /** Issue has been dismissed — strikethrough text, muted background */
   rejected?: boolean;
-  /** Thumbs-down callback */
+  /** Dismiss / undo callback */
   onReject?: () => void;
-  /** Thumbs-up callback */
-  onAccept?: () => void;
   /** Click to select this card */
   onSelect?: () => void;
   /** Optional collapsible "Sources" content */
@@ -24,13 +22,10 @@ export default function FlagCard({
   selected = false,
   rejected = false,
   onReject,
-  onAccept,
   onSelect,
   sources,
 }: FlagCardProps) {
   const [sourcesOpen, setSourcesOpen] = useState(false);
-
-  const hasActions = onReject || onAccept;
 
   return (
     <div
@@ -43,58 +38,33 @@ export default function FlagCard({
             : "border border-grey-300"
       }`}
     >
-      {/* When no sources: single row with text + actions inline */}
-      {!sources ? (
-        <div className="flex items-center justify-between gap-4">
-          <div className={`text-grey-800 text-base font-medium leading-6 flex-1 min-w-0 ${rejected ? "line-through" : ""}`}>
-            {children}
-          </div>
-          {hasActions && (
-            <div className="flex items-center gap-2 shrink-0">
-              {onReject && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onReject();
-                  }}
-                  className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
-                    rejected
-                      ? "bg-grey-200 text-grey-800"
-                      : "bg-grey-100 text-grey-800 hover:bg-grey-200"
-                  }`}
-                  aria-label="Reject issue"
-                >
-                  {rejected ? (
-                    <ThumbDown className="w-[19px] h-[19px]" />
-                  ) : (
-                    <ThumbDownOutline className="w-[19px] h-[19px]" />
-                  )}
-                </button>
-              )}
-              {onAccept && !rejected && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAccept();
-                  }}
-                  className="w-8 h-8 flex items-center justify-center rounded bg-grey-100 text-grey-800 hover:bg-grey-200 transition-colors"
-                  aria-label="Accept issue"
-                >
-                  <ThumbUpOutline className="w-[19px] h-[19px]" />
-                </button>
-              )}
-            </div>
-          )}
+      {/* Top row: description + dismiss/undo button */}
+      <div className="flex items-start justify-between gap-3">
+        <div className={`text-grey-800 text-base font-medium leading-6 flex-1 min-w-0 ${rejected ? "line-through" : ""}`}>
+          {children}
         </div>
-      ) : (
-        <>
-          {/* Content */}
-          <div className={`text-grey-800 text-base font-medium leading-6 ${rejected ? "line-through" : ""}`}>
-            {children}
-          </div>
+        {onReject && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onReject();
+            }}
+            className="w-8 h-8 flex items-center justify-center rounded shrink-0 transition-colors text-grey-800 hover:bg-grey-100 hover:text-grey-900"
+            aria-label={rejected ? "Undo dismiss" : "Dismiss issue"}
+          >
+            {rejected ? (
+              <UndoIcon className="w-4 h-4" />
+            ) : (
+              <CloseIcon className="w-4 h-4" />
+            )}
+          </button>
+        )}
+      </div>
 
-          {/* Bottom row: Sources toggle + action buttons */}
-          <div className="flex items-end justify-between mt-4">
+      {/* Sources toggle + content (only when sources provided) */}
+      {sources && (
+        <>
+          <div className="mt-4">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -109,46 +79,8 @@ export default function FlagCard({
                 <ChevronDown className="w-[18px] h-[18px]" />
               )}
             </button>
-
-            {hasActions && (
-              <div className="flex items-center gap-2">
-                {onReject && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onReject();
-                    }}
-                    className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
-                      rejected
-                        ? "bg-grey-200 text-grey-800"
-                        : "bg-grey-100 text-grey-800 hover:bg-grey-200"
-                    }`}
-                    aria-label="Reject issue"
-                  >
-                    {rejected ? (
-                      <ThumbDown className="w-[19px] h-[19px]" />
-                    ) : (
-                      <ThumbDownOutline className="w-[19px] h-[19px]" />
-                    )}
-                  </button>
-                )}
-                {onAccept && !rejected && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAccept();
-                    }}
-                    className="w-8 h-8 flex items-center justify-center rounded bg-grey-100 text-grey-800 hover:bg-grey-200 transition-colors"
-                    aria-label="Accept issue"
-                  >
-                    <ThumbUpOutline className="w-[19px] h-[19px]" />
-                  </button>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Expanded sources content */}
           {sourcesOpen && (
             <div className="mt-4 bg-grey-100 rounded-lg py-2">
               {sources}

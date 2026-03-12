@@ -1,7 +1,7 @@
 "use client";
 
 import { DescriptionIcon, CommentIcon, FormDataIcon, MoreVert } from "@/components/icons";
-import { HoverCard } from "@/components/ui";
+import { HoverCard, Tooltip } from "@/components/ui";
 
 export type Option2IconTab = "transaction" | "comments" | "formData";
 
@@ -46,26 +46,26 @@ export default function Option2IconTabBar({ activeTab, onTabChange, badges = {},
                   : "border-transparent text-grey-800 hover:text-grey-900"
               }`}
               aria-label={tab.label}
-              title={content ? undefined : tab.label}
             >
               {content ? (
                 <HoverCard trigger={iconElement} side="bottom" align="center">
                   {content}
                 </HoverCard>
               ) : (
-                iconElement
+                <Tooltip label={tab.label}>{iconElement}</Tooltip>
               )}
             </button>
           );
         })}
       </div>
-      <button
-        className="px-3 py-3 text-grey-700 hover:text-grey-900 transition-colors"
-        aria-label="More options"
-        title="More options"
-      >
-        <MoreVert className="w-[18px] h-[18px]" />
-      </button>
+      <Tooltip label="More options">
+        <button
+          className="px-3 py-3 text-grey-700 hover:text-grey-900 transition-colors"
+          aria-label="More options"
+        >
+          <MoreVert className="w-[18px] h-[18px]" />
+        </button>
+      </Tooltip>
     </div>
   );
 }

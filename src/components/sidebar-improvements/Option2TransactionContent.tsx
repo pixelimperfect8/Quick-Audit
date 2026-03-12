@@ -1,7 +1,9 @@
 "use client";
 
-import { PersonIcon } from "@/components/icons";
+import { PersonIcon, UnpinIcon } from "@/components/icons";
 import { Collapsible, DetailRow, Badge, HoverCard } from "@/components/ui";
+import { ALL_FIELDS, toArray } from "./FormDataByPage";
+import type { FormFieldHighlight } from "./FormDataByPage";
 import SourceTooltip from "./SourceTooltip";
 import {
   TRANSACTION_SOURCES,
@@ -30,7 +32,7 @@ interface CommissionData {
   value: string;
 }
 
-const DEFAULT_DETAILS: DetailData[] = [
+export const DEFAULT_DETAILS: DetailData[] = [
   { label: "Status", value: "Pending" },
   { label: "File name", value: "3969 Harvord Boulevard, Venture, CA 93001" },
   { label: "Type", value: "Purchase" },
@@ -46,13 +48,13 @@ const DEFAULT_DETAILS: DetailData[] = [
   { label: "File ID", value: "1234567" },
 ];
 
-const DEFAULT_CONTACTS: Contact[] = [
+export const DEFAULT_CONTACTS: Contact[] = [
   { role: "Buyer", name: "Rachael Laurolla" },
   { role: "Buyer", name: "Rob Laurolla" },
   { role: "Lender", name: "Mark Roberts", type: "lender" },
 ];
 
-const DEFAULT_COMMISSION: CommissionData[] = [
+export const DEFAULT_COMMISSION: CommissionData[] = [
   { label: "Sale", value: "$99,999.99" },
   { label: "Listing", value: "$99,999.99" },
   { label: "Office gross", value: "$99,999.99" },
@@ -127,6 +129,46 @@ function isFieldStillFlagged(
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
+/** Pinned row rendered inside Transaction tab sections */
+function PinnedFieldRow({
+  label,
+  value,
+  onUnpin,
+}: {
+  label: string;
+  value: string;
+  onUnpin?: () => void;
+}) {
+  return (
+    <div className="group flex items-start">
+      <span className="text-grey-900 text-base font-bold w-[140px] shrink-0 leading-6">
+        {label}
+      </span>
+      <span className="text-grey-900 text-base font-medium leading-6 break-words min-w-0 flex-1">
+        {value}
+      </span>
+      {onUnpin && (
+        <button
+          onClick={onUnpin}
+          className="shrink-0 p-0.5 rounded text-grey-700 hover:bg-grey-100 ml-1"
+          aria-label={`Unpin ${label}`}
+          title="Unpin"
+        >
+          <UnpinIcon className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Map a form field to a Transaction tab section */
+function getPinSection(label: string): "summary" | "contacts" | "commission" {
+  const lower = label.toLowerCase();
+  if (lower.includes("commission") || lower.includes("payment")) return "commission";
+  if (label === "Buyer(s)" || label === "Seller(s)") return "contacts";
+  return "summary";
+}
+
 interface Option2TransactionContentProps {
   onContactClick?: (contact: Contact) => void;
   onViewLog?: () => void;
@@ -134,6 +176,10 @@ interface Option2TransactionContentProps {
   rejectedFlagIds?: Set<string>;
   /** Show tiered commission breakdown */
   tieredCommission?: boolean;
+  /** Set of pinned form field labels */
+  pinnedFields?: Set<string>;
+  /** Callback to unpin a field */
+  onUnpin?: (label: string) => void;
 }
 
 export default function Option2TransactionContent({
@@ -141,14 +187,25 @@ export default function Option2TransactionContent({
   onViewLog,
   rejectedFlagIds = new Set(),
   tieredCommission = false,
+  pinnedFields,
+  onUnpin,
 }: Option2TransactionContentProps) {
+  // Compute pinned items grouped by section
+  const pinnedBySection = pinnedFields && pinnedFields.size > 0
+    ? ALL_FIELDS.filter((f) => pinnedFields.has(f.label)).reduce<
+        Record<string, typeof ALL_FIELDS>
+      >((acc, field) => {
+        const section = getPinSection(field.label);
+        (acc[section] ||= []).push(field);
+        return acc;
+      }, {})
+    : {};
   return (
     <>
-      <Collapsible title="Transaction Details" defaultOpen>
+      <Collapsible title="Transaction Summary" defaultOpen>
         {DEFAULT_DETAILS.map((detail) => {
           const sourceData = TRANSACTION_SOURCES[detail.label];
           const hasMismatch = isFieldStillFlagged(detail.label, rejectedFlagIds, TRANSACTION_SOURCES);
-
           const mismatchMark = "rounded-sm bg-red-50 px-0.5 -mx-0.5";
 
           const row =
@@ -190,13 +247,20 @@ export default function Option2TransactionContent({
             </div>
           );
         })}
+        {pinnedBySection.summary?.map((field) => (
+          <PinnedFieldRow
+            key={field.label}
+            label={field.label}
+            value={toArray(field.formValue).join(", ") || "—"}
+            onUnpin={onUnpin ? () => onUnpin(field.label) : undefined}
+          />
+        ))}
       </Collapsible>
 
       <Collapsible title="Contacts" defaultOpen>
         {DEFAULT_CONTACTS.map((contact, i) => {
           const sourceData = CONTACT_SOURCES[contact.name];
           const hasMismatch = isFieldStillFlagged(contact.name, rejectedFlagIds, CONTACT_SOURCES);
-
           const contactMark = hasMismatch ? "rounded-sm bg-red-50 px-0.5" : "";
 
           const contactRow = (
@@ -233,6 +297,14 @@ export default function Option2TransactionContent({
             </div>
           );
         })}
+        {pinnedBySection.contacts?.map((field) => (
+          <PinnedFieldRow
+            key={field.label}
+            label={field.label}
+            value={toArray(field.formValue).join(", ") || "—"}
+            onUnpin={onUnpin ? () => onUnpin(field.label) : undefined}
+          />
+        ))}
       </Collapsible>
 
       <Collapsible title="Commission" defaultOpen>
@@ -285,6 +357,14 @@ export default function Option2TransactionContent({
             <DetailRow key={row.label} label={row.label} value={row.value} />
           ))
         )}
+        {pinnedBySection.commission?.map((field) => (
+          <PinnedFieldRow
+            key={field.label}
+            label={field.label}
+            value={toArray(field.formValue).join(", ") || "—"}
+            onUnpin={onUnpin ? () => onUnpin(field.label) : undefined}
+          />
+        ))}
       </Collapsible>
 
       <div className="px-4 py-3">

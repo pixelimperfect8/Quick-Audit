@@ -13,5 +13,7 @@ export { default as HoverCard } from "./HoverCard";
 export { default as TextInput } from "./TextInput";
 export { default as FileCard } from "./FileCard";
 export { default as FlagCard } from "./FlagCard";
+export { default as TruncatedText } from "./TruncatedText";
+export { default as Tooltip } from "./Tooltip";
 
 export type { DocStatus } from "./StatusBadge";

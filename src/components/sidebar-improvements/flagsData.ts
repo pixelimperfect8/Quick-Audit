@@ -18,6 +18,8 @@ export interface FlagIssue {
   highlight: FlagHighlight;
   /** Keys into TRANSACTION_SOURCES or CONTACT_SOURCES that this flag covers */
   relatedFields?: string[];
+  /** Form data field label(s) this flag corresponds to (for bidirectional sync) */
+  formFieldLabels?: string[];
 }
 
 export const FLAG_ISSUES: FlagIssue[] = [
@@ -31,6 +33,7 @@ export const FLAG_ISSUES: FlagIssue[] = [
     ],
     highlight: { top: "38%", left: "10%", width: "85%", height: "4%" },
     relatedFields: ["Rachael Laurolla", "Rob Laurolla"],
+    formFieldLabels: ["Buyer(s)"],
   },
   {
     id: "flag-2",
@@ -56,6 +59,17 @@ export const FLAG_ISSUES: FlagIssue[] = [
     ],
     highlight: { top: "58%", left: "10%", width: "85%", height: "4%" },
     relatedFields: ["Purchase Price"],
+    formFieldLabels: ["Purchase Price"],
+  },
+  {
+    id: "flag-6",
+    page: 1,
+    description: "Buyer broker license number is missing.",
+    sources: [
+      { label: "Form", value: "Missing" },
+    ],
+    highlight: { top: "26%", left: "55%", width: "35%", height: "3%" },
+    formFieldLabels: ["Buyer Broker License"],
   },
   {
     id: "flag-4",

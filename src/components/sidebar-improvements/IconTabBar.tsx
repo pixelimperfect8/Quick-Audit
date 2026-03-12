@@ -1,7 +1,7 @@
 "use client";
 
 import { DescriptionIcon, CommentIcon, WarningIcon, FormDataIcon, MoreVert } from "@/components/icons";
-import { HoverCard } from "@/components/ui";
+import { HoverCard, Tooltip } from "@/components/ui";
 
 export type IconTab = "transaction" | "comments" | "flags" | "formData";
 
@@ -16,7 +16,7 @@ const tabs: { id: IconTab; icon: typeof DescriptionIcon; label: string }[] = [
   { id: "transaction", icon: DescriptionIcon, label: "Transaction" },
   { id: "comments", icon: CommentIcon, label: "Comments" },
   { id: "flags", icon: WarningIcon, label: "Flags" },
-  { id: "formData", icon: FormDataIcon, label: "Form Data" },
+  { id: "formData", icon: FormDataIcon, label: "All Data" },
 ];
 
 export default function IconTabBar({ activeTab, onTabChange, badges = {}, hoverContent = {} }: IconTabBarProps) {
@@ -47,26 +47,26 @@ export default function IconTabBar({ activeTab, onTabChange, badges = {}, hoverC
                   : "border-transparent text-grey-800 hover:text-grey-900"
               }`}
               aria-label={tab.label}
-              title={content ? undefined : tab.label}
             >
               {content ? (
                 <HoverCard trigger={iconElement} side="bottom" align="center">
                   {content}
                 </HoverCard>
               ) : (
-                iconElement
+                <Tooltip label={tab.label}>{iconElement}</Tooltip>
               )}
             </button>
           );
         })}
       </div>
-      <button
-        className="px-3 py-3 text-grey-700 hover:text-grey-900 transition-colors"
-        aria-label="More options"
-        title="More options"
-      >
-        <MoreVert className="w-[18px] h-[18px]" />
-      </button>
+      <Tooltip label="More options">
+        <button
+          className="px-3 py-3 text-grey-700 hover:text-grey-900 transition-colors"
+          aria-label="More options"
+        >
+          <MoreVert className="w-[18px] h-[18px]" />
+        </button>
+      </Tooltip>
     </div>
   );
 }

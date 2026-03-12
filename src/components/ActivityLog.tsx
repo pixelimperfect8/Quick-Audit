@@ -1,6 +1,6 @@
 "use client";
 
-import { DrawerHeader, Divider } from "./ui";
+import { DrawerHeader, Divider, TruncatedText } from "./ui";
 
 interface LogEntry {
   type: string;
@@ -65,9 +65,9 @@ export default function ActivityLog({
               <div className="flex items-center gap-2.5">
                 <span className="text-grey-800 text-base font-medium">{entry.user}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-grey-400" />
-                <span className="text-grey-800 text-base font-medium flex-1 min-w-0 truncate">
+                <TruncatedText className="text-grey-800 text-base font-medium flex-1 min-w-0">
                   {entry.email}
-                </span>
+                </TruncatedText>
               </div>
 
               <p className="text-grey-900 text-base font-medium leading-6">

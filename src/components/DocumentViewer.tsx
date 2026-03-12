@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { IconButton } from "./ui";
-import { ChevronDown, DownloadIcon, PrintIcon, DoubleArrowRight, ZoomInIcon, ZoomOutIcon } from "./icons";
+import { IconButton, Tooltip } from "./ui";
+import { ChevronDown, DownloadIcon, PrintIcon, DoubleArrowRight, ZoomInIcon, ZoomOutIcon, VisibilityIcon, VisibilityOffIcon } from "./icons";
 import { FLAG_ISSUES } from "./sidebar-improvements/flagsData";
+import { ALL_FIELDS } from "./sidebar-improvements/FormDataByPage";
+import type { FormFieldHighlight } from "./sidebar-improvements/FormDataByPage";
 import EmptyTabState from "./EmptyTabState";
 import type { DocumentInfo } from "./documentTabs/types";
 import { DOCUMENT_REGISTRY } from "./documentTabs/types";
@@ -25,6 +27,16 @@ interface DocumentViewerProps {
   rejectedFlagIds?: Set<string>;
   /** Document to display. null = empty state, undefined = default document */
   document?: DocumentInfo | null;
+  /** Show light blue form data highlight overlays */
+  showFormHighlights?: boolean;
+  /** Currently selected form field label for highlight styling */
+  selectedFormField?: string | null;
+  /** Callback when a form data highlight is clicked */
+  onFormFieldSelect?: (label: string) => void;
+  /** Whether overlays are manually hidden by user */
+  overlaysHidden?: boolean;
+  /** Toggle overlay visibility */
+  onToggleOverlays?: () => void;
 }
 
 export default function DocumentViewer({
@@ -33,6 +45,11 @@ export default function DocumentViewer({
   showFlags = false,
   rejectedFlagIds,
   document: documentProp,
+  showFormHighlights = false,
+  selectedFormField,
+  onFormFieldSelect,
+  overlaysHidden = false,
+  onToggleOverlays,
 }: DocumentViewerProps) {
   // Resolve document: undefined → default, null → empty state
   const doc = documentProp === undefined ? DOCUMENT_REGISTRY[0] : documentProp;
@@ -42,6 +59,7 @@ export default function DocumentViewer({
   const [currentPage, setCurrentPage] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
   const flagRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const formFieldRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   // Track current page based on scroll position
@@ -72,6 +90,34 @@ export default function DocumentViewer({
       flagEl.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [selectedFlagId]);
+
+  // Scroll to selected form field when it changes
+  useEffect(() => {
+    if (!selectedFormField) return;
+
+    const fieldEl = formFieldRefs.current.get(selectedFormField);
+    if (fieldEl) {
+      fieldEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selectedFormField]);
+
+  // Form field labels that are covered by flag overlays (flags take priority)
+  const flagCoveredLabels = new Set(
+    FLAG_ISSUES.flatMap((f) => f.formFieldLabels ?? [])
+  );
+
+  // Group form fields with highlights by page, excluding those covered by flags
+  const formFieldsByPage = showFormHighlights
+    ? ALL_FIELDS
+        .filter((f): f is typeof f & { highlight: FormFieldHighlight } =>
+          !!f.highlight && !flagCoveredLabels.has(f.label)
+        )
+        .reduce<Record<number, typeof ALL_FIELDS>>((acc, field) => {
+          const page = field.highlight!.page;
+          (acc[page] ||= []).push(field);
+          return acc;
+        }, {})
+    : {};
 
   // Group visible (non-rejected) flags by page
   const flagsByPage = showFlags
@@ -113,6 +159,15 @@ export default function DocumentViewer({
             label="Zoom in"
             onClick={() => setZoom(Math.min(MAX_ZOOM, zoom + ZOOM_STEP))}
           />
+          {onToggleOverlays && (
+            <Tooltip label={overlaysHidden ? "Show Highlights" : "Hide Highlights"}>
+              <IconButton
+                icon={overlaysHidden ? <VisibilityOffIcon className="w-5 h-5" /> : <VisibilityIcon className="w-5 h-5" />}
+                label={overlaysHidden ? "Show Highlights" : "Hide Highlights"}
+                onClick={onToggleOverlays}
+              />
+            </Tooltip>
+          )}
           <div className="hidden sm:flex items-center gap-1 ml-2">
             <IconButton icon={<DownloadIcon className="w-5 h-5" />} label="Download" />
             <IconButton icon={<PrintIcon className="w-5 h-5" />} label="Print" />
@@ -134,6 +189,7 @@ export default function DocumentViewer({
           {Array.from({ length: totalPages }, (_, i) => {
             const pageNum = i + 1;
             const pageFlags = flagsByPage[pageNum] || [];
+            const pageFormFields = formFieldsByPage[pageNum] || [];
 
             return (
               <div
@@ -163,8 +219,42 @@ export default function DocumentViewer({
                   <PagePlaceholder page={pageNum} />
                 )}
 
-                {/* Flag highlight overlays for this page */}
-                {pageFlags.map((flag) => {
+                {/* Form data highlight overlays for this page (rendered first, below flags) */}
+                {!overlaysHidden && pageFormFields.map((field) => {
+                  if (!field.highlight) return null;
+                  const isSelected = field.label === selectedFormField;
+                  return (
+                    <button
+                      key={field.label}
+                      ref={(el) => {
+                        if (el) formFieldRefs.current.set(field.label, el);
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onFormFieldSelect?.(field.label);
+                      }}
+                      className={`absolute rounded transition-colors cursor-pointer ${
+                        field.mismatch
+                          ? isSelected
+                            ? "bg-red-400/30 border-2 border-red-400 ring-2 ring-red-400/50"
+                            : "bg-red-400/15 border-2 border-red-400 hover:bg-red-400/25"
+                          : isSelected
+                            ? "bg-blue-200/40 border-2 border-blue-400 ring-2 ring-blue-300/50"
+                            : "bg-blue-200/20 border border-blue-300/60 hover:bg-blue-200/30"
+                      }`}
+                      style={{
+                        top: field.highlight.top,
+                        left: field.highlight.left,
+                        width: field.highlight.width,
+                        height: field.highlight.height,
+                      }}
+                      aria-label={`Form field: ${field.label}`}
+                    />
+                  );
+                })}
+
+                {/* Flag highlight overlays for this page (rendered last, on top — clicks go to Flags tab) */}
+                {!overlaysHidden && pageFlags.map((flag) => {
                   const isSelected = flag.id === selectedFlagId;
                   return (
                     <button
@@ -176,7 +266,7 @@ export default function DocumentViewer({
                         e.stopPropagation();
                         onFlagSelect?.(flag.id);
                       }}
-                      className={`absolute rounded transition-colors cursor-pointer ${
+                      className={`absolute z-10 rounded transition-colors cursor-pointer ${
                         isSelected
                           ? "bg-red-400/30 border-2 border-red-500 ring-2 ring-red-400/50"
                           : "bg-red-400/15 border-2 border-red-400 hover:bg-red-400/25"
