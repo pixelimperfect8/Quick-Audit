@@ -1,7 +1,7 @@
 "use client";
 
-import { PersonIcon, UnpinIcon } from "@/components/icons";
-import { Collapsible, DetailRow, Badge, HoverCard } from "@/components/ui";
+import { PersonIcon, PinFilledIcon } from "@/components/icons";
+import { Collapsible, DetailRow, Badge, HoverCard, Tooltip } from "@/components/ui";
 import { ALL_FIELDS, toArray } from "./FormDataByPage";
 import type { FormFieldHighlight } from "./FormDataByPage";
 import SourceTooltip from "./SourceTooltip";
@@ -148,14 +148,15 @@ function PinnedFieldRow({
         {value}
       </span>
       {onUnpin && (
-        <button
-          onClick={onUnpin}
-          className="shrink-0 p-0.5 rounded text-grey-700 hover:bg-grey-100 ml-1"
-          aria-label={`Unpin ${label}`}
-          title="Unpin"
-        >
-          <UnpinIcon className="w-3.5 h-3.5" />
-        </button>
+        <Tooltip label="Unpin">
+          <button
+            onClick={onUnpin}
+            className="shrink-0 bg-grey-100 rounded-sm p-1 text-grey-700 hover:bg-grey-200 ml-1"
+            aria-label={`Unpin ${label}`}
+          >
+            <PinFilledIcon className="w-4 h-4" />
+          </button>
+        </Tooltip>
       )}
     </div>
   );

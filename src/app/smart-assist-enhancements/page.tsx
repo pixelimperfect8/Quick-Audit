@@ -90,6 +90,15 @@ const options: OptionDef[] = [
 - Font: Proxima Nova via Adobe Fonts, with system-ui fallback.
 - Responsive icon tab bar with equal-width tabs.`,
   },
+  {
+    title: "Option 2",
+    description:
+      "Alternate action bar and layout explorations.",
+    href: "/smart-assist-enhancements/option-2",
+    ac: `## Smart Assist Enhancements — Option 2
+
+Work in progress.`,
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -376,6 +385,20 @@ export default function SmartAssistEnhancementsPage() {
           <p className="text-grey-800 text-base mt-2">
             3/11/25 — Explore smart assist design enhancements.
           </p>
+        </div>
+
+        {/* Quick access */}
+        <div className="mb-6">
+          <Link
+            href="/smart-assist-enhancements/option-2"
+            className="group flex items-center justify-between gap-3 bg-blue-800 text-white rounded-lg px-5 py-4 hover:bg-blue-900 transition-colors"
+          >
+            <div>
+              <p className="text-sm font-bold">Quick Access</p>
+              <p className="text-sm mt-0.5 opacity-80">Jump to Option 2 — Transaction Tab Customization</p>
+            </div>
+            <ChevronRight className="w-5 h-5 opacity-70 group-hover:opacity-100 shrink-0 transition-opacity" />
+          </Link>
         </div>
 
         <div className="flex flex-col gap-3">

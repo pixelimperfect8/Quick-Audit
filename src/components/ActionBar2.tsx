@@ -3,11 +3,11 @@
 import { Button } from "./ui";
 import { WarningIcon } from "./icons";
 
-interface ActionBarProps {
+interface ActionBar2Props {
   onViewFlags?: () => void;
 }
 
-export default function ActionBar({ onViewFlags }: ActionBarProps) {
+export default function ActionBar2({ onViewFlags }: ActionBar2Props) {
   return (
     <div className="bg-white border-t border-grey-300 px-4 py-2.5 flex items-center justify-between gap-4 shrink-0">
       {/* Actions */}

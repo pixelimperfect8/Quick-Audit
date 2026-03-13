@@ -299,7 +299,7 @@ function FieldCard({
             title={pinned ? "Unpin from Transaction tab" : "Pin to Transaction tab"}
           >
             {pinned ? <PinFilledIcon className="w-3.5 h-3.5" /> : <PinIcon className="w-3.5 h-3.5" />}
-            <span className="text-xs font-medium">{pinned ? "Unpin" : "Pin"}</span>
+            <span className="text-sm font-medium">{pinned ? "Unpin" : "Pin"}</span>
           </button>
         )}
       </div>

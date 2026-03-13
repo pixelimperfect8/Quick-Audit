@@ -51,6 +51,8 @@ interface DashboardProps {
   topNavToggles?: ToggleDef[];
   /** Custom checklist sections for the left sidebar */
   checklistSections?: Parameters<typeof DocumentChecklist>[0]["sections"];
+  /** Custom sidebar footer (replaces default SidebarFooter) */
+  sidebarFooter?: React.ReactNode;
 }
 
 export default function Dashboard({
@@ -61,6 +63,7 @@ export default function Dashboard({
   actionBarProps,
   topNavToggles,
   checklistSections,
+  sidebarFooter,
 }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -340,7 +343,7 @@ export default function Dashboard({
                 </div>
               )}
             </div>
-            <SidebarFooter />
+            {sidebarFooter ?? <SidebarFooter />}
           </div>
         </Sidebar>
       </div>
