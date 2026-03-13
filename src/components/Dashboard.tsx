@@ -14,6 +14,8 @@ import { Overlay, Sidebar } from "@/components/ui";
 import TopNav from "@/components/TopNav";
 import type { DocumentTab } from "@/components/documentTabs/types";
 import { DOCUMENT_REGISTRY } from "@/components/documentTabs/types";
+import CommentsDrawer from "@/components/sidebar-improvements/CommentsDrawer";
+import type { Comment } from "@/components/sidebar-improvements/commentsData";
 
 type RightPanel = "transaction" | "lender" | "log";
 
@@ -53,6 +55,23 @@ interface DashboardProps {
   checklistSections?: Parameters<typeof DocumentChecklist>[0]["sections"];
   /** Custom sidebar footer (replaces default SidebarFooter) */
   sidebarFooter?: React.ReactNode;
+  /** Per-checklist-item comment props */
+  checklistCommentProps?: {
+    commentCounts: Record<string, number>;
+    activeCommentItem: string | null;
+    onCommentIconClick: (itemName: string) => void;
+    activeCommentPopoverComments: Comment[];
+    onSendComment: (itemName: string, text: string) => void;
+    onOpenCommentsDrawer: (itemName: string) => void;
+  };
+  /** Comments drawer state (slides over left sidebar) */
+  commentsDrawer?: {
+    open: boolean;
+    itemName: string;
+    comments: Comment[];
+    onSend: (text: string) => void;
+    onClose: () => void;
+  } | null;
 }
 
 export default function Dashboard({
@@ -64,6 +83,8 @@ export default function Dashboard({
   topNavToggles,
   checklistSections,
   sidebarFooter,
+  checklistCommentProps,
+  commentsDrawer,
 }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -248,7 +269,29 @@ export default function Dashboard({
           width="w-[320px] sm:w-auto"
           style={{ width: leftWidth }}
         >
-          <DocumentChecklist sections={checklistSections} activeDocumentId={activeTab?.documentId ?? null} onDocumentSelect={handleLoadDocument} />
+          <div className="relative h-full overflow-hidden">
+            <DocumentChecklist
+              sections={checklistSections}
+              activeDocumentId={activeTab?.documentId ?? null}
+              onDocumentSelect={handleLoadDocument}
+              {...checklistCommentProps}
+            />
+            {/* Comments drawer — slides over checklist from the left */}
+            {commentsDrawer && (
+              <div
+                className={`absolute inset-0 z-20 bg-white transition-transform duration-250 ease-in-out ${
+                  commentsDrawer.open ? "translate-x-0" : "-translate-x-full"
+                }`}
+              >
+                <CommentsDrawer
+                  itemName={commentsDrawer.itemName}
+                  comments={commentsDrawer.comments}
+                  onSend={commentsDrawer.onSend}
+                  onClose={commentsDrawer.onClose}
+                />
+              </div>
+            )}
+          </div>
         </Sidebar>
 
         {/* Left resize handle */}

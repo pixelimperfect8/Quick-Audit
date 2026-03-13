@@ -1,9 +1,12 @@
 "use client";
 
-import { PlusIcon } from "./icons";
+import { useRef } from "react";
+import { PlusIcon, CommentIcon } from "./icons";
 import { StatusBadge, Divider, FileCard, TruncatedText } from "./ui";
 import type { DocStatus } from "./ui";
 import { DOC_NAME_TO_ID, DOCUMENT_REGISTRY } from "./documentTabs/types";
+import CommentPopover from "./sidebar-improvements/CommentPopover";
+import type { Comment } from "./sidebar-improvements/commentsData";
 
 export interface FileItem {
   name: string;
@@ -76,11 +79,25 @@ function DocumentListItem({
   doc,
   onSelect,
   isActive,
+  commentCount = 0,
+  isPopoverOpen,
+  onCommentClick,
+  commentPopoverProps,
 }: {
   doc: DocumentItem;
   onSelect?: () => void;
   isActive?: boolean;
+  commentCount?: number;
+  isPopoverOpen?: boolean;
+  onCommentClick?: () => void;
+  commentPopoverProps?: {
+    comments: Comment[];
+    onSend: (text: string) => void;
+    onViewAll: () => void;
+    onClose: () => void;
+  };
 }) {
+  const commentBtnRef = useRef<HTMLButtonElement>(null);
   const docId = DOC_NAME_TO_ID[doc.name];
   const showExpanded = isActive && doc.status !== "Required";
   const docInfo = showExpanded && !doc.files && docId
@@ -97,8 +114,30 @@ function DocumentListItem({
           <span className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-[4px] bg-grey-50 text-grey-800 text-xs font-semibold">{doc.number}</span>
           <TruncatedText className="min-w-0">{doc.name}</TruncatedText>
         </div>
+        {onCommentClick && (
+          <button
+            ref={commentBtnRef}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCommentClick();
+            }}
+            className="shrink-0 relative text-grey-600 hover:text-grey-900 transition-colors"
+            aria-label={`Comments for ${doc.name}`}
+          >
+            <CommentIcon className="w-4 h-4" />
+            {commentCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-800 rounded-full" />
+            )}
+          </button>
+        )}
         <StatusBadge status={doc.status} />
       </div>
+      {isPopoverOpen && commentPopoverProps && (
+        <CommentPopover
+          {...commentPopoverProps}
+          anchorEl={commentBtnRef.current}
+        />
+      )}
 
       {showExpanded && doc.files && (
         <div className="px-2 pb-2">
@@ -138,12 +177,30 @@ interface DocumentChecklistProps {
   activeDocumentId?: string | null;
   /** Called when a document item is clicked — loads it in the active tab */
   onDocumentSelect?: (documentId: string) => void;
+  /** Comment counts keyed by document item name */
+  commentCounts?: Record<string, number>;
+  /** Which item's popover is currently open (by name) */
+  activeCommentItem?: string | null;
+  /** Called when comment icon is clicked */
+  onCommentIconClick?: (itemName: string) => void;
+  /** Comments for the active popover item */
+  activeCommentPopoverComments?: Comment[];
+  /** Send a comment for a specific item */
+  onSendComment?: (itemName: string, text: string) => void;
+  /** Open the full comments drawer for an item */
+  onOpenCommentsDrawer?: (itemName: string) => void;
 }
 
 export default function DocumentChecklist({
   sections = DEFAULT_SECTIONS,
   activeDocumentId,
   onDocumentSelect,
+  commentCounts = {},
+  activeCommentItem,
+  onCommentIconClick,
+  activeCommentPopoverComments = [],
+  onSendComment,
+  onOpenCommentsDrawer,
 }: DocumentChecklistProps) {
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-white">
@@ -154,12 +211,26 @@ export default function DocumentChecklist({
           <div className="flex flex-col">
             {section.documents.map((doc) => {
               const docId = DOC_NAME_TO_ID[doc.name];
+              const isPopoverOpen = activeCommentItem === doc.name;
               return (
                 <DocumentListItem
                   key={`${section.title}-${doc.number}-${doc.name}`}
                   doc={doc}
                   isActive={!!docId && docId === activeDocumentId}
                   onSelect={onDocumentSelect && docId ? () => onDocumentSelect(docId) : undefined}
+                  commentCount={commentCounts[doc.name] ?? 0}
+                  isPopoverOpen={isPopoverOpen}
+                  onCommentClick={onCommentIconClick ? () => onCommentIconClick(doc.name) : undefined}
+                  commentPopoverProps={
+                    isPopoverOpen
+                      ? {
+                          comments: activeCommentPopoverComments,
+                          onSend: (text: string) => onSendComment?.(doc.name, text),
+                          onViewAll: () => onOpenCommentsDrawer?.(doc.name),
+                          onClose: () => onCommentIconClick?.(doc.name),
+                        }
+                      : undefined
+                  }
                 />
               );
             })}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import IconTabBar, { type IconTab } from "./IconTabBar";
+import IconTabBar, { TABS_WITH_COMMENTS, type IconTab } from "./IconTabBar";
 import SmartAssistOption2TransactionContent from "./SmartAssistOption2TransactionContent";
 import { ALL_SUMMARY_DETAILS, ALL_DATES, ALL_CONTACTS, DEFAULT_COMMISSION, type SectionId } from "./SmartAssistOption2TransactionContent";
 import SmartAssistEditSummary from "./SmartAssistEditSummary";
@@ -559,6 +559,7 @@ export default function SmartAssistOption2Sidebar({
         <IconTabBar
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          tabs={TABS_WITH_COMMENTS}
           badges={{ comments: hasUnread }}
           hoverContent={{
             comments: latestComment ? (

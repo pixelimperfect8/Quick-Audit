@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import Dashboard from "@/components/Dashboard";
 import DesignSystemViewer from "@/components/DesignSystemViewer";
 import RightSidebar from "@/components/sidebar-improvements/RightSidebar";
 import type { IconTab } from "@/components/sidebar-improvements/IconTabBar";
 import { FLAG_ISSUES } from "@/components/sidebar-improvements/flagsData";
+import { INITIAL_COMMENTS_BY_ITEM, type Comment } from "@/components/sidebar-improvements/commentsData";
 
 const CHECKLIST_SECTIONS = [
   {
@@ -69,6 +70,54 @@ export default function SmartAssistOption1Page() {
   const [overlaysHidden, setOverlaysHidden] = useState(false);
   const [pinnedFields, setPinnedFields] = useState<Set<string>>(new Set());
 
+  // ─── Per-item comments ─────────────────────────────────────
+  const [commentsByItem, setCommentsByItem] = useState<Record<string, Comment[]>>(
+    INITIAL_COMMENTS_BY_ITEM,
+  );
+  const [activeCommentPopover, setActiveCommentPopover] = useState<string | null>(null);
+  const [commentsDrawerItem, setCommentsDrawerItem] = useState<string | null>(null);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const drawerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextCommentId = useRef(100);
+
+  const commentCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const [key, comments] of Object.entries(commentsByItem)) {
+      counts[key] = comments.length;
+    }
+    return counts;
+  }, [commentsByItem]);
+
+  const handleCommentIconClick = useCallback((itemName: string) => {
+    setActiveCommentPopover((prev) => (prev === itemName ? null : itemName));
+  }, []);
+
+  const handleSendComment = useCallback((itemName: string, text: string) => {
+    const newComment: Comment = {
+      id: nextCommentId.current++,
+      author: "You",
+      text,
+      time: "Just now",
+      isNew: true,
+    };
+    setCommentsByItem((prev) => ({
+      ...prev,
+      [itemName]: [...(prev[itemName] || []), newComment],
+    }));
+  }, []);
+
+  const handleOpenCommentsDrawer = useCallback((itemName: string) => {
+    setActiveCommentPopover(null);
+    setCommentsDrawerItem(itemName);
+    // Animate in
+    drawerTimeoutRef.current = setTimeout(() => setDrawerVisible(true), 10);
+  }, []);
+
+  const handleCloseCommentsDrawer = useCallback(() => {
+    setDrawerVisible(false);
+    setTimeout(() => setCommentsDrawerItem(null), 250);
+  }, []);
+
   const handleFlagSelect = useCallback((id: string) => {
     setSelectedFlagId(id);
     setSelectedFormField(null);
@@ -128,6 +177,27 @@ export default function SmartAssistOption1Page() {
         backHref="/smart-assist-enhancements"
         backLabel="Smart Assist Enhancements"
         checklistSections={CHECKLIST_SECTIONS}
+        checklistCommentProps={{
+          commentCounts,
+          activeCommentItem: activeCommentPopover,
+          onCommentIconClick: handleCommentIconClick,
+          activeCommentPopoverComments: activeCommentPopover
+            ? commentsByItem[activeCommentPopover] ?? []
+            : [],
+          onSendComment: handleSendComment,
+          onOpenCommentsDrawer: handleOpenCommentsDrawer,
+        }}
+        commentsDrawer={
+          commentsDrawerItem
+            ? {
+                open: drawerVisible,
+                itemName: commentsDrawerItem,
+                comments: commentsByItem[commentsDrawerItem] ?? [],
+                onSend: (text: string) => handleSendComment(commentsDrawerItem, text),
+                onClose: handleCloseCommentsDrawer,
+              }
+            : null
+        }
         documentViewerProps={{
           selectedFlagId,
           onFlagSelect: handleFlagSelect,

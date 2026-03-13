@@ -1,25 +1,40 @@
 "use client";
 
-import { DescriptionIcon, CommentIcon, WarningIcon, FormDataIcon, MoreVert } from "@/components/icons";
+import { DescriptionIcon, WarningIcon, FormDataIcon, CommentIcon, MoreVert } from "@/components/icons";
 import { HoverCard, Tooltip } from "@/components/ui";
 
 export type IconTab = "transaction" | "comments" | "flags" | "formData";
+
+export interface TabDef {
+  id: IconTab;
+  icon: typeof DescriptionIcon;
+  label: string;
+}
 
 interface IconTabBarProps {
   activeTab: IconTab;
   onTabChange: (tab: IconTab) => void;
   badges?: Partial<Record<IconTab, boolean>>;
   hoverContent?: Partial<Record<IconTab, React.ReactNode>>;
+  /** Override default tabs (3 tabs without comments) */
+  tabs?: TabDef[];
 }
 
-const tabs: { id: IconTab; icon: typeof DescriptionIcon; label: string }[] = [
+const DEFAULT_TABS: TabDef[] = [
+  { id: "transaction", icon: DescriptionIcon, label: "Transaction" },
+  { id: "flags", icon: WarningIcon, label: "Flags" },
+  { id: "formData", icon: FormDataIcon, label: "All Data" },
+];
+
+/** Full 4-tab set including comments — use in sidebars that still have comments */
+export const TABS_WITH_COMMENTS: TabDef[] = [
   { id: "transaction", icon: DescriptionIcon, label: "Transaction" },
   { id: "comments", icon: CommentIcon, label: "Comments" },
   { id: "flags", icon: WarningIcon, label: "Flags" },
   { id: "formData", icon: FormDataIcon, label: "All Data" },
 ];
 
-export default function IconTabBar({ activeTab, onTabChange, badges = {}, hoverContent = {} }: IconTabBarProps) {
+export default function IconTabBar({ activeTab, onTabChange, badges = {}, hoverContent = {}, tabs = DEFAULT_TABS }: IconTabBarProps) {
   return (
     <div className="sticky top-0 z-10 bg-white border-b border-grey-300 flex items-center">
       <div className="flex flex-1">

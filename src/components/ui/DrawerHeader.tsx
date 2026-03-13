@@ -15,7 +15,7 @@ export default function DrawerHeader({ title, onClose }: DrawerHeaderProps) {
       >
         <CloseIcon className="w-[18px] h-[18px]" />
       </button>
-      <h2 className="text-grey-900 text-base font-bold leading-6">{title}</h2>
+      <h2 className="text-grey-900 text-base font-bold leading-6 truncate">{title}</h2>
     </div>
   );
 }
