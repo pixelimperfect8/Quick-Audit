@@ -209,7 +209,7 @@ function SourceBadge({ source }: { source: "Form" | "File" | "MLS" }) {
 /* ------------------------------------------------------------------ */
 
 function FieldCard({ field }: { field: FormField }) {
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(!!field.mismatch);
   const formValues = toArray(field.formValue);
   const fileValues = toArray(field.fileValue);
   const mlsValues = toArray(field.mlsValue);

@@ -256,7 +256,7 @@ function FieldCard({
   pinned?: boolean;
   onTogglePin?: () => void;
 }) {
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(!!field.mismatch);
   const formValues = toArray(field.formValue);
   const fileValues = toArray(field.fileValue);
   const mlsValues = toArray(field.mlsValue);

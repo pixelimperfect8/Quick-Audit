@@ -116,7 +116,7 @@ function FieldCard({
 
   // Flagged/missing items expanded by default, cleared items collapsed
   const [expanded, setExpanded] = useState(isFlagged || isEmpty);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(isFlagged);
 
   return (
     <div
