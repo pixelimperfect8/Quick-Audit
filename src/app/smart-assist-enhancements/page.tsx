@@ -20,84 +20,120 @@ const options: OptionDef[] = [
   {
     title: "Option 1",
     description:
-      "Four-tab sidebar with dedicated Flags tab and page-grouped Form Data.",
+      "Three-tab sidebar with per-item comments, page-grouped Form Data, and pin-to-summary.",
     href: "/smart-assist-enhancements/option-1",
     ac: `## Smart Assist Enhancements — Option 1: Acceptance Criteria
 
-### Icon Tab Bar
-- Four icon-only tabs across the top of the sidebar: Transaction, Comments, Flags, Form Data.
-- Active tab is indicated by a blue bottom border and blue icon color.
-- Tabs support hover card previews (e.g., latest comment shown on Comments tab hover).
-- A "more options" kebab icon sits at the trailing edge of the tab bar.
-- Badge dot (red) appears on tabs with unread/new items (e.g., new comments).
+### Panel Resizer
+- The layout consists of three resizable panels: left sidebar (document checklist), center (document viewer), and right sidebar.
+- A drag handle between each panel allows horizontal resizing by clicking and dragging.
+- Panels enforce minimum widths so content remains readable.
+- Panel widths persist during the session; resizing is smooth with no jank.
 
-### Transaction Tab
-- Three collapsible sections, all expanded by default: Transaction Details, Contacts, Commission.
-- **Transaction Details** shows key-value rows: Status (with "Pending" badge), File name, Type, Checklist Type, Agent, MLS #, Close of Escrow, Acceptance Date, Escrow #, Email, Year Built, Purchase Price, File ID.
-- **Contacts** lists Buyer(s) and Lender with person icons and clickable names.
-- **Commission** shows financial breakdown: Sale, Listing, Office gross, TC, Referral Agent, Other deductions.
-- A "View Log" link at the bottom of the section.
-- **Source comparison hover tooltips**: Hovering over transaction detail rows or contact names that have cross-source data reveals a tooltip showing values from Form, File, and/or MLS sources with a page reference.
-- **Mismatch highlighting**: Fields with source disagreements (e.g., Purchase Price, Buyer name) display a subtle red-50 background highlight on the label and value text only (not the full row). Tooltips for mismatched fields show a warning icon and red text on differing values.
+### Comments Feature (Per-Checklist-Item)
+- Comments are **not** a tab in the right sidebar. The sidebar has three tabs only: Transaction, Flags, All Data.
+- Each checklist item in the left sidebar displays a comment icon button next to its status badge.
+- A **blue dot indicator** appears on the comment icon for items that have existing comments.
+- **Popover**: Clicking the comment icon opens a click-triggered popover showing:
+  - The latest comment (author, text, timestamp).
+  - A reply text input with send button (Enter to send).
+  - A "View all N comments" link at the bottom.
+- **Drawer**: Clicking "View all" slides a full-height drawer over the left sidebar from the left, showing:
+  - A header with the checklist item name (truncated if long) and a close (X) button.
+  - A scrollable list of all comments for that item, each with author, text, and timestamp.
+  - New comments are highlighted with a subtle background that fades after 3 seconds.
+  - A pinned reply input at the bottom.
+- Sending a comment from either the popover or drawer updates both views.
+- Closing the drawer slides it out and returns to the checklist.
+- Clicking outside the popover or pressing Escape closes it.
 
-### Comments Tab
-- Displays a chronological list of comments with author name, message body, and timestamp.
-- New/unread comments are highlighted with a subtle background that fades after 3 seconds.
-- A fixed comment input bar at the bottom with a text field and send button.
-- Pressing Enter or clicking the send icon appends the new comment to the list.
-- The comment list scrolls independently; input bar stays pinned to the bottom.
+### Cleared/Flag Indicators in All Data Tab
+- Each field card shows a **checkmark icon** (green) for cleared fields or a **warning icon** (orange) for flagged fields next to the label.
+- Flagged fields display their label in **red text** and show a red left border on the card.
+- "Missing" fields show the label in red with italic "Missing" as the value.
+- **Flagged items have their Sources section expanded by default** so discrepancies are immediately visible.
+- Cleared items have Sources collapsed by default.
 
-### Flags Tab
-- Flag cards grouped by page number in **collapsible sections** (e.g., "Page 1", "Page 2"), all expanded by default.
-- Each flag card shows:
-  - A description of the issue (e.g. "The buyer's name doesn't match the name on file.")
-  - Source comparison values showing Form / File / MLS data when applicable.
-  - Accept and Reject action buttons.
-- Clicking a flag card in the sidebar highlights the corresponding region on the document viewer.
-- Clicking a highlighted region on the document viewer selects the matching flag card in the sidebar and auto-switches to the Flags tab.
-- Selected flag card is visually distinguished with a blue left border.
-- Bidirectional sync: selecting a flag from either the sidebar or the document keeps both in sync.
-
-### Form Data Tab
-- Displays extracted form fields organized by **page number** in collapsible sections (e.g., "Page 1", "Page 2", "Page 3", "Page 15", "Page 16", "MLS").
-- Each field card shows:
-  - Field label (bold) with a subsection badge (e.g., §A, §2B) when applicable.
-  - Primary value from the form.
-  - Expandable "Sources" toggle revealing File and/or MLS comparison values.
-  - A mismatch indicator (warning icon + red border) when values disagree across sources.
-  - "Missing" label (red italic) for empty required fields.
-  - Source-only badge (Form, File, or MLS) for fields found in a single source only.
+### All Data Organization: By Page
+- Form data fields are organized by **page number** in collapsible sections (e.g., "Page 1", "Page 2", "Page 15", "MLS").
+- All sections are expanded by default.
 - A sticky search bar at the top filters fields in real-time across all page groups.
-  - Sections with no matching fields are hidden.
+  - Sections with no matching fields are hidden during search.
   - A result count badge shows "X results" while searching.
-  - Clear button (X icon) resets the search.
-  - Empty state message shown when no fields match the query.
+  - Clear button (X) resets the search.
+  - Empty state message shown when no fields match.
 
-### Action Bar — Flags Integration
-- The bottom action bar includes a "View Flags" button.
-- Clicking "View Flags" switches the sidebar to the Flags tab.
+### Global Search
+- A search bar sits at the top of the right sidebar, above the tab bar.
+- Typing a query searches across **all tabs simultaneously**: Transaction details, Contacts, Commission, Flags, Form Data, Checklist items, and Documents.
+- Results are grouped by category with color-coded dot indicators (e.g., orange for Flags, green for Checklist, blue for Transaction).
+- Each result shows the category label, matched field name, and detail/value.
+- Clicking a result navigates to the relevant tab and highlights the matched item.
+- The tab bar is hidden while search is active; clearing the search restores it.
 
-### Document Viewer — Flag Highlights
-- Flag regions are rendered as semi-transparent overlays on top of the document image.
-- Default state: faint overlay visible on all flagged regions.
-- Hover state: overlay becomes more prominent.
-- Selected state: overlay turns to a distinct highlight color matching the selected flag.
-- Clicking a highlight selects the flag and scrolls the sidebar Flags tab to the matching card.
-
-### General
-- Sidebar scrolls independently from the main content area.
-- All text meets WCAG AA contrast requirements (minimum 4.5:1 ratio for normal text).
-- Font: Proxima Nova via Adobe Fonts, with system-ui fallback.
-- Responsive icon tab bar with equal-width tabs.`,
+### Pin to Summary
+- Each field card in the All Data tab has a "Pin" button (pin icon + label).
+- Clicking "Pin" adds the field to the Transaction tab as a pinned row.
+- Pinned fields appear in a dedicated "Pinned Fields" section at the top of the Transaction tab.
+- Each pinned row shows an always-visible unpin button (pin icon with tooltip "Unpin").
+- Clicking "Unpin" removes the field from the Transaction tab and resets the pin state in All Data.
+- Pinning/unpinning is instant with no page reload.`,
   },
   {
     title: "Option 2",
     description:
-      "Alternate action bar and layout explorations.",
+      "Four-tab sidebar with Comments tab, section-grouped Form Data, and Edit Summary customization.",
     href: "/smart-assist-enhancements/option-2",
-    ac: `## Smart Assist Enhancements — Option 2
+    ac: `## Smart Assist Enhancements — Option 2: Acceptance Criteria
 
-Work in progress.`,
+### Panel Resizer
+- The layout consists of three resizable panels: left sidebar (document checklist), center (document viewer), and right sidebar.
+- A drag handle between each panel allows horizontal resizing by clicking and dragging.
+- Panels enforce minimum widths so content remains readable.
+- Panel widths persist during the session; resizing is smooth with no jank.
+
+### Comments Feature (Dedicated Tab)
+- The right sidebar has four tabs: Transaction, **Comments**, Flags, All Data.
+- A **red badge dot** appears on the Comments tab icon when there are unread comments.
+- **Hover preview**: Hovering over the Comments tab icon shows a hover card with the latest comment (author, text, timestamp).
+- The Comments tab displays a chronological list of all comments with author name, message body, and timestamp.
+- New/unread comments are highlighted with a subtle background that fades after 3 seconds.
+- A fixed comment input bar is pinned at the bottom with a text field and send button.
+- Pressing Enter or clicking the send icon appends the new comment to the list and auto-scrolls to it.
+- The comment list scrolls independently; the input bar stays pinned.
+- Switching to the Comments tab clears the unread badge.
+
+### Cleared/Flag Indicators in All Data Tab
+- Each field card shows a **checkmark icon** (green) for cleared fields or a **warning icon** (orange) for flagged fields next to the label.
+- Flagged fields display their label in **red text** and show a red left border on the card.
+- "Missing" fields show the label in red with italic "Missing" as the value.
+- **Flagged items have their Sources section expanded by default** so discrepancies are immediately visible.
+- Cleared items have Sources collapsed by default.
+
+### All Data Organization: By Section/Category
+- Form data fields are organized by **logical section** in collapsible groups (e.g., "Transaction Summary", "Contacts", "Financial", "Property Details").
+- This groups related fields together regardless of which page they appear on.
+- All sections are expanded by default.
+- Each field card shows its source badge and expandable Sources comparison.
+
+### Global Search
+- A search bar sits at the top of the right sidebar, above the tab bar.
+- Typing a query searches across **all tabs simultaneously**: Transaction details, Contacts, Commission, Comments, Flags, Form Data, Checklist items, and Documents.
+- Results are grouped by category with color-coded dot indicators.
+- Each result shows the category label, matched field name, and detail/value.
+- Clicking a result navigates to the relevant tab and highlights the matched item.
+- The tab bar is hidden while search is active; clearing the search restores it.
+
+### Summary Customization (Edit Summary)
+- The Transaction tab footer has an "Edit Summary" button.
+- Clicking "Edit Summary" slides in an edit overlay from the right with the following controls:
+  - **Toggle field visibility**: Each field has a show/hide toggle. Hidden fields are removed from the Transaction tab.
+  - **Toggle section visibility**: Entire sections (Summary, Dates, Contacts, Commission) can be hidden.
+  - **Reorder sections**: Drag handles allow reordering the section display order.
+  - **Reorder fields within sections**: Drag handles allow reordering fields within each section.
+  - **Reset to Defaults**: A button restores all visibility and ordering to the original state.
+- Clicking "Done Editing" (or the close button) slides the overlay out, returning to the customized Transaction tab.
+- A "View Hidden Data" link appears when fields/sections are hidden, opening a drawer listing all hidden items with "Show" buttons to restore them individually.`,
   },
 ];
 
