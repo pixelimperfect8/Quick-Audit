@@ -17,7 +17,7 @@ function SourceRow({
 }) {
   return (
     <div className="flex items-baseline gap-2">
-      <span className="text-grey-600 text-xs font-bold uppercase tracking-wide shrink-0 w-8">
+      <span className="text-grey-800 text-sm font-medium uppercase tracking-wide shrink-0 w-10">
         {source}
       </span>
       <span
@@ -63,7 +63,7 @@ export default function SourceTooltip({ label, data }: SourceTooltipProps) {
 
       {/* Page ref */}
       {data.page && (
-        <p className="text-grey-600 text-xs mt-2 pt-2 border-t border-grey-200">
+        <p className="text-grey-600 text-sm mt-2 pt-2 border-t border-grey-200">
           {data.page}
         </p>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { PersonIcon } from "@/components/icons";
 import { Collapsible, DetailRow, Badge, HoverCard } from "@/components/ui";
 import { toArray } from "./FormDataByPage";
@@ -234,6 +235,8 @@ export default function SmartAssistOption2TransactionContent({
   onViewHiddenData,
 }: Option2TransactionContentProps) {
   const hasHiddenItems = hiddenFields.size > 0 || hiddenSections.size > 0;
+  const [pinnedTooltip, setPinnedTooltip] = useState<string | null>(null);
+  const handlePinnedClose = useCallback(() => setPinnedTooltip(null), []);
 
   // Section renderers
   // Apply field ordering if provided
@@ -257,6 +260,12 @@ export default function SmartAssistOption2TransactionContent({
         const hasMismatch = isFieldStillFlagged(detail.label, rejectedFlagIds, TRANSACTION_SOURCES);
         const mismatchMark = "rounded-sm bg-red-50 px-0.5 -mx-0.5";
 
+        const hasCounterOffer = sourceData?.counterOffers && sourceData.counterOffers.length > 0;
+        const displayValue = hasCounterOffer
+          ? sourceData!.counterOffers![sourceData!.counterOffers!.length - 1].value
+          : detail.value;
+        const isHistoryOpen = pinnedTooltip === detail.label;
+
         const row =
           detail.label === "Status" ? (
             <DetailRow label={detail.label}>
@@ -267,8 +276,8 @@ export default function SmartAssistOption2TransactionContent({
               <span className="text-grey-900 text-base font-bold w-[140px] shrink-0 leading-6">
                 <span className={mismatchMark}>{detail.label}</span>
               </span>
-              <span className="text-grey-900 text-base font-medium leading-6 break-words min-w-0 flex-1">
-                <span className={mismatchMark}>{detail.value}</span>
+              <span className="text-grey-900 text-base font-medium leading-6 break-words min-w-0 flex-1 flex items-baseline justify-between gap-2">
+                <span className={mismatchMark}>{displayValue}</span>
               </span>
             </div>
           ) : (
@@ -279,20 +288,73 @@ export default function SmartAssistOption2TransactionContent({
             />
           );
 
-        if (!sourceData) return <div key={detail.label}>{row}</div>;
+        // Inline expandable card for counter offer history
+        const historyCard = hasCounterOffer && isHistoryOpen ? (
+          <div className="mt-1 mb-2 rounded-lg border border-grey-300 bg-grey-50 p-4 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="flex items-baseline justify-between">
+              <span className="text-grey-800 text-sm font-bold">Price History</span>
+              <button
+                onClick={() => setPinnedTooltip(null)}
+                className="text-grey-600 text-sm font-medium hover:text-grey-900 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+            {sourceData!.counterOffers!.map((co, i) => {
+              const isFinal = i === sourceData!.counterOffers!.length - 1;
+              return (
+                <div key={co.label} className="flex items-baseline justify-between gap-2">
+                  <span className="text-grey-800 text-sm font-medium">{co.label}</span>
+                  <span
+                    className={`text-sm font-medium leading-5 ${
+                      isFinal ? "text-grey-900 font-bold" : "text-grey-800 line-through"
+                    }`}
+                  >
+                    {co.value}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : null;
+
+        if (!sourceData) return <div key={detail.label}>{row}{historyCard}</div>;
 
         return (
           <div
             key={detail.label}
             className="rounded transition-colors hover:bg-grey-50"
           >
-            <HoverCard
-              trigger={<div className="cursor-default">{row}</div>}
-              side="bottom"
-              align="left"
-            >
-              <SourceTooltip label={detail.label} data={sourceData} />
-            </HoverCard>
+            <div className="flex items-baseline">
+              <div className="flex-1 min-w-0">
+                <HoverCard
+                  trigger={<div className="cursor-default">{row}</div>}
+                  side="bottom"
+                  align="left"
+                >
+                  <SourceTooltip label={detail.label} data={sourceData} />
+                </HoverCard>
+              </div>
+              {hasCounterOffer && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPinnedTooltip(isHistoryOpen ? null : detail.label);
+                  }}
+                  className="shrink-0 ml-2"
+                >
+                  <Badge
+                    variant={isHistoryOpen ? "info" : "default"}
+                    className={`text-sm !py-0 cursor-pointer transition-colors ${
+                      isHistoryOpen ? "ring-1 ring-blue-800/30" : "hover:opacity-80"
+                    }`}
+                  >
+                    History
+                  </Badge>
+                </button>
+              )}
+            </div>
+            {historyCard}
           </div>
         );
       })}

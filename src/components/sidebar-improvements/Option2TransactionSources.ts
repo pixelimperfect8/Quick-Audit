@@ -1,9 +1,16 @@
+export interface CounterOffer {
+  label: string;
+  value: string;
+}
+
 export interface SourceData {
   formValue?: string;
   fileValue?: string;
   mlsValue?: string;
   mismatch?: boolean;
   page?: string;
+  /** Counter offer history — last entry is the final/active price */
+  counterOffers?: CounterOffer[];
 }
 
 /**
@@ -21,7 +28,12 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
     formValue: "$500,000.00",
     fileValue: "$450,000.00",
     mismatch: true,
-    page: "RPA p.1, §A",
+    page: "RPA p.1, Sec. A",
+    counterOffers: [
+      { label: "Original Offer", value: "$500,000.00" },
+      { label: "Counter Offer #1", value: "$475,000.00" },
+      { label: "Accepted Offer", value: "$450,000.00" },
+    ],
   },
   "MLS #": {
     formValue: "1234567",
@@ -31,7 +43,7 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
   "Close of Escrow": {
     formValue: "11/29/2023",
     fileValue: "11/29/2023",
-    page: "RPA p.1, §C",
+    page: "RPA p.1, Sec.C",
   },
   "Acceptance Date": {
     formValue: "11/24/2023",
@@ -56,24 +68,24 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
   },
   "Seller Brokerage": {
     formValue: "Keller Williams Realty",
-    page: "RPA p.1, §2A",
+    page: "RPA p.1, Sec.2A",
   },
   "Seller Broker License": {
     formValue: "DRE #01234567",
-    page: "RPA p.1, §2A",
+    page: "RPA p.1, Sec.2A",
   },
   "Buyer Brokerage": {
     formValue: "Compass Real Estate",
-    page: "RPA p.1, §2B",
+    page: "RPA p.1, Sec.2B",
   },
   "Buyer Broker License": {
     formValue: "",
     mismatch: true,
-    page: "RPA p.1, §2B",
+    page: "RPA p.1, Sec.2B",
   },
   "Rep Type": {
     formValue: "Seller only",
-    page: "RPA p.1, §2B",
+    page: "RPA p.1, Sec.2B",
   },
   "Seller Payment to Buyer Broker": {
     formValue: "2.5%",
@@ -81,11 +93,11 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
   },
   "Loan Type": {
     formValue: "Conventional",
-    page: "RPA p.1, §E",
+    page: "RPA p.1, Sec.E",
   },
   "Home Warranty": {
     formValue: "Yes — ordered",
-    page: "RPA p.3, §Q18",
+    page: "RPA p.3, Sec.Q18",
   },
   "Seller Agent License": {
     formValue: "DRE #09876543",
@@ -99,15 +111,15 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
   // Extra date fields
   "Loan Contingency": {
     formValue: "21 days",
-    page: "RPA p.2, §L1",
+    page: "RPA p.2, Sec.L1",
   },
   "Appraisal Contingency": {
     formValue: "17 days",
-    page: "RPA p.2, §L2",
+    page: "RPA p.2, Sec.L2",
   },
   "Investigation Contingency": {
     formValue: "17 days",
-    page: "RPA p.2, §L3",
+    page: "RPA p.2, Sec.L3",
   },
 };
 

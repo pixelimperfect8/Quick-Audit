@@ -11,6 +11,10 @@ interface HoverCardProps {
   className?: string;
   /** Use a portal to escape overflow containers (default: true) */
   portal?: boolean;
+  /** When true, card stays open until user clicks outside */
+  pinned?: boolean;
+  /** Called when a pinned card is dismissed */
+  onPinnedClose?: () => void;
 }
 
 export default function HoverCard({
@@ -20,6 +24,8 @@ export default function HoverCard({
   side = "bottom",
   className = "",
   portal = true,
+  pinned = false,
+  onPinnedClose,
 }: HoverCardProps) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -39,9 +45,37 @@ export default function HoverCard({
   }, [clearTimers]);
 
   const handleLeave = useCallback(() => {
+    if (pinned) return; // Don't hide on hover-leave when pinned
     clearTimers();
     hideTimer.current = setTimeout(() => setOpen(false), 100);
-  }, [clearTimers]);
+  }, [clearTimers, pinned]);
+
+  // Open when pinned; close when unpinned (only if was previously pinned)
+  const wasPinned = useRef(false);
+  useEffect(() => {
+    if (pinned) {
+      setOpen(true);
+      wasPinned.current = true;
+    } else if (wasPinned.current) {
+      setOpen(false);
+      wasPinned.current = false;
+    }
+  }, [pinned]);
+
+  // Close on outside click when pinned
+  useEffect(() => {
+    if (!pinned) return;
+    function handleClick(e: MouseEvent) {
+      if (
+        triggerRef.current && !triggerRef.current.contains(e.target as Node) &&
+        cardRef.current && !cardRef.current.contains(e.target as Node)
+      ) {
+        onPinnedClose?.();
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [pinned, onPinnedClose]);
 
   // Position the portal card relative to the trigger
   useEffect(() => {
