@@ -109,7 +109,7 @@ function DocumentListItem({
       onClick={onSelect}
       className={onSelect ? "cursor-pointer hover:bg-grey-50 transition-colors" : ""}
     >
-      <div className="flex items-center gap-4 px-4 py-2">
+      <div className="flex items-center gap-4 pl-2 pr-4 py-2">
         <div className="flex-1 min-w-0 flex items-center gap-2 text-grey-900 text-base font-medium leading-6">
           <span className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-[4px] bg-grey-50 text-grey-800 text-xs font-semibold">{doc.number}</span>
           <TruncatedText className="min-w-0">{doc.name}</TruncatedText>

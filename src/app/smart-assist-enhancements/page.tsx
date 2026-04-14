@@ -135,6 +135,96 @@ const options: OptionDef[] = [
 - Clicking "Done Editing" (or the close button) slides the overlay out, returning to the customized Transaction tab.
 - A "View Hidden Data" link appears when fields/sections are hidden, opening a drawer listing all hidden items with "Show" buttons to restore them individually.`,
   },
+  {
+    title: "Option 3",
+    description:
+      "Section-tabbed right panel with unified Issues / Successful Checks lists, global search, and a slide-in Customize Panel editor.",
+    href: "/smart-assist-enhancements/option-3",
+    ac: `## Smart Assist Enhancements — Option 3: Acceptance Criteria
+
+### Panel Resizer
+- The layout consists of three resizable panels: left sidebar (document checklist), center (document viewer), and right sidebar.
+- A drag handle between each panel allows horizontal resizing by clicking and dragging.
+- Panels enforce minimum widths so content remains readable.
+
+### Header
+- A segmented-control pill tab group in the header switches between **Listings / Transactions / Both**. The active pill has a white fill with a subtle 0.5px grey border on a grey track, and sliding between tabs animates the indicator via a CSS transition (no layout wobble — the ghost-text trick reserves bold width on every tab).
+- A **Stage selector** and an **Actions dropdown** (with "Cancel Transaction" and "Archive Transaction") sit to the right of the tab group. The Actions chevron flips when the dropdown is open and closes on outside click.
+- An **Update Agent** button sits at the far right, matching the height of the elements beside it.
+- The address selector, back button, and mobile sidebar/details toggles behave as in the other options.
+
+### Left Sidebar — Checklist
+- Checklist items render flush with 8px left padding and 16px right padding (no extra inset).
+- Each checklist item displays its number, name, status badge, and comment icon.
+- Status badges use a fixed 81px width. The **Flagged** badge shows a slightly larger warning icon without widening the badge.
+- Comment icon shows a **blue dot indicator** when the item has existing comments.
+
+### Comments Feature (Per-Checklist-Item)
+- Comments live on the left checklist, not the right sidebar.
+- Clicking the comment icon opens a click-triggered popover showing the latest comment, a reply input, and a "View all N comments" link.
+- Clicking "View all" slides a full-height drawer over the left sidebar with the complete comment thread and a pinned reply input.
+- New comments are highlighted with a subtle background that fades after ~3 seconds.
+- Sending from the popover or drawer keeps both views in sync.
+
+### Document Viewer
+- Page 1 renders as a blank white page (no PDF preview). Other pages render the existing placeholder skeleton.
+- **Form field highlight overlays** and **flag highlight overlays** still render over the blank page at their original coordinates.
+- Clicking a form-field overlay selects the corresponding field in the right sidebar; clicking a flag overlay selects the flag.
+- Overlays can be hidden/shown via the viewer's overlay toggle.
+
+### Right Sidebar — Global Search
+- A search bar sits at the top of the right sidebar. Focusing the input or typing activates search mode; a close (X) icon clears and exits search mode.
+- Typing a query searches across **Transaction details, Dates, Contacts, Commission, Flags, Form Data, Checklist items, and Documents**.
+- Results are grouped by category (Transactions, Contacts, Commission, Flags, Form Data, Checklist, Documents) with color-coded dot indicators and **horizontal dividers between groups**.
+- Each result shows the category label, matched field name, and detail/value.
+- Clicking a result:
+  - Clears the query and blurs the input.
+  - For Transaction / Form Data results, switches the section tab to the correct section and selects the matching form field (bi-directional highlight on the form).
+  - For Contact results, opens the contact detail drawer.
+  - For Flag results, selects the flag and highlights it in the viewer.
+  - For Checklist / Document results, loads the matching document in the viewer.
+
+### Right Sidebar — Section Tabs (Form Data)
+- Under the search bar sits a horizontal **tab bar** with sections: Summary, Dates, Contacts, Commission.
+- The active tab uses **blue bold** text with a blue underline. Inactive tabs use **grey medium** weight (not bold).
+- Hidden sections (via Customize Panel) are dropped from the tab bar; the active tab falls back to the first visible section when its current tab is hidden.
+
+### Section Content — Data Rows
+- Each data row shows a bold label (120px wide) and a value.
+- Rows have a **hover background** (hover:bg-grey-50) and subtle rounded corners.
+- Rows with a mismatched source render the label and value text inside a **light red (bg-red-50)** pill mark to flag the discrepancy. Text color stays grey-900.
+- Hovering a data row shows a **Source comparison tooltip** (Form / File / MLS) via a portal-rendered HoverCard.
+- **Tooltips auto-close** as soon as the user scrolls any ancestor scroll container or resizes the window.
+
+### Section Content — Contact Rows
+- Contact rows show a role label, a person icon, and the contact name.
+- Clicking the contact name opens the contact detail drawer.
+- Contacts with a mismatched source render the name inside the same light red mark (grey-900 text, bg-red-50 pill).
+- Hover, source tooltip, and scroll-close behavior match data rows.
+
+### Issues & Successful Checks (Global Lists)
+- Below the section content, two collapsible groups list all issues and cleared fields:
+  - **Issues (N)** — warning icon, expanded by default.
+  - **Successful checks (N)** — check icon, expanded by default.
+- Each issue/check row has a hover background and shows a HoverCard tooltip with flag details or source comparison.
+- Clicking an issue selects the flag, highlights the matching form overlay in the viewer, and scrolls the selected row into view.
+- Clicking a successful check selects the form field, highlights the matching form overlay, and scrolls into view.
+- **Selected issue rows** use a **bg-red-50** highlight. **Selected check rows** use a subtle **bg-green-50/25** highlight. Text color is unchanged.
+- The reverse flow also works: clicking a highlight in the document viewer selects and scrolls to the matching row in the sidebar.
+
+### Customize Panel (Edit Summary Overlay)
+- The right sidebar footer contains a **"Customize Panel"** button (edit icon + label). Clicking it toggles to **"Done"**.
+- When active, a **slide-in overlay** from the right covers the sidebar with the Customize Panel editor:
+  - **Toggle field visibility**: each field in a section has a show/hide toggle.
+  - **Toggle section visibility**: entire sections (Summary, Dates, Contacts, Commission) can be hidden.
+  - **Reorder sections**: drag handles reorder the section tab order.
+  - **Reorder fields within sections**: drag handles reorder fields inside a section.
+  - **Reset to Defaults**: restores all visibility and ordering to the initial state (hidden extras re-hidden, default section order restored).
+- Clicking "Done" slides the overlay out and returns to the customized sidebar.
+
+### Settings Button
+- A **Settings** button sits in the right sidebar footer next to Customize Panel as a placeholder for future settings.`,
+  },
 ];
 
 /* ------------------------------------------------------------------ */

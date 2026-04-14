@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowBack, ChevronLeft, ChevronRight, ChevronDown, MenuIcon, MoreVert } from "./icons";
 import { Tabs, TruncatedText } from "./ui";
 
@@ -18,6 +18,19 @@ export default function Header({
   onToggleDetails,
 }: HeaderProps) {
   const [activeTab, setActiveTab] = useState<(typeof headerTabs)[number]>("Both");
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!actionsOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (actionsRef.current && !actionsRef.current.contains(e.target as Node)) {
+        setActionsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [actionsOpen]);
 
   return (
     <header className="bg-white border-b border-grey-300 px-3 py-2.5 flex items-center justify-between gap-2 shrink-0 z-20">
@@ -71,8 +84,44 @@ export default function Header({
           <ChevronDown className="w-5 h-5 text-grey-700" />
         </div>
 
+        {/* Transaction actions dropdown */}
+        <div ref={actionsRef} className="hidden sm:block relative">
+          <button
+            type="button"
+            onClick={() => setActionsOpen((o) => !o)}
+            className="flex items-center gap-2 border border-grey-300 rounded-lg h-10 pl-4 pr-2 bg-white hover:bg-grey-50 transition-colors"
+          >
+            <span className="text-grey-900 text-sm lg:text-base font-medium whitespace-nowrap">
+              Actions
+            </span>
+            <ChevronDown
+              className={`w-5 h-5 text-grey-700 transition-transform duration-150 ${
+                actionsOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {actionsOpen && (
+            <div className="absolute right-0 top-full mt-1 z-30 min-w-[220px] bg-white border border-grey-300 rounded-lg shadow-lg py-1">
+              <button
+                type="button"
+                onClick={() => setActionsOpen(false)}
+                className="w-full text-left px-4 py-2 text-sm text-grey-900 font-medium hover:bg-grey-50 transition-colors"
+              >
+                Cancel Transaction
+              </button>
+              <button
+                type="button"
+                onClick={() => setActionsOpen(false)}
+                className="w-full text-left px-4 py-2 text-sm text-grey-900 font-medium hover:bg-grey-50 transition-colors"
+              >
+                Archive Transaction
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Update Agent button */}
-        <button className="flex items-center gap-2 lg:gap-4 h-10 lg:h-12 pl-4 lg:pl-6 pr-2 lg:pr-3 border border-purple-600 rounded-full bg-white hover:bg-grey-50 transition-colors">
+        <button className="flex items-center gap-2 lg:gap-4 h-10 pl-4 lg:pl-6 pr-2 lg:pr-3 border border-purple-600 rounded-full bg-white hover:bg-grey-50 transition-colors">
           <span className="text-blue-800 text-sm lg:text-base font-bold whitespace-nowrap">Update Agent</span>
           <div className="bg-grey-100 rounded-full w-6 h-6 flex items-center justify-center">
             <ChevronDown className="w-4 h-4 text-grey-700" />

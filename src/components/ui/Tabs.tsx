@@ -1,5 +1,7 @@
 "use client";
 
+import { useLayoutEffect, useRef, useState } from "react";
+
 interface TabsProps<T extends string> {
   items: readonly T[];
   activeItem: T;
@@ -18,35 +20,7 @@ export default function Tabs<T extends string>({
   renderExtra,
 }: TabsProps<T>) {
   if (variant === "pill") {
-    return (
-      <div className="flex">
-        {items.map((tab, i) => {
-          const isFirst = i === 0;
-          const isLast = i === items.length - 1;
-          const isActive = activeItem === tab;
-
-          return (
-            <button
-              key={tab}
-              onClick={() => onTabChange(tab)}
-              className={`${height} px-4 lg:px-6 text-sm lg:text-base border border-grey-300 transition-colors ${
-                isFirst
-                  ? "rounded-l-lg border-r-0"
-                  : isLast
-                  ? "rounded-r-lg border-l-0"
-                  : "border-x-0 border-t border-b"
-              } ${
-                isActive
-                  ? "bg-white text-blue-800 font-bold"
-                  : "bg-grey-50 text-grey-800 font-medium hover:bg-grey-100"
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
-      </div>
-    );
+    return <PillTabs items={items} activeItem={activeItem} onTabChange={onTabChange} height={height} />;
   }
 
   // underline variant
@@ -66,6 +40,68 @@ export default function Tabs<T extends string>({
           {renderExtra?.(tab)}
         </button>
       ))}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Pill variant — animated sliding indicator                          */
+/* ------------------------------------------------------------------ */
+
+function PillTabs<T extends string>({
+  items,
+  activeItem,
+  onTabChange,
+  height,
+}: {
+  items: readonly T[];
+  activeItem: T;
+  onTabChange: (item: T) => void;
+  height: string;
+}) {
+  const btnRefs = useRef<Map<T, HTMLButtonElement | null>>(new Map());
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const el = btnRefs.current.get(activeItem);
+    if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [activeItem, items.length]);
+
+  return (
+    <div
+      className={`relative inline-flex items-center p-[2px] bg-grey-50 border border-grey-300 rounded-lg ${height}`}
+    >
+      {indicator && (
+        <div
+          aria-hidden
+          className="absolute top-[2px] bottom-[2px] bg-white border-[0.5px] border-grey-300 rounded-md transition-[left,width] duration-200 ease-out"
+          style={{ left: indicator.left, width: indicator.width }}
+        />
+      )}
+      {items.map((tab) => {
+        const isActive = activeItem === tab;
+        return (
+          <button
+            key={tab}
+            ref={(el) => {
+              btnRefs.current.set(tab, el);
+            }}
+            onClick={() => onTabChange(tab)}
+            className={`relative z-10 h-full px-4 lg:px-6 text-sm lg:text-base rounded-md transition-colors ${
+              isActive
+                ? "text-blue-800 font-bold"
+                : "text-grey-800 font-medium hover:text-grey-900"
+            }`}
+          >
+            <span className="grid">
+              <span className="col-start-1 row-start-1 invisible font-bold" aria-hidden>
+                {tab}
+              </span>
+              <span className="col-start-1 row-start-1">{tab}</span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

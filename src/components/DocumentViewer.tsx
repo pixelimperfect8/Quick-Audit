@@ -200,21 +200,9 @@ export default function DocumentViewer({
                 className="relative bg-white shadow-lg rounded-sm w-full max-w-[612px] overflow-hidden"
                 style={{ minHeight: PAGE_HEIGHT }}
               >
-                {/* Page content — wrapper clips the PDF's native scrollbar */}
+                {/* Page content — page 1 is blank white so only field overlays show */}
                 {pageNum === 1 ? (
-                  <div className="overflow-hidden w-full" style={{ height: PAGE_HEIGHT }}>
-                    <object
-                      data={`${doc.pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&page=1`}
-                      type="application/pdf"
-                      className="rounded-sm pointer-events-none"
-                      style={{ width: "calc(100% + 20px)", height: PAGE_HEIGHT }}
-                    >
-                      <p className="p-8 text-grey-800 text-sm text-center">
-                        Unable to display PDF.{" "}
-                        <a href={doc.pdfUrl} className="text-blue-800 underline">Download</a>
-                      </p>
-                    </object>
-                  </div>
+                  <div className="w-full" style={{ height: PAGE_HEIGHT }} />
                 ) : (
                   <PagePlaceholder page={pageNum} />
                 )}

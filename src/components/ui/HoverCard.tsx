@@ -50,6 +50,13 @@ export default function HoverCard({
     hideTimer.current = setTimeout(() => setOpen(false), 100);
   }, [clearTimers, pinned]);
 
+  // Close immediately on click — useful when the trigger navigates or opens a drawer
+  const handleClick = useCallback(() => {
+    if (pinned) return;
+    clearTimers();
+    setOpen(false);
+  }, [clearTimers, pinned]);
+
   // Open when pinned; close when unpinned (only if was previously pinned)
   const wasPinned = useRef(false);
   useEffect(() => {
@@ -61,6 +68,24 @@ export default function HoverCard({
       wasPinned.current = false;
     }
   }, [pinned]);
+
+  // Close as soon as any ancestor scrolls (avoids stale tooltip pinned to
+  // page coordinates while the trigger scrolls away). Capture-phase so we
+  // catch scrolls on any scroll container, not just window.
+  useEffect(() => {
+    if (!open) return;
+    function handleScroll() {
+      clearTimers();
+      setOpen(false);
+      if (pinned) onPinnedClose?.();
+    }
+    window.addEventListener("scroll", handleScroll, true);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [open, pinned, onPinnedClose, clearTimers]);
 
   // Close on outside click when pinned
   useEffect(() => {
@@ -132,6 +157,7 @@ export default function HoverCard({
         className="relative"
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
+        onClick={handleClick}
       >
         {trigger}
         <div
@@ -156,6 +182,7 @@ export default function HoverCard({
       className="relative"
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
+      onClick={handleClick}
     >
       {trigger}
       {typeof document !== "undefined" &&

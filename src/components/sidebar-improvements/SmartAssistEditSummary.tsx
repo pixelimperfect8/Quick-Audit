@@ -27,6 +27,8 @@ interface EditSummaryProps {
   onReorderFields: (sectionId: string, order: string[]) => void;
   onResetToDefaults?: () => void;
   onClose: () => void;
+  /** Panel title (defaults to "Edit Summary") */
+  title?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -182,6 +184,7 @@ export default function SmartAssistEditSummary({
   onReorderFields,
   onResetToDefaults,
   onClose,
+  title = "Edit Summary",
 }: EditSummaryProps) {
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(
     new Set()
@@ -207,11 +210,11 @@ export default function SmartAssistEditSummary({
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-grey-300">
-        <h3 className="text-grey-900 text-base font-bold">Edit Summary</h3>
+        <h3 className="text-grey-900 text-base font-bold">{title}</h3>
         <button
           onClick={onClose}
           className="text-grey-700 hover:text-grey-900 transition-colors"
-          aria-label="Close edit summary"
+          aria-label={`Close ${title.toLowerCase()}`}
         >
           <CloseIcon className="w-4 h-4" />
         </button>

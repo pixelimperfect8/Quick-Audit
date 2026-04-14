@@ -7,6 +7,7 @@ import DocumentViewer from "@/components/DocumentViewer";
 import DocumentTabBar from "@/components/DocumentTabBar";
 import TransactionDetails from "@/components/TransactionDetails";
 import LenderDetail from "@/components/LenderDetail";
+import ContactDetail from "@/components/ContactDetail";
 import ActivityLog from "@/components/ActivityLog";
 import ActionBar from "@/components/ActionBar";
 import SidebarFooter from "@/components/SidebarFooter";
@@ -17,7 +18,13 @@ import { DOCUMENT_REGISTRY } from "@/components/documentTabs/types";
 import CommentsDrawer from "@/components/sidebar-improvements/CommentsDrawer";
 import type { Comment } from "@/components/sidebar-improvements/commentsData";
 
-type RightPanel = "transaction" | "lender" | "log";
+type RightPanel = "transaction" | "lender" | "contact" | "log";
+
+interface SelectedContact {
+  name: string;
+  role: string;
+  type?: string;
+}
 
 interface ToggleDef {
   label: string;
@@ -29,7 +36,7 @@ interface DashboardProps {
   backHref?: string;
   backLabel?: string;
   rightSidebarContent?: (props: {
-    onContactClick: (contact: { type?: string }) => void;
+    onContactClick: (contact: { name?: string; role?: string; type?: string }) => void;
     onViewLog: () => void;
     onLoadDocument: (documentId: string) => void;
   }) => React.ReactNode;
@@ -89,6 +96,7 @@ export default function Dashboard({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [rightPanel, setRightPanel] = useState<RightPanel>("transaction");
+  const [selectedContact, setSelectedContact] = useState<SelectedContact | null>(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const drawerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -353,6 +361,13 @@ export default function Dashboard({
                     onContactClick: (contact) => {
                       if (contact.type === "lender") {
                         setRightPanel("lender");
+                      } else if (contact.name && contact.role) {
+                        setSelectedContact({
+                          name: contact.name,
+                          role: contact.role,
+                          type: contact.type,
+                        });
+                        setRightPanel("contact");
                       }
                     },
                     onViewLog: () => setRightPanel("log"),
@@ -379,6 +394,12 @@ export default function Dashboard({
                 >
                   {rightPanel === "lender" && (
                     <LenderDetail onClose={closeDrawer} />
+                  )}
+                  {rightPanel === "contact" && selectedContact && (
+                    <ContactDetail
+                      contact={selectedContact}
+                      onClose={closeDrawer}
+                    />
                   )}
                   {rightPanel === "log" && (
                     <ActivityLog onClose={closeDrawer} />
