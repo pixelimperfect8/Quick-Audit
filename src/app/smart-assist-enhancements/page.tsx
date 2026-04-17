@@ -142,99 +142,91 @@ const options: OptionDef[] = [
     href: "/smart-assist-enhancements/option-3",
     ac: `## Smart Assist Enhancements — Option 3: Acceptance Criteria
 
-### Panel Resizer
-- The layout consists of three resizable panels: left sidebar (document checklist), center (document viewer), and right sidebar.
-- A drag handle between each panel allows horizontal resizing by clicking and dragging.
-- Panels enforce minimum widths so content remains readable.
+### Resizable Panels
+- The workspace is split into three panels — left (checklist), center (document viewer), right (data sidebar) — and the user can resize any of them by dragging the divider between them.
+- Resizing one panel adjusts its neighbor's width in real time; the other panels keep their proportions.
+- Each panel has a minimum width. The user cannot collapse a panel past the minimum by dragging.
+- Panel widths persist for the duration of the session (are not reset on tab switches, navigation within the app, or search).
 
-### Header
-- A segmented-control pill tab group in the header switches between **Listings / Transactions / Both**. The active pill has a white fill with a subtle 0.5px grey border on a grey track; sliding between tabs animates the indicator via a CSS transition (no layout wobble — the ghost-text trick reserves bold width on every tab).
-- A **Stage selector** and an **Actions dropdown** (with "Cancel Transaction" and "Archive Transaction") sit to the right of the tab group. The Actions chevron flips when open and closes on outside click.
-- An **Update Agent** button sits at the far right, matching the height of neighboring elements.
-- The address selector, back button, and mobile sidebar/details toggles behave as in the other options.
+### Top Navigation — Actions Menu
+- A **Stage selector** lets the user move the transaction between lifecycle stages.
+- An **Actions menu** opens a dropdown with transaction-level actions:
+  - **Cancel Transaction** — moves the transaction into a cancelled state.
+  - **Archive Transaction** — archives the transaction and removes it from active lists.
+- The menu opens on click, closes when the user clicks outside it, and the trigger visibly reflects open/closed state.
+- An **Update Agent** action is always visible at the top level (not inside the dropdown) for faster access.
 
-### Left Sidebar — Checklist
-- Checklist items render flush with 8px left padding and 16px right padding.
-- Each checklist item displays its number, name, status badge, and comment icon.
-- Status badges use a fixed 81px width. The **Flagged** badge shows a slightly larger warning icon without widening the badge.
-- Comment icon shows a **blue dot indicator** when the item has existing comments.
-
-### Comments Feature (Per-Checklist-Item)
-- Comments live on the left checklist, not in the right sidebar.
-- Clicking the comment icon opens a click-triggered popover showing the latest comment, a reply input, and a "View all N comments" link.
-- Clicking "View all" slides a full-height drawer over the left sidebar with the complete thread and a pinned reply input.
-- New comments are highlighted with a subtle background that fades after ~3 seconds.
-- Sending from the popover or drawer keeps both views in sync.
+### Left Sidebar — Checklist & Comments
+- The checklist groups all required documents for the transaction. Each item exposes its name, status (Complete / Flagged / Pending / Required), and a comment affordance.
+- Any checklist item can accept threaded comments. The comment indicator on an item reflects whether it already has comments (visually distinct state when unread/present).
+- **Quick reply (popover)**: clicking the comment affordance opens an inline popover anchored to that item, showing the latest comment and an input to reply without leaving the checklist.
+- **Full thread (drawer)**: from the popover, the user can open a larger drawer that shows the entire thread for that item, with a sticky reply input at the bottom.
+- Replies sent from either surface appear immediately in both — the popover and drawer stay in sync, and the newest message is briefly highlighted so the user can see what just landed.
+- Closing the drawer returns the user to the checklist with state preserved.
+- Comments are scoped per checklist item; opening a different item shows its own thread.
 
 ### Document Viewer
-- Page 1 renders as a blank white page (no PDF preview). Other pages render the existing placeholder skeleton.
-- **Form-field highlight overlays** and **flag highlight overlays** render over the blank page at their original coordinates.
-- Clicking a form-field overlay selects the corresponding field in the right sidebar; clicking a flag overlay selects the flag.
-- Overlays can be hidden/shown via the viewer's overlay toggle.
+- The center viewer opens a document from the checklist in a tab; multiple documents can be open simultaneously and switched via tabs.
+- The viewer supports page navigation, zoom in/out with a live zoom readout, an overlay visibility toggle, and download/print actions.
+- Flag overlays and form-field overlays are drawn on top of the page. Clicking either overlay syncs the right sidebar: field overlays select the matching row, flag overlays select the matching issue. The reverse also works — selecting a row or issue in the sidebar highlights the matching overlay and scrolls to it.
 
 ### Right Sidebar — Global Search
-- A search bar sits at the top of the right sidebar. Focusing the input or typing activates search mode; a close (X) icon clears and exits search mode.
-- Queries search across **Transaction details, Dates, Contacts, Commission, Flags, Form Data, Checklist items, and Documents**.
-- Results are grouped by category (Transactions, Contacts, Commission, Flags, Form Data, Checklist, Documents) with color-coded dot indicators and **horizontal dividers between groups**.
-- Each result shows the category label, matched field name, and detail/value.
-- Clicking a result:
-  - Clears the query and blurs the input.
-  - For Transaction / Form Data results, switches the section tab and selects the matching form field (bi-directional highlight on the form).
-  - For Contact results, opens the contact detail drawer.
-  - For Flag results, selects the flag and highlights it in the viewer.
-  - For Checklist / Document results, loads the matching document in the viewer.
+- A unified search input at the top of the right sidebar searches across the entire transaction: summary fields, dates, contacts, commission, flags, form data, checklist items, and documents.
+- Results are grouped by category so the user can scan by type; each group shows its own hits until the query is cleared.
+- Selecting a result routes the user to the right place:
+  - A **transaction / form-data** hit switches to the section it belongs to and selects that field (which in turn highlights the field in the document).
+  - A **contact** hit opens the contact's detail panel.
+  - A **flag** hit selects the flag in both the sidebar and the viewer.
+  - A **checklist** or **document** hit loads that document in the viewer.
+- Search can be cleared with a single action; closing search returns the sidebar to its previous section.
 
-### Right Sidebar — Section Tabs (Form Data)
-- Under the search bar sits a horizontal **tab bar** with sections: Summary, Dates, Contacts, Commission.
-- The active tab uses **blue bold** text with a blue underline. Inactive tabs use **grey medium** weight (not bold).
-- Hidden sections (via Customize Panel) are dropped from the tab bar; the active tab falls back to the first visible section when its current tab is hidden.
+### Right Sidebar — Section Tabs
+- Below the search input, the right sidebar uses tabs to surface transaction data by section: **Summary**, **Dates**, **Contacts**, **Commission**.
+- Switching tabs changes which dataset is shown without reloading the sidebar. State elsewhere in the sidebar (Issues, Successful Checks, selections) is preserved.
+- If a section is hidden via the Customize Panel, its tab is removed; the sidebar automatically falls back to the first available section when the active one is hidden.
+- Selecting a field (by click, search result, or document overlay) auto-switches to the correct section tab and scrolls the matching row into view.
 
-### Section Content — Data Rows
-- Each data row shows a bold label (120px wide) and a value.
-- Rows have a **hover background** (hover:bg-grey-50) and subtle rounded corners.
-- Rows with a mismatched source render the label and value text inside a **light red (bg-red-50)** pill mark. Text color stays grey-900.
-- Hovering a data row shows a **Source comparison tooltip** via a portal-rendered HoverCard.
-  - Sources stack vertically (not 2-column): a small uppercase source label sits above the value.
-  - The source label for the form is the **specific form name** (e.g. "RPA", "Addendum #1", "SPD"), not a generic "Form" label. This is driven by the \`SourceData.formName\` field and falls back to "Form" when unset.
-- **Tooltips auto-close** as soon as the user scrolls any ancestor scroll container or resizes the window.
+### Hover Tooltips on Data
+- Hovering any data row (summary, date, contact, commission) opens a tooltip that shows where the value came from — the source form, the file-level record, MLS, or other origins — so the user can audit provenance without leaving the sidebar.
+- The source label identifies the **specific source form** by name (e.g. RPA, SPD, HIR), not a generic "Form" label, so the user knows exactly which document the value was pulled from.
+- Mismatched values are called out visually in the tooltip and on the row itself, so the user can see a discrepancy at a glance.
+- Tooltips are dismissible by moving away from the row and automatically close when the user scrolls or resizes the window, so a stale tooltip never hangs over unrelated content.
 
-### Section Content — Contact Rows
-- Contact rows show a role label, a person icon, and the contact name.
-- Clicking the contact name opens the contact detail drawer.
-- Contacts with a mismatched source render the name inside the same light red mark (grey-900 text, bg-red-50 pill).
-- Hover, stacked source tooltip, and scroll-close behavior match data rows.
+### Flagged Issues List
+- Below the section content, the sidebar surfaces a list of all **Issues** (flags) detected by Smart Assist, with a count in the header.
+- Each issue, on hover, shows a tooltip explaining the problem and — when applicable — the conflicting values from each source (stacked, with the specific form name as the source label).
+- Selecting an issue selects the flag in the viewer, highlights the corresponding overlay, and scrolls the issue row into view. Selecting a flag in the viewer does the reverse.
+- Users can work through issues without losing context: selections are persistent until changed, and rejecting/resolving a flag updates any mismatch indicators on the related data rows.
 
-### Issues & Successful Checks (Global Lists)
-- Below the section content, two collapsible groups list all issues and cleared fields:
-  - **Issues (N)** — warning icon, expanded by default.
-  - **Successful checks (N)** — check icon, expanded by default.
-- Each issue/check row has a hover background and shows a HoverCard tooltip using the same stacked layout as data-row tooltips: a small uppercase source label (e.g. "RPA", "SPD", "HIR") stacked above the value.
-- Clicking an issue selects the flag, highlights the matching form overlay in the viewer, and scrolls the selected row into view.
-- Clicking a successful check selects the form field, highlights the matching form overlay, and scrolls into view.
-- **Selected issue rows** use a **bg-red-50** highlight. **Selected check rows** use a subtle **bg-green-50/25** highlight. Text color is unchanged.
-- The reverse flow works too: clicking a highlight in the document viewer selects and scrolls to the matching row in the sidebar.
+### Issues — Current vs. All Toggle
+- The Issues header has an inline **Current / All toggle**.
+- **Current** (default) shows only issues that belong to the document currently loaded in the viewer — useful while actively reviewing one form.
+- **All** shows every issue across every document in the checklist — useful for a full-transaction sweep.
+- Each mode shows its own count in the toggle, and the Issues header count reflects the active mode.
+- Switching documents in the viewer re-scopes the "Current" list automatically; no manual refresh is needed.
+- When the active filter has no issues, the user sees an empty-state message instead of a blank list.
 
-### Issues — Current / All Filter
-- The Issues collapsible header has an inline **Current / All segmented toggle**, rendered to the **left of the chevron** in the same row as the "Issues (N)" title.
-- **Current (N)** shows only issues whose \`documentId\` matches the document currently loaded in the center viewer. This is the default.
-- **All (N)** shows every issue in the checklist regardless of document.
-- The total count in the Collapsible title reflects the active filter.
-- When the filter returns an empty list, the body shows a friendly "No issues on this document." placeholder instead of a blank space.
-- Each flag carries a \`documentId\` so switching the active document tab automatically updates the "Current" list.
+### Successful Checks List
+- A companion list shows every field that passed validation ("Successful checks"), so the user has positive confirmation of what's already clean, not just what's wrong.
+- Each check, on hover, shows a tooltip with the values from all available sources (stacked, source-name-labeled, including the specific form name).
+- Selecting a successful check highlights the matching field in the document viewer and scrolls the sidebar row into view; selecting a field in the viewer highlights the matching check row.
 
-### Customize Panel (Slide-in Editor)
-- The right sidebar footer contains a **"Customize Panel"** button (edit icon + label). Clicking it toggles to **"Done"**.
-- When active, a **slide-in overlay** from the right covers the sidebar with the editor:
-  - **Toggle field visibility**: each field in a section has a show/hide toggle.
-  - **Toggle section visibility**: entire sections (Summary, Dates, Contacts, Commission) can be hidden.
-  - **Reorder sections**: drag handles reorder the section tab order.
-  - **Reorder fields within sections**: drag handles reorder fields inside a section.
-  - **Reset to Defaults**: restores all visibility and ordering to the initial state (hidden extras re-hidden, default section order restored).
-- **Contacts are keyed by role**, not by individual contact name. The Customize Panel lists **Buyer, Lender, Seller, Buyer Agent** under the Contacts section — hiding "Seller" hides every Seller contact across files. Seller and Buyer Agent roles start hidden by default; Buyer and Lender are visible by default. Role-based keying is Option-3-only; Option 1 and Option 2 keep name-based keying.
-- Clicking "Done" slides the overlay out and returns to the customized sidebar.
+### Expand / Collapse — Issues & Checks
+- The Issues section and the Successful Checks section are each expandable/collapsible, so the user can focus on one list at a time or hide both while working in the section tabs.
+- Header-level controls inside each section (like the Current/All toggle on Issues) remain operable without having to expand the section first, and interacting with them does not collapse the section.
+- Expand/collapse state is independent between the two sections and is preserved while the user navigates within the sidebar.
 
-### Settings Button
-- A **Settings** button sits in the right sidebar footer next to Customize Panel as a placeholder for future settings.`,
+### Customize Panel
+- A **Customize Panel** action in the sidebar footer opens an editor that lets the user tailor the right sidebar to their workflow. The action toggles to **Done** while the editor is active.
+- Inside the editor the user can:
+  - **Show or hide any individual field** within a section.
+  - **Show or hide entire sections** (Summary, Dates, Contacts, Commission).
+  - **Reorder sections** to change the order of the tabs.
+  - **Reorder fields** inside a section.
+  - **Reset to Defaults** to restore the original visibility and ordering in one action.
+- **Contacts are managed by role, not by person.** The Contacts section exposes roles — Buyer, Lender, Seller, Buyer Agent — so a single show/hide affects that role across every file in the transaction. Buyer and Lender are visible by default; Seller and Buyer Agent start hidden.
+- Hiding a section or field is reflected immediately in the live sidebar (and anywhere the field is referenced, e.g. search results and tab bar).
+- Closing the editor returns the user to the customized sidebar with all changes applied; reopening shows the current configuration, not the defaults.`,
   },
 ];
 
