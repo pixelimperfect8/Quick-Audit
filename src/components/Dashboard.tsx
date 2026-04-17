@@ -39,6 +39,8 @@ interface DashboardProps {
     onContactClick: (contact: { name?: string; role?: string; type?: string }) => void;
     onViewLog: () => void;
     onLoadDocument: (documentId: string) => void;
+    /** Document ID currently loaded in the viewer (null when no document tab is open) */
+    activeDocumentId: string | null;
   }) => React.ReactNode;
   /** Props passed through to DocumentViewer */
   documentViewerProps?: {
@@ -372,6 +374,7 @@ export default function Dashboard({
                     },
                     onViewLog: () => setRightPanel("log"),
                     onLoadDocument: handleLoadDocument,
+                    activeDocumentId: activeTab?.documentId ?? null,
                   })
                 ) : (
                   <TransactionDetails

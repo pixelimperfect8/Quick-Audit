@@ -29,6 +29,12 @@ interface EditSummaryProps {
   onClose: () => void;
   /** Panel title (defaults to "Edit Summary") */
   title?: string;
+  /**
+   * Override the default SECTION_FIELDS for specific sections.
+   * Useful when a section should expose a different keying scheme
+   * (e.g. role-based instead of name-based) in the customize panel.
+   */
+  sectionFieldsOverride?: Partial<Record<SectionId, string[]>>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -185,6 +191,7 @@ export default function SmartAssistEditSummary({
   onResetToDefaults,
   onClose,
   title = "Edit Summary",
+  sectionFieldsOverride,
 }: EditSummaryProps) {
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(
     new Set()
@@ -229,8 +236,9 @@ export default function SmartAssistEditSummary({
         {sectionOrder.map((sectionId, index) => {
           const isHidden = hiddenSections.has(sectionId);
           const isExpanded = expandedSections.has(sectionId);
-          const fields =
-            fieldOrder[sectionId] ?? SECTION_FIELDS[sectionId] ?? [];
+          const defaultFields =
+            sectionFieldsOverride?.[sectionId] ?? SECTION_FIELDS[sectionId] ?? [];
+          const fields = fieldOrder[sectionId] ?? defaultFields;
           const isDragging = sectionDrag.dragIndex === index;
           const showLineBefore =
             sectionDrag.insertAt === index && sectionDrag.dragIndex !== null;
@@ -336,7 +344,9 @@ export default function SmartAssistEditSummary({
               } else {
                 onReorderSections([...DEFAULT_SECTION_ORDER]);
                 for (const sectionId of DEFAULT_SECTION_ORDER) {
-                  onReorderFields(sectionId, [...SECTION_FIELDS[sectionId]]);
+                  const resetFields =
+                    sectionFieldsOverride?.[sectionId] ?? SECTION_FIELDS[sectionId];
+                  onReorderFields(sectionId, [...resetFields]);
                 }
                 hiddenFields.forEach((f) => onToggleField(f));
                 hiddenSections.forEach((s) => onToggleSection(s));

@@ -42,6 +42,10 @@ interface Option3SidebarProps {
   onResetToDefaults?: () => void;
   editMode?: boolean;
   onToggleEditMode?: () => void;
+  /** Override for SECTION_FIELDS in the Customize Panel (e.g. roles instead of names for contacts) */
+  sectionFieldsOverride?: Partial<Record<SectionId, string[]>>;
+  /** Document ID currently loaded in the viewer — used to scope Issues "Current" toggle */
+  currentDocumentId?: string | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -192,6 +196,8 @@ export default function SmartAssistOption3Sidebar({
   onResetToDefaults,
   editMode = false,
   onToggleEditMode,
+  sectionFieldsOverride,
+  currentDocumentId,
 }: Option3SidebarProps) {
   // Slide animation for edit mode overlay
   const [editVisible, setEditVisible] = useState(false);
@@ -342,6 +348,7 @@ export default function SmartAssistOption3Sidebar({
             onReorderFields={onReorderFields}
             onResetToDefaults={onResetToDefaults}
             onClose={() => onToggleEditMode?.()}
+            sectionFieldsOverride={sectionFieldsOverride}
           />
         </div>
       )}
@@ -398,6 +405,7 @@ export default function SmartAssistOption3Sidebar({
             fieldOrder={fieldOrder}
             externalSection={externalSection}
             onExternalSectionHandled={() => setExternalSection(null)}
+            currentDocumentId={currentDocumentId}
           />
         )}
       </div>

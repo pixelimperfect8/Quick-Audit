@@ -12,6 +12,8 @@ import {
 import {
   DEFAULT_SECTION_ORDER,
   DEFAULT_HIDDEN_FIELDS,
+  ALL_CONTACTS,
+  DEFAULT_CONTACTS,
   type SectionId,
 } from "@/components/sidebar-improvements/SmartAssistOption2TransactionContent";
 import { EditIcon, SettingsIcon } from "@/components/icons";
@@ -67,6 +69,31 @@ const CHECKLIST_SECTIONS = [
   },
 ];
 
+// Option 3 keys Contacts by role (not by contact name) in the Customize Panel.
+// These roles appear in both the Customize Panel field list and the hiddenFields set.
+const OPTION3_CONTACT_ROLES = Array.from(
+  new Set(ALL_CONTACTS.map((c) => c.role)),
+);
+const OPTION3_DEFAULT_VISIBLE_ROLES = new Set(
+  DEFAULT_CONTACTS.map((c) => c.role),
+);
+const OPTION3_HIDDEN_ROLES_BY_DEFAULT = OPTION3_CONTACT_ROLES.filter(
+  (r) => !OPTION3_DEFAULT_VISIBLE_ROLES.has(r),
+);
+
+// Build Option 3's default hidden-fields set: inherit Option 2's hidden summary/date
+// fields, but swap the contact-name entries for role-based entries.
+const OPTION3_DEFAULT_HIDDEN_FIELDS = new Set([
+  ...Array.from(DEFAULT_HIDDEN_FIELDS).filter(
+    (key) => !ALL_CONTACTS.some((c) => c.name === key),
+  ),
+  ...OPTION3_HIDDEN_ROLES_BY_DEFAULT,
+]);
+
+const OPTION3_SECTION_FIELDS_OVERRIDE: Partial<Record<SectionId, string[]>> = {
+  contacts: OPTION3_CONTACT_ROLES,
+};
+
 export default function SmartAssistOption3Page() {
   const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
   const [selectedFormField, setSelectedFormField] = useState<string | null>(null);
@@ -77,7 +104,7 @@ export default function SmartAssistOption3Page() {
 
   // Sidebar customization state — extras start hidden
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(
-    new Set(DEFAULT_HIDDEN_FIELDS),
+    new Set(OPTION3_DEFAULT_HIDDEN_FIELDS),
   );
   const [hiddenSections, setHiddenSections] = useState<Set<string>>(new Set());
   const [sectionOrder, setSectionOrder] = useState<SectionId[]>([
@@ -112,7 +139,7 @@ export default function SmartAssistOption3Page() {
   );
 
   const handleResetToDefaults = useCallback(() => {
-    setHiddenFields(new Set(DEFAULT_HIDDEN_FIELDS));
+    setHiddenFields(new Set(OPTION3_DEFAULT_HIDDEN_FIELDS));
     setHiddenSections(new Set());
     setSectionOrder([...DEFAULT_SECTION_ORDER]);
     setFieldOrder({});
@@ -254,7 +281,7 @@ export default function SmartAssistOption3Page() {
           onChange: setTieredCommission,
         },
       ]}
-      rightSidebarContent={({ onContactClick, onViewLog, onLoadDocument }) => (
+      rightSidebarContent={({ onContactClick, onViewLog, onLoadDocument, activeDocumentId }) => (
         <SmartAssistOption3Sidebar
           onContactClick={onContactClick}
           onViewLog={onViewLog}
@@ -280,6 +307,8 @@ export default function SmartAssistOption3Page() {
           onResetToDefaults={handleResetToDefaults}
           editMode={editMode}
           onToggleEditMode={() => setEditMode((m) => !m)}
+          sectionFieldsOverride={OPTION3_SECTION_FIELDS_OVERRIDE}
+          currentDocumentId={activeDocumentId}
         />
       )}
       sidebarFooter={

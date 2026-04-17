@@ -5,6 +5,8 @@ export interface CounterOffer {
 
 export interface SourceData {
   formValue?: string;
+  /** Name of the form the formValue came from (e.g. "RPA", "Addendum #1"). Defaults to "Form" if unset. */
+  formName?: string;
   fileValue?: string;
   mlsValue?: string;
   mismatch?: boolean;
@@ -20,12 +22,14 @@ export interface SourceData {
 export const TRANSACTION_SOURCES: Record<string, SourceData> = {
   "File name": {
     formValue: "3969 Harvord Boulevard, Venture, CA 93001",
+    formName: "RPA",
     fileValue: "3969 Harvord Boulevard, Venture, CA 93001",
     mlsValue: "3969 Harvord Boulevard, Venture, CA 93001",
     page: "RPA p.1",
   },
   "Purchase Price": {
     formValue: "$500,000.00",
+    formName: "RPA",
     fileValue: "$450,000.00",
     mismatch: true,
     page: "RPA p.1, Sec. A",
@@ -37,88 +41,107 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
   },
   "MLS #": {
     formValue: "1234567",
+    formName: "RPA",
     mlsValue: "1234567",
     page: "MLS",
   },
   "Close of Escrow": {
     formValue: "11/29/2023",
+    formName: "RPA",
     fileValue: "11/29/2023",
     page: "RPA p.1, Sec.C",
   },
   "Acceptance Date": {
     formValue: "11/24/2023",
+    formName: "RPA",
     fileValue: "11/24/2023",
     page: "RPA p.1",
   },
   "Year Built": {
     formValue: "1965",
+    formName: "RPA",
     mlsValue: "1965",
     page: "MLS",
   },
   "Agent": {
     formValue: "Aaron Smith",
+    formName: "RPA",
     fileValue: "Aaron Smith",
     page: "RPA p.15",
   },
   // Extra summary fields
   "Property Type": {
     formValue: "Single Family Residence",
+    formName: "RPA",
     mlsValue: "Single Family Residence",
     page: "MLS",
   },
   "Seller Brokerage": {
     formValue: "Keller Williams Realty",
+    formName: "RPA",
     page: "RPA p.1, Sec.2A",
   },
   "Seller Broker License": {
     formValue: "DRE #01234567",
+    formName: "RPA",
     page: "RPA p.1, Sec.2A",
   },
   "Buyer Brokerage": {
     formValue: "Compass Real Estate",
+    formName: "RPA",
     page: "RPA p.1, Sec.2B",
   },
   "Buyer Broker License": {
     formValue: "",
+    formName: "RPA",
     mismatch: true,
     page: "RPA p.1, Sec.2B",
   },
   "Rep Type": {
     formValue: "Seller only",
+    formName: "RPA",
     page: "RPA p.1, Sec.2B",
   },
   "Seller Payment to Buyer Broker": {
     formValue: "2.5%",
+    formName: "RPA",
     page: "RPA p.1",
   },
   "Loan Type": {
     formValue: "Conventional",
+    formName: "RPA",
     page: "RPA p.1, Sec.E",
   },
   "Home Warranty": {
     formValue: "Yes — ordered",
+    formName: "RPA",
     page: "RPA p.3, Sec.Q18",
   },
   "Seller Agent License": {
     formValue: "DRE #09876543",
+    formName: "RPA",
     fileValue: "DRE #09876543",
     page: "RPA p.15",
   },
   "Buyer Agent License": {
     formValue: "DRE #05647382",
+    formName: "RPA",
     page: "RPA p.15",
   },
   // Extra date fields
   "Loan Contingency": {
     formValue: "21 days",
+    formName: "RPA",
     page: "RPA p.2, Sec.L1",
   },
   "Appraisal Contingency": {
     formValue: "17 days",
+    formName: "RPA",
     page: "RPA p.2, Sec.L2",
   },
   "Investigation Contingency": {
     formValue: "17 days",
+    formName: "RPA",
     page: "RPA p.2, Sec.L3",
   },
 };
@@ -129,32 +152,38 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
 export const CONTACT_SOURCES: Record<string, SourceData> = {
   "Rachael Laurolla": {
     formValue: "Rachael Laurella",
+    formName: "RPA",
     fileValue: "Rachel Laurella",
     mismatch: true,
     page: "RPA p.1",
   },
   "Rob Laurolla": {
     formValue: "Rob Laurella",
+    formName: "RPA",
     fileValue: "Rob Laurella",
     page: "RPA p.1",
   },
   "Mark Roberts": {
     formValue: "Mark Roberts",
+    formName: "RPA",
     page: "RPA p.2",
   },
   // Extra contacts
   "James Thompson": {
     formValue: "James Thompson",
+    formName: "RPA",
     fileValue: "James Thompson",
     page: "RPA p.16",
   },
   "Mary Thompson": {
     formValue: "Mary Thompson",
+    formName: "RPA",
     fileValue: "Mary Thompson",
     page: "RPA p.16",
   },
   "Lisa Chen": {
     formValue: "Lisa Chen",
+    formName: "RPA",
     page: "RPA p.15",
   },
 };

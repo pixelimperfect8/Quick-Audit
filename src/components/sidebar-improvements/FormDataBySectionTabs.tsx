@@ -205,13 +205,13 @@ function IssueRow({
         {issue.description}
       </p>
       {issue.sources && issue.sources.length > 0 && (
-        <div className="flex flex-col gap-1 pt-2 border-t border-grey-200">
+        <div className="flex flex-col gap-1.5 pt-2 border-t border-grey-200">
           {issue.sources.map((src) => (
-            <div key={src.label} className="flex items-baseline gap-2">
-              <span className="text-grey-800 text-sm font-medium uppercase tracking-wide shrink-0 whitespace-nowrap">
+            <div key={src.label} className="flex flex-col gap-0.5">
+              <span className="text-grey-800 text-xs font-medium uppercase tracking-wide">
                 {src.label}
               </span>
-              <span className="text-grey-900 text-sm font-medium leading-5 min-w-0 flex-1">
+              <span className="text-grey-900 text-sm font-medium leading-5">
                 {src.value}
               </span>
             </div>
@@ -269,9 +269,9 @@ function CheckRow({
       </div>
       <div className="flex flex-col gap-1.5">
         {formValues.length > 0 && formValues.some(Boolean) && (
-          <div className="flex items-baseline gap-2">
-            <span className="text-grey-800 text-sm font-medium uppercase tracking-wide shrink-0 w-10">
-              Form
+          <div className="flex flex-col gap-0.5">
+            <span className="text-grey-800 text-xs font-medium uppercase tracking-wide">
+              RPA
             </span>
             <span className="text-grey-900 text-sm font-medium leading-5">
               {formValues.join(", ")}
@@ -279,8 +279,8 @@ function CheckRow({
           </div>
         )}
         {fileValues.length > 0 && fileValues.some(Boolean) && (
-          <div className="flex items-baseline gap-2">
-            <span className="text-grey-800 text-sm font-medium uppercase tracking-wide shrink-0 w-10">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-grey-800 text-xs font-medium uppercase tracking-wide">
               File
             </span>
             <span className="text-grey-900 text-sm font-medium leading-5">
@@ -289,8 +289,8 @@ function CheckRow({
           </div>
         )}
         {mlsValues.length > 0 && mlsValues.some(Boolean) && (
-          <div className="flex items-baseline gap-2">
-            <span className="text-grey-800 text-sm font-medium uppercase tracking-wide shrink-0 w-10">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-grey-800 text-xs font-medium uppercase tracking-wide">
               MLS
             </span>
             <span className="text-grey-900 text-sm font-medium leading-5">
@@ -431,27 +431,28 @@ function ContactsTabContent({
   onContactClick,
 }: {
   hiddenFields: Set<string>;
+  /** Ordered list of *roles* (Option 3 uses role-based keying for contacts) */
   fieldOrder?: string[];
   onContactClick?: (contact: { role: string; name: string; type?: string }) => void;
 }) {
-  const ordered = fieldOrder
-    ? (fieldOrder
-        .map((key) => ALL_CONTACTS.find((c) => c.name === key))
-        .filter(Boolean) as typeof ALL_CONTACTS)
-    : ALL_CONTACTS;
+  // Unique roles preserving original order
+  const defaultRoles = Array.from(new Set(ALL_CONTACTS.map((c) => c.role)));
+  const orderedRoles = fieldOrder ?? defaultRoles;
+  const visibleRoles = orderedRoles.filter((role) => !hiddenFields.has(role));
+  const orderedContacts = visibleRoles.flatMap((role) =>
+    ALL_CONTACTS.filter((c) => c.role === role),
+  );
   return (
     <div className="px-4 py-4 flex flex-col gap-1 border-b border-grey-300">
-      {ordered
-        .filter((c) => !hiddenFields.has(c.name))
-        .map((contact) => (
-          <ContactRow
-            key={contact.name}
-            role={contact.role}
-            name={contact.name}
-            type={contact.type}
-            onClick={onContactClick}
-          />
-        ))}
+      {orderedContacts.map((contact) => (
+        <ContactRow
+          key={contact.name}
+          role={contact.role}
+          name={contact.name}
+          type={contact.type}
+          onClick={onContactClick}
+        />
+      ))}
     </div>
   );
 }
@@ -496,6 +497,8 @@ interface FormDataBySectionTabsProps {
   /** One-shot section switch — consumer should reset after it handles the change */
   externalSection?: SectionId | null;
   onExternalSectionHandled?: () => void;
+  /** Document ID of the currently loaded document — used to scope Issues "Current" filter */
+  currentDocumentId?: string | null;
 }
 
 export default function FormDataBySectionTabs({
@@ -510,7 +513,9 @@ export default function FormDataBySectionTabs({
   fieldOrder,
   externalSection,
   onExternalSectionHandled,
+  currentDocumentId,
 }: FormDataBySectionTabsProps) {
+  const [issuesFilter, setIssuesFilter] = useState<"current" | "all">("current");
   const visibleSections = useMemo(
     () => sectionOrder.filter((s) => !hiddenSections.has(s)),
     [sectionOrder, hiddenSections],
@@ -560,7 +565,15 @@ export default function FormDataBySectionTabs({
   }, [selectedFormField]);
 
   // Global lists — shared across tabs
-  const issues = FLAG_ISSUES;
+  const allIssues = FLAG_ISSUES;
+  const currentIssues = useMemo(
+    () =>
+      currentDocumentId
+        ? allIssues.filter((f) => f.documentId === currentDocumentId)
+        : allIssues,
+    [allIssues, currentDocumentId],
+  );
+  const issues = issuesFilter === "current" ? currentIssues : allIssues;
   const successfulChecks = useMemo(
     () => ALL_FIELDS.filter((f) => !f.mismatch),
     [],
@@ -606,20 +619,47 @@ export default function FormDataBySectionTabs({
         title={`Issues (${issues.length})`}
         icon={<WarningIcon className="w-4 h-4 text-orange-200" />}
         defaultOpen
+        headerRight={
+          <div className="flex items-center gap-1.5 p-[2px] bg-grey-50 border border-grey-300 rounded-md">
+            {(["current", "all"] as const).map((mode) => {
+              const isActive = issuesFilter === mode;
+              const count = mode === "current" ? currentIssues.length : allIssues.length;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setIssuesFilter(mode)}
+                  className={`px-2 py-0.5 text-sm rounded transition-colors ${
+                    isActive
+                      ? "bg-white border border-grey-300/50 text-blue-800 font-bold"
+                      : "text-grey-800 font-medium hover:text-grey-900"
+                  }`}
+                >
+                  {mode === "current" ? "Current" : "All"} ({count})
+                </button>
+              );
+            })}
+          </div>
+        }
       >
         <div className="flex flex-col gap-1">
-          {issues.map((issue) => (
-            <div
-              key={issue.id}
-              ref={issue.id === selectedFlagId ? selectedIssueRef : undefined}
-            >
-              <IssueRow
-                issue={issue}
-                selected={issue.id === selectedFlagId}
-                onClick={() => onFlagSelect?.(issue.id)}
-              />
-            </div>
-          ))}
+          {issues.length === 0 ? (
+            <p className="text-grey-800 text-sm py-2">
+              No issues on this document.
+            </p>
+          ) : (
+            issues.map((issue) => (
+              <div
+                key={issue.id}
+                ref={issue.id === selectedFlagId ? selectedIssueRef : undefined}
+              >
+                <IssueRow
+                  issue={issue}
+                  selected={issue.id === selectedFlagId}
+                  onClick={() => onFlagSelect?.(issue.id)}
+                />
+              </div>
+            ))
+          )}
         </div>
       </Collapsible>
 

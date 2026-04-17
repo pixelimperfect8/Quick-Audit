@@ -16,8 +16,8 @@ function SourceRow({
   isMismatch?: boolean;
 }) {
   return (
-    <div className="flex items-baseline gap-2">
-      <span className="text-grey-800 text-sm font-medium uppercase tracking-wide shrink-0 w-10">
+    <div className="flex flex-col gap-0.5">
+      <span className="text-grey-800 text-xs font-medium uppercase tracking-wide">
         {source}
       </span>
       <span
@@ -33,7 +33,7 @@ function SourceRow({
 
 export default function SourceTooltip({ label, data }: SourceTooltipProps) {
   const sources: { key: string; value: string }[] = [];
-  if (data.formValue) sources.push({ key: "Form", value: data.formValue });
+  if (data.formValue) sources.push({ key: data.formName ?? "Form", value: data.formValue });
   if (data.fileValue) sources.push({ key: "File", value: data.fileValue });
   if (data.mlsValue) sources.push({ key: "MLS", value: data.mlsValue });
 
