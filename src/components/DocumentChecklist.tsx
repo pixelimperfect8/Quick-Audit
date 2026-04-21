@@ -123,15 +123,19 @@ function DocumentListItem({
               e.stopPropagation();
               onCommentClick();
             }}
-            className="shrink-0 relative text-grey-600 hover:text-grey-900 transition-colors"
+            className={`shrink-0 cursor-pointer rounded-full p-1.5 -m-1.5 transition-colors ${
+              commentCount > 0
+                ? "text-[#0A2642] hover:bg-[#0A2642]/10"
+                : "text-grey-600 hover:text-grey-900 hover:bg-grey-100"
+            }`}
             aria-label={`Comments for ${doc.name}`}
           >
-            <CommentIcon
-              className={`w-4 h-4 ${commentCount > 0 ? "text-[#0A2642]" : ""}`}
-            />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#0059DA]" />
-            )}
+            <span className="relative block">
+              <CommentIcon className="w-4 h-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#0059DA]" />
+              )}
+            </span>
           </button>
         )}
         <StatusBadge status={doc.status} />
