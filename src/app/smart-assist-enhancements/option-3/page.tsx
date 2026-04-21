@@ -165,9 +165,36 @@ export default function SmartAssistOption3Page() {
     return counts;
   }, [commentsByItem]);
 
-  const handleCommentIconClick = useCallback((itemName: string) => {
-    setActiveCommentPopover((prev) => (prev === itemName ? null : itemName));
+  const unreadCountsByItem = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const [key, comments] of Object.entries(commentsByItem)) {
+      counts[key] = comments.filter((c) => c.isNew).length;
+    }
+    return counts;
+  }, [commentsByItem]);
+
+  // Flip all unread comments on this item to read.
+  const markItemRead = useCallback((itemName: string) => {
+    setCommentsByItem((prev) => {
+      const existing = prev[itemName];
+      if (!existing || !existing.some((c) => c.isNew)) return prev;
+      return {
+        ...prev,
+        [itemName]: existing.map((c) => (c.isNew ? { ...c, isNew: false } : c)),
+      };
+    });
   }, []);
+
+  const handleCommentIconClick = useCallback(
+    (itemName: string) => {
+      setActiveCommentPopover((prev) => {
+        const next = prev === itemName ? null : itemName;
+        if (next === itemName) markItemRead(itemName);
+        return next;
+      });
+    },
+    [markItemRead],
+  );
 
   const handleSendComment = useCallback((itemName: string, text: string) => {
     const newComment: Comment = {
@@ -183,11 +210,15 @@ export default function SmartAssistOption3Page() {
     }));
   }, []);
 
-  const handleOpenCommentsDrawer = useCallback((itemName: string) => {
-    setActiveCommentPopover(null);
-    setCommentsDrawerItem(itemName);
-    drawerTimeoutRef.current = setTimeout(() => setDrawerVisible(true), 10);
-  }, []);
+  const handleOpenCommentsDrawer = useCallback(
+    (itemName: string) => {
+      setActiveCommentPopover(null);
+      setCommentsDrawerItem(itemName);
+      markItemRead(itemName);
+      drawerTimeoutRef.current = setTimeout(() => setDrawerVisible(true), 10);
+    },
+    [markItemRead],
+  );
 
   const handleCloseCommentsDrawer = useCallback(() => {
     setDrawerVisible(false);
@@ -241,6 +272,7 @@ export default function SmartAssistOption3Page() {
       checklistSections={CHECKLIST_SECTIONS}
       checklistCommentProps={{
         commentCounts,
+        unreadCountsByItem,
         activeCommentItem: activeCommentPopover,
         onCommentIconClick: handleCommentIconClick,
         activeCommentPopoverComments: activeCommentPopover

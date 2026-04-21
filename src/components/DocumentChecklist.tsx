@@ -80,6 +80,7 @@ function DocumentListItem({
   onSelect,
   isActive,
   commentCount = 0,
+  unreadCount = 0,
   isPopoverOpen,
   onCommentClick,
   commentPopoverProps,
@@ -88,6 +89,7 @@ function DocumentListItem({
   onSelect?: () => void;
   isActive?: boolean;
   commentCount?: number;
+  unreadCount?: number;
   isPopoverOpen?: boolean;
   onCommentClick?: () => void;
   commentPopoverProps?: {
@@ -124,8 +126,10 @@ function DocumentListItem({
             className="shrink-0 relative text-grey-600 hover:text-grey-900 transition-colors"
             aria-label={`Comments for ${doc.name}`}
           >
-            <CommentIcon className="w-4 h-4" />
-            {commentCount > 0 && (
+            <CommentIcon
+              className={`w-4 h-4 ${commentCount > 0 ? "text-blue-800" : ""}`}
+            />
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-800 rounded-full" />
             )}
           </button>
@@ -179,6 +183,8 @@ interface DocumentChecklistProps {
   onDocumentSelect?: (documentId: string) => void;
   /** Comment counts keyed by document item name */
   commentCounts?: Record<string, number>;
+  /** Unread comment counts keyed by document item name — drives the blue dot */
+  unreadCountsByItem?: Record<string, number>;
   /** Which item's popover is currently open (by name) */
   activeCommentItem?: string | null;
   /** Called when comment icon is clicked */
@@ -196,6 +202,7 @@ export default function DocumentChecklist({
   activeDocumentId,
   onDocumentSelect,
   commentCounts = {},
+  unreadCountsByItem = {},
   activeCommentItem,
   onCommentIconClick,
   activeCommentPopoverComments = [],
@@ -219,6 +226,7 @@ export default function DocumentChecklist({
                   isActive={!!docId && docId === activeDocumentId}
                   onSelect={onDocumentSelect && docId ? () => onDocumentSelect(docId) : undefined}
                   commentCount={commentCounts[doc.name] ?? 0}
+                  unreadCount={unreadCountsByItem[doc.name] ?? 0}
                   isPopoverOpen={isPopoverOpen}
                   onCommentClick={onCommentIconClick ? () => onCommentIconClick(doc.name) : undefined}
                   commentPopoverProps={

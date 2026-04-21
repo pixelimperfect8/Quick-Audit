@@ -34,4 +34,13 @@ export const INITIAL_COMMENTS_BY_ITEM: Record<string, Comment[]> = {
       isNew: true,
     },
   ],
+  "Home Inspection Report": [
+    {
+      id: 50,
+      author: "Rob Smith",
+      text: "Inspection report uploaded — buyer has already reviewed and no follow-ups needed.",
+      time: "3 days ago",
+      isNew: false,
+    },
+  ],
 };

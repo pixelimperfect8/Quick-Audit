@@ -67,6 +67,8 @@ interface DashboardProps {
   /** Per-checklist-item comment props */
   checklistCommentProps?: {
     commentCounts: Record<string, number>;
+    /** Count of unread comments per item — drives the blue dot indicator */
+    unreadCountsByItem?: Record<string, number>;
     activeCommentItem: string | null;
     onCommentIconClick: (itemName: string) => void;
     activeCommentPopoverComments: Comment[];
