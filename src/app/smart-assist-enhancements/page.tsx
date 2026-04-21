@@ -228,6 +228,33 @@ const options: OptionDef[] = [
 - Hiding a section or field is reflected immediately in the live sidebar (and anywhere the field is referenced, e.g. search results and tab bar).
 - Closing the editor returns the user to the customized sidebar with all changes applied; reopening shows the current configuration, not the defaults.`,
   },
+  {
+    title: "User Test",
+    description:
+      "Stripped-down Option 3 for user-testing the comments feature — only the left checklist (comments) and PDF preview are functional; no back navigation.",
+    href: "/smart-assist-enhancements/user-test",
+    ac: `## Smart Assist Enhancements — User Test: Scope
+
+This variant exists solely to user-test the per-checklist-item **comments** feature in isolation. All other interactive features are disabled or hidden so testers stay focused.
+
+### What is functional
+- **Left sidebar checklist + comments**: items can be clicked to open in the PDF preview; each item shows a comment icon with read/unread indicators; popover and drawer behave exactly as in Option 3.
+- **Center document viewer (PDF preview)**: the active document renders and tabs can be opened/closed from the checklist. Different document types render visually distinct skeleton layouts (form, checklist/disclosure, inspection report, tabular report) so testers can tell forms apart. Flag overlays and form-field highlights are disabled.
+
+### What is display-only
+- **Right sidebar is rendered for visual parity** but is entirely non-interactive — search, tabs, issues/checks, tooltips, customize panel, and settings do not respond to clicks.
+
+### What is removed
+- **No back navigation**: the top nav bar is not rendered, so testers cannot return to the options landing page during a session.
+- **No bottom action bar**: Accept/Reject/Issues buttons are hidden.
+- **No top-nav toggles** (e.g. Tiered Commission).
+
+### Comments behavior (unchanged from Option 3)
+- Comment icon tints dark blue when an item has any comments.
+- Unread comments are indicated with a small blue dot on the icon.
+- Opening the popover or the drawer marks all unread comments on that item as read (dot disappears).
+- Sending a new comment appends it to the list in both the popover and the drawer.`,
+  },
 ];
 
 /* ------------------------------------------------------------------ */

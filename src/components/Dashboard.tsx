@@ -83,6 +83,10 @@ interface DashboardProps {
     onSend: (text: string) => void;
     onClose: () => void;
   } | null;
+  /** Hide the bottom ActionBar (Accept/Reject/Issues) entirely */
+  hideActionBar?: boolean;
+  /** Hide the right sidebar and its resize handle entirely */
+  hideRightSidebar?: boolean;
 }
 
 export default function Dashboard({
@@ -96,6 +100,8 @@ export default function Dashboard({
   sidebarFooter,
   checklistCommentProps,
   commentsDrawer,
+  hideActionBar,
+  hideRightSidebar,
 }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -330,24 +336,29 @@ export default function Dashboard({
           <div className="flex-1 min-h-0">
             <DocumentViewer document={activeDocument} {...documentViewerProps} />
           </div>
-          <ActionBar {...actionBarProps} />
+          {!hideActionBar && <ActionBar {...actionBarProps} />}
         </main>
 
-        <Overlay visible={detailsOpen} onClick={() => setDetailsOpen(false)} breakpoint="xl" />
+        {!hideRightSidebar && (
+          <Overlay visible={detailsOpen} onClick={() => setDetailsOpen(false)} breakpoint="xl" />
+        )}
 
         {/* Right resize handle */}
-        <div
-          onMouseDown={handleResizeMouseDown("right")}
-          className="hidden xl:flex shrink-0 w-1.5 cursor-col-resize items-center justify-center border-x border-grey-200 bg-white hover:bg-grey-50 transition-colors group"
-        >
-          <div className="flex flex-col gap-1">
-            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
-            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
-            <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+        {!hideRightSidebar && (
+          <div
+            onMouseDown={handleResizeMouseDown("right")}
+            className="hidden xl:flex shrink-0 w-1.5 cursor-col-resize items-center justify-center border-x border-grey-200 bg-white hover:bg-grey-50 transition-colors group"
+          >
+            <div className="flex flex-col gap-1">
+              <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+              <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+              <span className="w-1 h-1 rounded-full bg-grey-300 group-hover:bg-grey-500" />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Right Sidebar */}
+        {!hideRightSidebar && (
         <Sidebar
           open={detailsOpen}
           onClose={() => setDetailsOpen(false)}
@@ -415,6 +426,7 @@ export default function Dashboard({
             {sidebarFooter ?? <SidebarFooter />}
           </div>
         </Sidebar>
+        )}
       </div>
     </div>
   );

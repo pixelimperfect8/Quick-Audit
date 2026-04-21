@@ -200,11 +200,13 @@ export default function DocumentViewer({
                 className="relative bg-white shadow-lg rounded-sm w-full max-w-[612px] overflow-hidden"
                 style={{ minHeight: PAGE_HEIGHT }}
               >
-                {/* Page content — page 1 is blank white so only field overlays show */}
-                {pageNum === 1 ? (
+                {/* Page 1 stays blank when flag/form overlays are active so they
+                    don't visually clash with the skeleton. Otherwise render the
+                    skeleton so the page doesn't look empty. */}
+                {pageNum === 1 && (showFlags || showFormHighlights) ? (
                   <div className="w-full" style={{ height: PAGE_HEIGHT }} />
                 ) : (
-                  <PagePlaceholder page={pageNum} />
+                  <PagePlaceholder page={pageNum} variant={getSkeletonVariant(doc.id)} />
                 )}
 
                 {/* Form data highlight overlays for this page (rendered first, below flags) */}
@@ -283,11 +285,45 @@ export default function DocumentViewer({
   );
 }
 
-/** Placeholder content for pages 2-5 that looks like a real form */
-function PagePlaceholder({ page }: { page: number }) {
+type SkeletonVariant = "form" | "checklist" | "report" | "table";
+
+/**
+ * Map a document ID to a skeleton layout so each form looks visually distinct
+ * when switching tabs. Keep the mapping deterministic per document.
+ */
+function getSkeletonVariant(documentId: string): SkeletonVariant {
+  const CHECKLIST_DOCS = new Set([
+    "doc-lead-paint",
+    "doc-fair-housing",
+    "doc-seller-disclosure",
+    "doc-tds",
+    "doc-nhd",
+    "doc-agency-disclosure",
+  ]);
+  const REPORT_DOCS = new Set([
+    "doc-home-inspection",
+    "doc-termite",
+    "doc-appraisal",
+    "doc-home-warranty",
+  ]);
+  const TABLE_DOCS = new Set([
+    "doc-prelim-title",
+    "doc-loan-estimate",
+    "doc-proof-of-funds",
+    "doc-wire-instructions",
+    "doc-commission-agreement",
+    "doc-escrow-instructions",
+  ]);
+
+  if (CHECKLIST_DOCS.has(documentId)) return "checklist";
+  if (REPORT_DOCS.has(documentId)) return "report";
+  if (TABLE_DOCS.has(documentId)) return "table";
+  return "form";
+}
+
+function SkeletonHeader() {
   return (
-    <div className="p-10 flex flex-col gap-5" style={{ minHeight: PAGE_HEIGHT }}>
-      {/* Header */}
+    <>
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-1">
           <div className="h-3 w-48 bg-grey-200 rounded" />
@@ -295,28 +331,56 @@ function PagePlaceholder({ page }: { page: number }) {
         </div>
         <div className="h-3 w-20 bg-grey-200 rounded" />
       </div>
-
       <div className="h-px bg-grey-200 w-full" />
+    </>
+  );
+}
 
-      {/* Section title */}
+function SkeletonSignature() {
+  return (
+    <div className="mt-auto flex gap-8 pt-6 border-t border-grey-200">
+      <div className="flex-1 flex flex-col gap-2">
+        <div className="h-px bg-grey-300 w-full mt-6" />
+        <div className="h-2 w-20 bg-grey-200 rounded" />
+      </div>
+      <div className="flex-1 flex flex-col gap-2">
+        <div className="h-px bg-grey-300 w-full mt-6" />
+        <div className="h-2 w-16 bg-grey-200 rounded" />
+      </div>
+    </div>
+  );
+}
+
+/** Placeholder content for pages 2-5 that looks like a real form */
+function PagePlaceholder({ page, variant }: { page: number; variant: SkeletonVariant }) {
+  return (
+    <div className="p-10 flex flex-col gap-5" style={{ minHeight: PAGE_HEIGHT }}>
+      <SkeletonHeader />
+      {variant === "form" && <FormVariant page={page} />}
+      {variant === "checklist" && <ChecklistVariant page={page} />}
+      {variant === "report" && <ReportVariant page={page} />}
+      {variant === "table" && <TableVariant page={page} />}
+      <SkeletonSignature />
+    </div>
+  );
+}
+
+/** Label + input row style — standard contract/agreement look. */
+function FormVariant({ page }: { page: number }) {
+  return (
+    <>
       <div className="h-3.5 w-56 bg-grey-300 rounded" />
-
-      {/* Form rows */}
       {Array.from({ length: 6 + page }, (_, i) => (
         <div key={i} className="flex flex-col gap-2">
           <div className="h-2.5 w-36 bg-grey-200 rounded" />
           <div className="h-8 w-full border border-grey-200 rounded" />
         </div>
       ))}
-
-      {/* Paragraph block */}
       <div className="flex flex-col gap-1.5 mt-2">
         <div className="h-2 w-full bg-grey-100 rounded" />
         <div className="h-2 w-full bg-grey-100 rounded" />
         <div className="h-2 w-4/5 bg-grey-100 rounded" />
       </div>
-
-      {/* More form rows */}
       {Array.from({ length: 3 }, (_, i) => (
         <div key={`b-${i}`} className="flex gap-4">
           <div className="flex-1 flex flex-col gap-2">
@@ -329,28 +393,142 @@ function PagePlaceholder({ page }: { page: number }) {
           </div>
         </div>
       ))}
+    </>
+  );
+}
 
-      {/* Checkbox rows */}
-      <div className="flex flex-col gap-3 mt-2">
-        {Array.from({ length: 4 }, (_, i) => (
-          <div key={`c-${i}`} className="flex items-center gap-3">
-            <div className="w-4 h-4 border border-grey-300 rounded-sm shrink-0" />
-            <div className="h-2 bg-grey-100 rounded" style={{ width: `${55 + (i * 12) % 40}%` }} />
+/** Mostly checkbox rows with Y/N marks — disclosure look. */
+function ChecklistVariant({ page }: { page: number }) {
+  const rowCount = 10 + page;
+  return (
+    <>
+      <div className="h-3.5 w-64 bg-grey-300 rounded" />
+      <div className="flex flex-col gap-1.5">
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-5/6 bg-grey-100 rounded" />
+      </div>
+      <div className="flex flex-col gap-2.5 mt-1">
+        {Array.from({ length: rowCount }, (_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <div className="flex-1 h-2.5 bg-grey-100 rounded" style={{ width: `${50 + (i * 7) % 45}%` }} />
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="w-4 h-4 border border-grey-300 rounded-sm" />
+              <div className="h-2 w-4 bg-grey-200 rounded" />
+              <div className="w-4 h-4 border border-grey-300 rounded-sm" />
+              <div className="h-2 w-4 bg-grey-200 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="h-3 w-44 bg-grey-300 rounded mt-3" />
+      <div className="flex flex-col gap-1.5">
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-11/12 bg-grey-100 rounded" />
+        <div className="h-2 w-3/4 bg-grey-100 rounded" />
+      </div>
+    </>
+  );
+}
+
+/** Header + photo blocks + narrative text — inspection/appraisal look. */
+function ReportVariant({ page }: { page: number }) {
+  return (
+    <>
+      <div className="h-4 w-72 bg-grey-300 rounded" />
+      <div className="flex flex-col gap-1.5">
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-11/12 bg-grey-100 rounded" />
+        <div className="h-2 w-4/5 bg-grey-100 rounded" />
+      </div>
+      <div className="grid grid-cols-2 gap-3 mt-2">
+        {Array.from({ length: 2 + (page % 2) }, (_, i) => (
+          <div key={i} className="flex flex-col gap-1.5">
+            <div className="h-24 w-full bg-grey-100 border border-grey-200 rounded flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-grey-200" />
+            </div>
+            <div className="h-2 w-24 bg-grey-200 rounded" />
+          </div>
+        ))}
+      </div>
+      <div className="h-3 w-56 bg-grey-300 rounded mt-3" />
+      <div className="flex flex-col gap-1.5">
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-5/6 bg-grey-100 rounded" />
+      </div>
+      {Array.from({ length: 4 }, (_, i) => (
+        <div key={`bullet-${i}`} className="flex items-start gap-3">
+          <div className="w-1.5 h-1.5 rounded-full bg-grey-400 mt-1.5 shrink-0" />
+          <div className="flex-1 flex flex-col gap-1.5">
+            <div className="h-2 bg-grey-100 rounded" style={{ width: `${70 + (i * 9) % 25}%` }} />
+            <div className="h-2 bg-grey-100 rounded" style={{ width: `${50 + (i * 11) % 35}%` }} />
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+/** Multi-column tabular data — title report / loan estimate / wire look. */
+function TableVariant({ page }: { page: number }) {
+  const rows = 8 + page;
+  return (
+    <>
+      <div className="h-4 w-60 bg-grey-300 rounded" />
+      <div className="flex flex-col gap-1">
+        <div className="h-2 w-full bg-grey-100 rounded" />
+        <div className="h-2 w-3/4 bg-grey-100 rounded" />
+      </div>
+
+      {/* Table */}
+      <div className="border border-grey-200 rounded overflow-hidden mt-2">
+        {/* Header row */}
+        <div className="flex bg-grey-100 border-b border-grey-200">
+          <div className="flex-[2] px-3 py-2">
+            <div className="h-2 w-20 bg-grey-300 rounded" />
+          </div>
+          <div className="flex-1 px-3 py-2 border-l border-grey-200">
+            <div className="h-2 w-12 bg-grey-300 rounded" />
+          </div>
+          <div className="flex-1 px-3 py-2 border-l border-grey-200">
+            <div className="h-2 w-14 bg-grey-300 rounded" />
+          </div>
+          <div className="flex-1 px-3 py-2 border-l border-grey-200">
+            <div className="h-2 w-10 bg-grey-300 rounded" />
+          </div>
+        </div>
+        {/* Body rows */}
+        {Array.from({ length: rows }, (_, i) => (
+          <div
+            key={i}
+            className={`flex border-b border-grey-200 last:border-b-0 ${
+              i % 2 === 1 ? "bg-grey-50" : ""
+            }`}
+          >
+            <div className="flex-[2] px-3 py-2">
+              <div className="h-2 bg-grey-200 rounded" style={{ width: `${55 + (i * 7) % 40}%` }} />
+            </div>
+            <div className="flex-1 px-3 py-2 border-l border-grey-200">
+              <div className="h-2 w-16 bg-grey-200 rounded" />
+            </div>
+            <div className="flex-1 px-3 py-2 border-l border-grey-200">
+              <div className="h-2 w-12 bg-grey-200 rounded" />
+            </div>
+            <div className="flex-1 px-3 py-2 border-l border-grey-200">
+              <div className="h-2 w-14 bg-grey-200 rounded ml-auto" />
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Signature area */}
-      <div className="mt-auto flex gap-8 pt-6 border-t border-grey-200">
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="h-px bg-grey-300 w-full mt-6" />
+      {/* Totals row */}
+      <div className="flex justify-end gap-6 mt-2">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-16 bg-grey-300 rounded" />
           <div className="h-2 w-20 bg-grey-200 rounded" />
         </div>
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="h-px bg-grey-300 w-full mt-6" />
-          <div className="h-2 w-16 bg-grey-200 rounded" />
-        </div>
       </div>
-    </div>
+    </>
   );
 }
