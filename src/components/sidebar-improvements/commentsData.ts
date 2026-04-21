@@ -43,4 +43,38 @@ export const INITIAL_COMMENTS_BY_ITEM: Record<string, Comment[]> = {
       isNew: false,
     },
   ],
+  "Seller Property Disclosure": [
+    {
+      id: 60,
+      author: "Rob Smith",
+      text: "Section II item 4 was left blank — please confirm with the seller whether it applies and update the form.",
+      time: "2 hours ago",
+      isNew: true,
+    },
+    {
+      id: 61,
+      author: "Kristen Turner",
+      text: "Following up with the seller now, will re-upload once corrected.",
+      time: "45 min ago",
+      isNew: true,
+    },
+  ],
+  "Agency Disclosure": [
+    {
+      id: 70,
+      author: "Rob Smith",
+      text: "Buyer agent signature is missing on page 2. Please resend for signature.",
+      time: "20 min ago",
+      isNew: true,
+    },
+  ],
+  "Escrow Instructions": [
+    {
+      id: 80,
+      author: "Escrow Officer",
+      text: "Wire instructions on page 3 don't match the confirmation we received. Please verify before we release funds.",
+      time: "5 min ago",
+      isNew: true,
+    },
+  ],
 };
