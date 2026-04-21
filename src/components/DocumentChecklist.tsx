@@ -127,10 +127,10 @@ function DocumentListItem({
             aria-label={`Comments for ${doc.name}`}
           >
             <CommentIcon
-              className={`w-4 h-4 ${commentCount > 0 ? "text-blue-800" : ""}`}
+              className={`w-4 h-4 ${commentCount > 0 ? "text-[#0A2642]" : ""}`}
             />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-800 rounded-full" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#0059DA]" />
             )}
           </button>
         )}
