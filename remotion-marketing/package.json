@@ -1,0 +1,40 @@
+{
+  "name": "quick-audit-remotion-marketing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Remotion compositions for Quick Audit marketing GIFs (1960x876, 4x of 490x219).",
+  "scripts": {
+    "dev": "remotion studio",
+    "build:customize": "remotion render src/index.ts CustomizeView out/customize-view.mp4 --concurrency=1",
+    "build:hover": "remotion render src/index.ts HoverIssue out/hover-issue.mp4 --concurrency=1",
+    "build:click": "remotion render src/index.ts ClickToFlag out/click-to-flag.mp4 --concurrency=1",
+    "build:gif:customize": "remotion render src/index.ts CustomizeView out/customize-view.gif --codec=gif --concurrency=1",
+    "build:gif:hover": "remotion render src/index.ts HoverIssue out/hover-issue.gif --codec=gif --concurrency=1",
+    "build:gif:click": "remotion render src/index.ts ClickToFlag out/click-to-flag.gif --codec=gif --concurrency=1",
+    "build:tabs": "remotion render src/index.ts TabsTour out/tabs-tour.mp4 --concurrency=1",
+    "build:gif:tabs": "remotion render src/index.ts TabsTour out/tabs-tour.gif --codec=gif --concurrency=1",
+    "build:small:tabs": "remotion render src/index.ts TabsTour out/tabs-tour-490.gif --codec=gif --width=490 --height=219 --concurrency=1",
+    "build:small:customize": "remotion render src/index.ts CustomizeView out/customize-view-490.gif --codec=gif --width=490 --height=219 --concurrency=1",
+    "build:small:hover": "remotion render src/index.ts HoverIssue out/hover-issue-490.gif --codec=gif --width=490 --height=219 --concurrency=1",
+    "build:small:click": "remotion render src/index.ts ClickToFlag out/click-to-flag-490.gif --codec=gif --width=490 --height=219 --concurrency=1",
+    "build:all": "npm run build:customize && npm run build:hover && npm run build:click && npm run build:gif:customize && npm run build:gif:hover && npm run build:gif:click",
+    "build:small:all": "npm run build:small:customize && npm run build:small:hover && npm run build:small:click"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.428",
+    "@remotion/cli": "4.0.428",
+    "@remotion/renderer": "4.0.428",
+    "@remotion/tailwind-v4": "4.0.428",
+    "@remotion/shapes": "4.0.428",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.428"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.4.0"
+  }
+}

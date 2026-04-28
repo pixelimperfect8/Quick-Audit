@@ -35,6 +35,12 @@ interface EditSummaryProps {
    * (e.g. role-based instead of name-based) in the customize panel.
    */
   sectionFieldsOverride?: Partial<Record<SectionId, string[]>>;
+  /**
+   * Optional initial set of expanded section IDs. Lets a host (e.g. a
+   * marketing-video composition) start the panel with sections pre-expanded.
+   * Defaults to none (collapsed).
+   */
+  defaultExpandedSections?: SectionId[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -192,9 +198,10 @@ export default function SmartAssistEditSummary({
   onClose,
   title = "Edit Summary",
   sectionFieldsOverride,
+  defaultExpandedSections,
 }: EditSummaryProps) {
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(
-    new Set()
+    () => new Set(defaultExpandedSections ?? [])
   );
 
   const toggleExpanded = useCallback((sectionId: SectionId) => {

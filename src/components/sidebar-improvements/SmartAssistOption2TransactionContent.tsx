@@ -290,7 +290,7 @@ export default function SmartAssistOption2TransactionContent({
 
         // Inline expandable card for counter offer history
         const historyCard = hasCounterOffer && isHistoryOpen ? (
-          <div className="mt-1 mb-2 rounded-lg border border-grey-300 bg-grey-50 p-4 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="mt-1 mb-2 rounded bg-grey-100 p-4 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
             <div className="flex items-baseline justify-between">
               <span className="text-grey-800 text-sm font-bold">Price History</span>
               <button
@@ -346,7 +346,7 @@ export default function SmartAssistOption2TransactionContent({
                   <Badge
                     variant={isHistoryOpen ? "info" : "default"}
                     className={`text-sm !py-0 cursor-pointer transition-colors ${
-                      isHistoryOpen ? "ring-1 ring-blue-800/30" : "hover:opacity-80"
+                      isHistoryOpen ? "" : "hover:opacity-80"
                     }`}
                   >
                     History

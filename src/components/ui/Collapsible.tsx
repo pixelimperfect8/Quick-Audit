@@ -33,7 +33,7 @@ export default function Collapsible({
           className="flex items-center gap-2 flex-1 min-w-0 text-left"
         >
           {icon}
-          <h3 className="text-grey-800 text-base font-medium">{title}</h3>
+          <h3 className="text-grey-900 text-base font-bold">{title}</h3>
         </button>
         {headerRight && (
           <div

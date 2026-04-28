@@ -31,7 +31,7 @@ export const TRANSACTION_SOURCES: Record<string, SourceData> = {
     formValue: "$500,000.00",
     formName: "RPA",
     fileValue: "$450,000.00",
-    mismatch: true,
+    mismatch: false,
     page: "RPA p.1, Sec. A",
     counterOffers: [
       { label: "Original Offer", value: "$500,000.00" },

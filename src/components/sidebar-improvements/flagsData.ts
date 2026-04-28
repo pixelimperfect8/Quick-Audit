@@ -63,7 +63,7 @@ export const FLAG_ISSUES: FlagIssue[] = [
       { label: "File", value: "$450,000.00" },
     ],
     highlight: { top: "58%", left: "10%", width: "85%", height: "4%" },
-    relatedFields: ["Purchase Price"],
+    relatedFields: [],
     formFieldLabels: ["Purchase Price"],
   },
   {

@@ -1,6 +1,8 @@
 "use client";
 
-import { PersonIcon, PinFilledIcon } from "@/components/icons";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
+import { PersonIcon, PinFilledIcon, HistoryIcon } from "@/components/icons";
 import { Collapsible, DetailRow, Badge, HoverCard, Tooltip } from "@/components/ui";
 import { ALL_FIELDS, toArray } from "./FormDataByPage";
 import type { FormFieldHighlight } from "./FormDataByPage";
@@ -181,6 +183,8 @@ interface Option2TransactionContentProps {
   pinnedFields?: Set<string>;
   /** Callback to unpin a field */
   onUnpin?: (label: string) => void;
+  /** Style for counter offer history: "badge" (light inline card) or "icon" (dark card with icon trigger) */
+  historyStyle?: "badge" | "icon";
 }
 
 export default function Option2TransactionContent({
@@ -190,6 +194,7 @@ export default function Option2TransactionContent({
   tieredCommission = false,
   pinnedFields,
   onUnpin,
+  historyStyle = "badge",
 }: Option2TransactionContentProps) {
   // Compute pinned items grouped by section
   const pinnedBySection = pinnedFields && pinnedFields.size > 0
@@ -201,6 +206,38 @@ export default function Option2TransactionContent({
         return acc;
       }, {})
     : {};
+
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const historyIconRef = useRef<HTMLButtonElement>(null);
+  const historyTooltipRef = useRef<HTMLDivElement>(null);
+  const [historyPos, setHistoryPos] = useState<{ top: number; left: number } | null>(null);
+  const counterOffers = TRANSACTION_SOURCES["Purchase Price"]?.counterOffers;
+
+  // Position the floating tooltip when opened
+  useEffect(() => {
+    if (!historyOpen || !historyIconRef.current) return;
+    const rect = historyIconRef.current.getBoundingClientRect();
+    setHistoryPos({
+      top: rect.bottom + window.scrollY + 6,
+      left: rect.left + window.scrollX + rect.width / 2,
+    });
+  }, [historyOpen]);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!historyOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (
+        historyIconRef.current && !historyIconRef.current.contains(e.target as Node) &&
+        historyTooltipRef.current && !historyTooltipRef.current.contains(e.target as Node)
+      ) {
+        setHistoryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [historyOpen]);
+
   return (
     <>
       <Collapsible title="Transaction Summary" defaultOpen>
@@ -208,6 +245,10 @@ export default function Option2TransactionContent({
           const sourceData = TRANSACTION_SOURCES[detail.label];
           const hasMismatch = isFieldStillFlagged(detail.label, rejectedFlagIds, TRANSACTION_SOURCES);
           const mismatchMark = "rounded-sm bg-red-50 px-0.5 -mx-0.5";
+          const hasCounterOffer = sourceData?.counterOffers && sourceData.counterOffers.length > 0;
+          const displayValue = hasCounterOffer
+            ? sourceData!.counterOffers![sourceData!.counterOffers!.length - 1].value
+            : detail.value;
 
           const row =
             detail.label === "Status" ? (
@@ -220,7 +261,7 @@ export default function Option2TransactionContent({
                   <span className={mismatchMark}>{detail.label}</span>
                 </span>
                 <span className="text-grey-900 text-base font-medium leading-6 break-words min-w-0 flex-1">
-                  <span className={mismatchMark}>{detail.value}</span>
+                  <span className={mismatchMark}>{displayValue}</span>
                 </span>
               </div>
             ) : (
@@ -231,20 +272,164 @@ export default function Option2TransactionContent({
               />
             );
 
-          if (!sourceData) return <div key={detail.label}>{row}</div>;
+          // History trigger for counter offer fields
+          const historyTrigger = hasCounterOffer ? (
+            historyStyle === "icon" ? null : (
+              <button
+                onClick={() => setHistoryOpen(!historyOpen)}
+                className="shrink-0 ml-2"
+              >
+                <Badge
+                  variant={historyOpen ? "info" : "default"}
+                  className={`text-sm !py-0 cursor-pointer transition-colors ${
+                    historyOpen ? "" : "hover:opacity-80"
+                  }`}
+                >
+                  History
+                </Badge>
+              </button>
+            )
+          ) : null;
+
+          // Inline expandable card for badge style
+          const historyCard = hasCounterOffer && historyOpen && historyStyle === "badge" ? (
+            <div className="mt-1 mb-2 rounded bg-grey-100 p-4 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="flex items-baseline justify-between">
+                <span className="text-grey-800 text-sm font-bold">Price History</span>
+                <button
+                  onClick={() => setHistoryOpen(false)}
+                  className="text-grey-600 text-sm font-medium hover:text-grey-900 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+              {sourceData!.counterOffers!.map((co, i) => {
+                const isFinal = i === sourceData!.counterOffers!.length - 1;
+                return (
+                  <div key={co.label} className="flex items-baseline justify-between gap-2">
+                    <span className="text-grey-800 text-sm font-medium">{co.label}</span>
+                    <span
+                      className={`text-sm font-medium leading-5 ${
+                        isFinal ? "text-grey-900 font-bold" : "text-grey-800 line-through"
+                      }`}
+                    >
+                      {co.value}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null;
+
+          // For icon style with counter offers: custom row with inline icon
+          if (historyStyle === "icon" && hasCounterOffer && detail.label === "Purchase Price") {
+            const iconRow = (
+              <div className="flex items-start">
+                <span className="text-grey-900 text-base font-bold w-[140px] shrink-0 leading-6">
+                  {detail.label}
+                </span>
+                <span className="text-grey-900 text-base font-medium leading-6 flex items-center">
+                  {displayValue}
+                  {!historyOpen ? (
+                    <Tooltip label="Price History">
+                      <button
+                        ref={historyIconRef}
+                        onClick={() => setHistoryOpen(true)}
+                        className="ml-2 p-1 rounded text-grey-600 hover:text-grey-900 hover:bg-grey-100 transition-colors"
+                        aria-label="Price History"
+                      >
+                        <HistoryIcon className="w-4 h-4" />
+                      </button>
+                    </Tooltip>
+                  ) : (
+                    <button
+                      ref={historyIconRef}
+                      onClick={() => setHistoryOpen(false)}
+                      className="ml-2 p-1 rounded text-blue-800 bg-blue-800/10 transition-colors"
+                      aria-label="Price History"
+                    >
+                      <HistoryIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                </span>
+              </div>
+            );
+
+            // Floating dark tooltip via portal
+            const floatingTooltip = historyOpen && historyPos && typeof document !== "undefined"
+              ? createPortal(
+                  <div
+                    ref={historyTooltipRef}
+                    className="fixed z-[9999] bg-grey-900 rounded-lg shadow-xl p-4 flex flex-col gap-2 animate-in fade-in duration-150"
+                    style={{
+                      top: historyPos.top,
+                      left: historyPos.left,
+                      transform: "translateX(-50%)",
+                      minWidth: 220,
+                    }}
+                  >
+                    <span className="text-white text-sm font-bold">Price History</span>
+                    {sourceData!.counterOffers!.map((co, i) => {
+                      const isFinal = i === sourceData!.counterOffers!.length - 1;
+                      return (
+                        <div key={co.label} className="flex items-baseline justify-between gap-2">
+                          <span className={`text-sm font-medium ${isFinal ? "text-white" : "text-grey-400"}`}>
+                            {co.label}
+                          </span>
+                          <span className={`text-sm font-medium ${isFinal ? "text-white font-bold" : "text-grey-400"}`}>
+                            {co.value}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>,
+                  document.body
+                )
+              : null;
+
+            if (!sourceData) {
+              return (
+                <div key={detail.label}>
+                  {iconRow}
+                  {floatingTooltip}
+                </div>
+              );
+            }
+
+            return (
+              <div key={detail.label} className="rounded transition-colors hover:bg-grey-50">
+                <HoverCard
+                  trigger={<div className="cursor-default">{iconRow}</div>}
+                  side="bottom"
+                  align="left"
+                >
+                  <SourceTooltip label={detail.label} data={sourceData} />
+                </HoverCard>
+                {floatingTooltip}
+              </div>
+            );
+          }
+
+          if (!sourceData) return <div key={detail.label}>{row}{historyCard}</div>;
 
           return (
             <div
               key={detail.label}
               className="rounded transition-colors hover:bg-grey-50"
             >
-              <HoverCard
-                trigger={<div className="cursor-default">{row}</div>}
-                side="bottom"
-                align="left"
-              >
-                <SourceTooltip label={detail.label} data={sourceData} />
-              </HoverCard>
+              <div className="flex items-baseline">
+                <div className="flex-1 min-w-0">
+                  <HoverCard
+                    trigger={<div className="cursor-default">{row}</div>}
+                    side="bottom"
+                    align="left"
+                  >
+                    <SourceTooltip label={detail.label} data={sourceData} />
+                  </HoverCard>
+                </div>
+                {historyTrigger}
+              </div>
+              {historyCard}
             </div>
           );
         })}

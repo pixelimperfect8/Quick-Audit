@@ -413,6 +413,7 @@ export default function RightSidebar({
                 tieredCommission={tieredCommission}
                 pinnedFields={pinnedFields}
                 onUnpin={onTogglePin}
+                historyStyle="icon"
               />
             )}
 

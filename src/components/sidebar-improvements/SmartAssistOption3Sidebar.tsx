@@ -46,6 +46,8 @@ interface Option3SidebarProps {
   sectionFieldsOverride?: Partial<Record<SectionId, string[]>>;
   /** Document ID currently loaded in the viewer — used to scope Issues "Current" toggle */
   currentDocumentId?: string | null;
+  /** Optional initial active section in the FormDataBySectionTabs view */
+  initialActiveSection?: SectionId;
 }
 
 /* ------------------------------------------------------------------ */
@@ -198,6 +200,7 @@ export default function SmartAssistOption3Sidebar({
   onToggleEditMode,
   sectionFieldsOverride,
   currentDocumentId,
+  initialActiveSection,
 }: Option3SidebarProps) {
   // Slide animation for edit mode overlay
   const [editVisible, setEditVisible] = useState(false);
@@ -406,6 +409,7 @@ export default function SmartAssistOption3Sidebar({
             externalSection={externalSection}
             onExternalSectionHandled={() => setExternalSection(null)}
             currentDocumentId={currentDocumentId}
+            initialActiveSection={initialActiveSection}
           />
         )}
       </div>

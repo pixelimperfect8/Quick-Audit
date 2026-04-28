@@ -499,6 +499,9 @@ interface FormDataBySectionTabsProps {
   onExternalSectionHandled?: () => void;
   /** Document ID of the currently loaded document — used to scope Issues "Current" filter */
   currentDocumentId?: string | null;
+  /** Optional initial active section. Lets a host (e.g. a marketing-video
+   *  composition) start the tabs on a specific section. Defaults to first visible. */
+  initialActiveSection?: SectionId;
 }
 
 export default function FormDataBySectionTabs({
@@ -514,6 +517,7 @@ export default function FormDataBySectionTabs({
   externalSection,
   onExternalSectionHandled,
   currentDocumentId,
+  initialActiveSection,
 }: FormDataBySectionTabsProps) {
   const [issuesFilter, setIssuesFilter] = useState<"current" | "all">("current");
   const visibleSections = useMemo(
@@ -522,8 +526,16 @@ export default function FormDataBySectionTabs({
   );
 
   const [activeSection, setActiveSection] = useState<SectionId>(
-    visibleSections[0] ?? "summary",
+    initialActiveSection ?? visibleSections[0] ?? "summary",
   );
+
+  // Sync to controlled `initialActiveSection` when the host updates it after mount
+  // (lets a marketing-video composition drive the active tab per frame).
+  useEffect(() => {
+    if (initialActiveSection) {
+      setActiveSection(initialActiveSection);
+    }
+  }, [initialActiveSection]);
 
   // Keep active section valid when visibility changes
   useMemo(() => {

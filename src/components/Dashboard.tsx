@@ -87,6 +87,8 @@ interface DashboardProps {
   hideActionBar?: boolean;
   /** Hide the right sidebar and its resize handle entirely */
   hideRightSidebar?: boolean;
+  /** Replace DocumentViewer entirely with custom content (for marketing demos) */
+  documentViewerOverride?: React.ReactNode;
 }
 
 export default function Dashboard({
@@ -102,6 +104,7 @@ export default function Dashboard({
   commentsDrawer,
   hideActionBar,
   hideRightSidebar,
+  documentViewerOverride,
 }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -334,7 +337,9 @@ export default function Dashboard({
             onNewTab={handleNewTab}
           />
           <div className="flex-1 min-h-0">
-            <DocumentViewer document={activeDocument} {...documentViewerProps} />
+            {documentViewerOverride ?? (
+              <DocumentViewer document={activeDocument} {...documentViewerProps} />
+            )}
           </div>
           {!hideActionBar && <ActionBar {...actionBarProps} />}
         </main>
